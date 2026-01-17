@@ -274,3 +274,148 @@ eval $(./scripts/wsl/select-device.sh --export)
 - [HDC-COMMANDS.md](references/HDC-COMMANDS.md): Complete command reference with all options
 - [WORKFLOW-PATTERNS.md](references/WORKFLOW-PATTERNS.md): Advanced automation patterns
 - [WSL-GUIDE.md](references/WSL-GUIDE.md): Detailed WSL integration guide
+
+## Native Linux Support
+
+For native Ubuntu/Linux environments (not WSL), use scripts in `scripts/linux/`.
+
+### Architecture
+
+```
+Native Ubuntu/Linux              KaihongOS Device
+        │                              │
+        ├─ install-hdc.sh             │
+        │   └─ Downloads SDK          │
+        │   └─ Extracts hdc binary    │
+        │                              │
+        ├─ setup-udev.sh (sudo)       │
+        │   └─ Configures USB access  │
+        │                              │
+        └─ hdc ─────────────────────► │ (Direct USB)
+```
+
+### Quick Start
+
+```bash
+# 1. Install HDC
+./scripts/linux/install-hdc.sh
+
+# 2. Configure USB permissions (requires sudo)
+sudo ./scripts/linux/setup-udev.sh
+
+# 3. Reload shell config
+source ~/.bashrc
+
+# 4. Test connection
+hdc list targets
+
+# 5. Basic operations
+DEVICE_ID=$(./scripts/linux/select-device.sh)
+hdc -t $DEVICE_ID shell
+```
+
+### Installation Options
+
+```bash
+# Custom install paths
+./scripts/linux/install-hdc.sh -d /opt/hdc -b /usr/local/bin
+
+# Specify SDK version
+./scripts/linux/install-hdc.sh --version 5.0.2 --api 14
+```
+
+### USB Permission Setup
+
+**Critical**: Linux requires udev rules for non-root USB access.
+
+```bash
+# Automatic setup
+sudo ./scripts/linux/setup-udev.sh
+
+# Add custom Vendor ID
+sudo ./scripts/linux/setup-udev.sh add-vendor 2207
+
+# Verify configuration
+sudo ./scripts/linux/setup-udev.sh verify
+
+# Detect connected devices
+sudo ./scripts/linux/setup-udev.sh detect
+```
+
+### File Deployment
+
+```bash
+# Simple deployment
+./scripts/linux/deploy.sh ./build/app
+
+# Deploy to specific path
+./scripts/linux/deploy.sh ./build/app /system/lib64
+
+# Deploy and execute
+./scripts/linux/deploy.sh -e ./test_binary
+
+# Deploy directory recursively
+./scripts/linux/deploy.sh -r ./libs /data/local/tmp/libs
+
+# Target specific device
+./scripts/linux/deploy.sh -t $DEVICE_ID ./app
+```
+
+### Log Monitoring
+
+```bash
+# Monitor all logs
+./scripts/linux/hilog-monitor.sh
+
+# Filter by pattern
+./scripts/linux/hilog-monitor.sh -f "ROS2\|DDS"
+
+# Error logs only
+./scripts/linux/hilog-monitor.sh -l ERROR
+
+# Save to file
+./scripts/linux/hilog-monitor.sh -o debug.log
+
+# Clear logs and monitor
+./scripts/linux/hilog-monitor.sh -c -f "myapp"
+```
+
+### Environment Setup
+
+```bash
+# Add to ~/.bashrc
+export PATH="$HOME/.local/bin:$PATH"
+export HDC_TARGET="your_device_id"
+
+# Aliases for convenience
+alias hdc-list='hdc list targets'
+alias hdc-shell='hdc -t $HDC_TARGET shell'
+alias hdc-log='./scripts/linux/hilog-monitor.sh'
+```
+
+### Troubleshooting
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| "No targets found" | USB permission | `sudo ./setup-udev.sh` |
+| "Permission denied" | Not in plugdev group | Re-login after setup |
+| Device not listed | Wrong USB mode | Enable USB debugging |
+| HDC not found | PATH not set | `source ~/.bashrc` |
+
+### Native Linux vs WSL Comparison
+
+| Aspect | Native Linux | WSL |
+|--------|-------------|-----|
+| USB Access | Direct | Via Windows host |
+| Performance | Optimal | Slight overhead |
+| File Transfer | Direct | Staged via /mnt/c |
+| Setup | udev rules | PowerShell bridge |
+
+**Recommendation**: Use Native Linux for best performance when developing on Linux workstations.
+
+## References
+
+- [HDC-COMMANDS.md](references/HDC-COMMANDS.md): Complete command reference with all options
+- [WORKFLOW-PATTERNS.md](references/WORKFLOW-PATTERNS.md): Advanced automation patterns
+- [WSL-GUIDE.md](references/WSL-GUIDE.md): Detailed WSL integration guide
+- [LINUX-GUIDE.md](references/LINUX-GUIDE.md): Native Linux installation and usage guide
