@@ -1,18 +1,26 @@
 {
-  "hooks": [
-    {
-      "event": "PostToolUse",
-      "matcher": {
-        "tool_name": "Bash",
-        "exit_code_not": 0,
-        "output_contains": ["error:", "undefined reference", "No such file"]
-      },
-      "script": "scripts/on_compile_error.sh"
-    },
-    {
-      "event": "Stop",
-      "matcher": {},
-      "script": "scripts/on_session_end.sh"
-    }
-  ]
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/on_compile_error.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/on_session_end.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
