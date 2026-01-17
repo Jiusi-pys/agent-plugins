@@ -1,0 +1,23 @@
+{
+    "paths": {
+        "openharmony_source": "/path/to/OpenHarmony",
+        "openharmony_prebuilts": "/path/to/openharmony_prebuilts",
+        "output_dir": "/path/to/out/rk3588s"
+    },
+    "toolchain": {
+        "gcc_linaro": "gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu",
+        "clang": "clang_linux-x86_64-81cdec-20240308",
+        "gn": "gn",
+        "ninja": "ninja"
+    },
+    "target": {
+        "cpu": "arm64",
+        "os": "ohos",
+        "board": "rk3588s",
+        "is_clang": true
+    },
+    "project": {
+        "part_name": "communication_dsoftbus",
+        "subsystem_name": "communication"
+    }
+}

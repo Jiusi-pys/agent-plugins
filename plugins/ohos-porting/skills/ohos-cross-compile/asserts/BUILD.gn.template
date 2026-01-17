@@ -1,0 +1,95 @@
+# OpenHarmony BUILD.gn Template
+#
+# Location: project_root/BUILD.gn
+# Requires: ohos.build in same directory
+#
+# Build commands:
+#   gn gen out/arm64 --args='target_os="ohos" target_cpu="arm64"'
+#   ninja -C out/arm64 //path/to/project:myproject
+
+import("//build/ohos.gni")
+
+#========================================
+# Build Configuration
+#========================================
+
+config("myproject_config") {
+  include_dirs = [
+    "include",
+    "src",
+  ]
+
+  cflags_cc = [
+    "-std=c++17",
+    "-Wall",
+    "-Wextra",
+    "-fvisibility=hidden",
+  ]
+
+  defines = [ "BUILDING_MYPROJECT" ]
+}
+
+config("myproject_public_config") {
+  include_dirs = [ "include" ]
+}
+
+#========================================
+# Shared Library
+#========================================
+
+ohos_shared_library("myproject") {
+  sources = [
+    "src/core.cpp",
+    "src/utils.cpp",
+  ]
+
+  configs = [ ":myproject_config" ]
+  public_configs = [ ":myproject_public_config" ]
+
+  # Runtime library search path
+  ldflags = [
+    "-Wl,-rpath,/data",
+    "-Wl,-rpath,/system/lib64",
+  ]
+
+  # OHOS system dependencies (optional)
+  # external_deps = [
+  #   "c_utils:utils",
+  #   "hilog:libhilog",
+  # ]
+
+  part_name = "myproject"
+  subsystem_name = "thirdparty"
+  output_name = "libmyproject"
+}
+
+#========================================
+# Executable
+#========================================
+
+ohos_executable("myapp") {
+  sources = [ "src/main.cpp" ]
+
+  configs = [ ":myproject_config" ]
+
+  deps = [ ":myproject" ]
+
+  ldflags = [
+    "-Wl,-rpath,/data",
+    "-Wl,-rpath,/system/lib64",
+  ]
+
+  part_name = "myproject"
+  subsystem_name = "thirdparty"
+}
+
+#========================================
+# Group Target
+#========================================
+
+group("all") {
+  deps = [
+    ":myproject",
+    ":myapp",
+  ]
+}

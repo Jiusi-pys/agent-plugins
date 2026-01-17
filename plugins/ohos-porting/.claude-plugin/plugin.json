@@ -1,0 +1,26 @@
+{
+  "name": "ohos-porting",
+  "description": "OpenHarmony/KaihongOS 软件移植工作流。将 Linux 库/软件适配到 OHOS，包含诊断分析、交叉编译、设备部署全流程支持。",
+  "version": "1.0.0",
+  "author": {
+    "name": "九思",
+    "email": "jiusi@gmail.com"
+  },
+  "repository": "https://github.com/Jiusi-pys/ohos-porting-plugin",
+  "license": "MIT",
+  "keywords": [
+    "openharmony",
+    "kaihongos",
+    "porting",
+    "cross-compile",
+    "embedded",
+    "arm64",
+    "aarch64",
+    "rk3588s",
+    "rk3568",
+    "rk3588"
+  ],
+  "engines": {
+    "claude-code": ">=1.0.0"
+  }
+}

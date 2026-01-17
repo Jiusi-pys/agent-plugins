@@ -1,0 +1,28 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "jiusi-agent-plugins",
+  "version": "1.0.0",
+  "owner": {
+    "name": "九思",
+    "email": "jiusi@example.com"
+  },
+  "metadata": {
+    "description": "九思的 Claude Code 插件集合，包含 OpenHarmony 移植工具、开发工作流等",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "ohos-porting",
+      "description": "OpenHarmony/KaihongOS 软件移植工作流。将 Linux 库/软件适配到 OHOS，包含诊断分析、交叉编译、设备部署全流程支持。",
+      "version": "1.0.0",
+      "author": {
+        "name": "九思"
+      },
+      "source": "./plugins/ohos-porting",
+      "category": "development",
+      "tags": ["openharmony", "kaihongos", "porting", "cross-compile", "embedded", "arm64"],
+      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/ohos-porting",
+      "license": "MIT"
+    }
+  ]
+}

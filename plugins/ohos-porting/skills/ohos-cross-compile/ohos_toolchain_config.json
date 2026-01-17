@@ -1,0 +1,56 @@
+{
+  "$schema": "./ohos_toolchain_config.schema.json",
+  "_comment": "OpenHarmony Cross-Compilation Toolchain Configuration",
+  "ohos_sdk_root": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native",
+  "toolchain": {
+    "cc": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/aarch64-unknown-linux-ohos-clang",
+    "cxx": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/aarch64-unknown-linux-ohos-clang++",
+    "ar": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-ar",
+    "ranlib": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-ranlib",
+    "strip": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-strip",
+    "objdump": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-objdump",
+    "readelf": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-readelf",
+    "nm": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-nm"
+  },
+  "sysroot": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/sysroot",
+  "cxx_runtime": {
+    "shared": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/lib/aarch64-linux-ohos/libc++_shared.so",
+    "static": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/lib/aarch64-linux-ohos/libc++_static.a",
+    "abi": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/lib/aarch64-linux-ohos/libc++abi.a"
+  },
+  "build_tools": {
+    "gn": "/home/jiusi/M-DDS/OpenHarmony/third_party/skia/bin/gn",
+    "ninja": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/build-tools/cmake/bin/ninja"
+  },
+  "target": {
+    "triple": "aarch64-linux-ohos",
+    "arch": "aarch64",
+    "cpu": "arm64",
+    "os": "ohos"
+  },
+  "default_flags": {
+    "cflags": [
+      "-D__MUSL__"
+    ],
+    "cxxflags": [
+      "-std=c++17",
+      "-D__MUSL__"
+    ],
+    "ldflags": [
+      "-fuse-ld=lld"
+    ],
+    "rpath": [
+      "/data",
+      "/system/lib64"
+    ]
+  },
+  "deploy": {
+    "dev_path": "/data",
+    "system_path": "/system/lib64",
+    "project_path": "/data/myproject/lib"
+  },
+  "device": {
+    "connection": "hdc",
+    "serial": ""
+  }
+}

@@ -1,0 +1,9 @@
+.DS_Store
+*.log
+__pycache__/
+*.py[cod]
+.local/
+*.local.md
+node_modules/
+.vscode/
+.idea/

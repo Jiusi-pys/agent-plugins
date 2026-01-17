@@ -1,0 +1,76 @@
+# Copyright (c) 2024-2025 [Your Organization]
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+config("module_config") {
+    include_dirs = [
+        "include",
+        "//foundation/communication/dsoftbus/interfaces/kits/common",
+    ]
+
+    cflags_cc = [
+        "-std=c++17",
+        "-fvisibility=default",
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ]
+
+    defines = [
+        "OHOS_PLATFORM",
+    ]
+}
+
+ohos_shared_library("module_name") {
+    sources = [
+        "src/module_impl.cpp",
+    ]
+
+    configs = [ ":module_config" ]
+
+    deps = [
+        "//third_party/bounds_checking_function:libsec_shared",
+    ]
+
+    external_deps = [
+        "hilog:libhilog",
+        "c_utils:utils",
+    ]
+
+    part_name = "subsystem_module"
+    subsystem_name = "subsystem"
+
+    install_enable = true
+    install_images = [ "system" ]
+}
+
+ohos_static_library("module_name_static") {
+    sources = [
+        "src/module_impl.cpp",
+    ]
+
+    configs = [ ":module_config" ]
+
+    deps = [
+        "//third_party/bounds_checking_function:libsec_static",
+    ]
+
+    part_name = "subsystem_module"
+}
+
+group("module_group") {
+    deps = [
+        ":module_name",
+    ]
+}

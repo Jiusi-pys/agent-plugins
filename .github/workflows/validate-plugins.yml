@@ -1,0 +1,24 @@
+name: Validate Plugins
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate marketplace.json
+        run: jq . .claude-plugin/marketplace.json > /dev/null && echo "✓ Valid JSON"
+      - name: Check plugin structure
+        run: |
+          for dir in plugins/*/; do
+            echo "Checking $(basename $dir)"
+            [ -f "$dir/.claude-plugin/plugin.json" ] && echo "  ✓ plugin.json"
+            [ -d "$dir/agents" ] && echo "  ✓ agents/"
+            [ -d "$dir/commands" ] && echo "  ✓ commands/"
+            [ -d "$dir/skills" ] && echo "  ✓ skills/"
+          done
