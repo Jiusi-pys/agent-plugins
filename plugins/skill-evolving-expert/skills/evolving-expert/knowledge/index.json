@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "version": "1.0",
+    "created": "2025-01-16",
+    "expert": "openharmony_expert",
+    "description": "OpenHarmony/KaihongOS 开发知识库"
+  },
+  "config": {
+    "auto_extract": true,
+    "pattern_merge_threshold": 3,
+    "max_solutions_per_tag": 50,
+    "cleanup_days": 90
+  },
+  "solutions": [],
+  "patterns": [],
+  "statistics": {
+    "total_solutions": 0,
+    "total_patterns": 0,
+    "total_hits": 0,
+    "last_updated": "2025-01-16"
+  }
+}
