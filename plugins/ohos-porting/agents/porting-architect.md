@@ -1,6 +1,6 @@
 ---
 name: porting-architect
-description: 移植架构设计专家。设计 Linux 到 OHOS 的移植方案，包括代码结构和 API 适配策略。架构阶段主动使用。
+description: 移植架构设计专家。MUST BE USED for architecture design phase. 设计 Linux 到 OHOS 的移植方案，包括代码结构和 API 适配策略。
 tools: Read, Write, Grep, Glob, Bash
 model: sonnet
 permissionMode: default

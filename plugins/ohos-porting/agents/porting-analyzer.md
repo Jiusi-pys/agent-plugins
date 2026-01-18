@@ -1,6 +1,6 @@
 ---
 name: porting-analyzer
-description: 移植可行性分析专家。评估 Linux 软件移植到 OHOS 的难度和风险。诊断阶段主动使用。
+description: 移植可行性分析专家。MUST BE USED PROACTIVELY for porting feasibility assessment. 评估 Linux 软件移植到 OHOS 的难度和风险。
 tools: Read, Grep, Glob, Bash
 model: sonnet
 permissionMode: default

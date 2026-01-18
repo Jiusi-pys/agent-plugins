@@ -1,6 +1,6 @@
 ---
 name: runtime-debugger
-description: 运行时错误诊断专家。分析 OHOS 设备上程序运行失败的原因。部署测试失败时主动使用。
+description: 运行时错误诊断专家。USE PROACTIVELY when runtime errors occur on OHOS device. 分析设备上程序运行失败的原因。
 tools: Bash, Read, Grep
 model: sonnet
 permissionMode: default

@@ -1,6 +1,6 @@
 ---
 name: compile-debugger
-description: 交叉编译错误诊断专家。分析 OHOS 交叉编译失败原因并给出修复方案。编译失败时主动使用。
+description: 交叉编译错误诊断专家。USE PROACTIVELY when cross-compilation fails. 分析 OHOS 交叉编译失败原因并给出修复方案。
 tools: Read, Grep, Glob, Bash
 model: sonnet
 permissionMode: default

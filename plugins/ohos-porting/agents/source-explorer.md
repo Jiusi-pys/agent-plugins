@@ -1,6 +1,6 @@
 ---
 name: source-explorer
-description: 源码探索专家。深入分析 Linux 库/软件的架构、依赖和实现细节。移植前期调研时主动使用。
+description: 源码探索专家。MUST BE USED when analyzing Linux software structure before porting to OHOS. 深入分析架构、依赖和实现细节。
 tools: Read, Grep, Glob, Bash
 model: sonnet
 permissionMode: default

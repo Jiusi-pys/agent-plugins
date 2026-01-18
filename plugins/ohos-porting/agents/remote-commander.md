@@ -1,6 +1,6 @@
 ---
 name: remote-commander
-description: 远程服务器操作专家。通过 SSH 控制远程 Linux 服务器进行 OHOS 源码操作和编译。源码在远程时主动使用。
+description: 远程服务器操作专家。USE PROACTIVELY when source code is on remote server. 通过 SSH 控制远程服务器进行 OHOS 源码操作和编译。
 tools: Bash, Read, Write
 model: sonnet
 permissionMode: default
