@@ -1,0 +1,8 @@
+{
+  "name": "project-structure",
+  "description": "Project engineering file management and directory structure enforcement. Initialize projects with standardized layouts, validate structure compliance, and clean messy root directories. Supports C/C++, ROS2, Python, Rust, Node.js, embedded systems.",
+  "version": "1.0.0",
+  "author": {
+    "name": "九思"
+  }
+}
