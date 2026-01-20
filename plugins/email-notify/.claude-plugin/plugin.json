@@ -1,0 +1,8 @@
+{
+  "name": "email-notify",
+  "description": "Gmail SMTP email notification system for Claude Code. Send email alerts when Claude Code completes generation tasks via Postfix + Gmail SMTP relay.",
+  "version": "1.0.0",
+  "author": {
+    "name": "九思"
+  }
+}
