@@ -36,6 +36,32 @@
       "tags": ["knowledge-management", "self-evolving", "expert-system", "automation"],
       "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/skill-evolving-expert",
       "license": "MIT"
+    },
+    {
+      "name": "email-notify",
+      "description": "邮件提醒hook，当对话结束发送邮件提醒用户。",
+      "version": "1.0.0",
+      "author": {
+        "name": "九思"
+      },
+      "source": "./plugins/email-notify",
+      "category": "productivity",
+      "tags": ["email", "gmail", "notify"],
+      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/skill-evolving-expert",
+      "license": "MIT"
+    },
+    {
+      "name": "project-structure",
+      "description": "项目文件结构管理器。",
+      "version": "1.0.0",
+      "author": {
+        "name": "九思"
+      },
+      "source": "./plugins/project-structure",
+      "category": "productivity",
+      "tags": ["structure", "file", "project"],
+      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/skill-evolving-expert",
+      "license": "MIT"
     }
   ]
 }
