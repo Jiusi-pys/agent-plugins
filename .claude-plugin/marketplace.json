@@ -47,7 +47,7 @@
       "source": "./plugins/email-notify",
       "category": "productivity",
       "tags": ["email", "gmail", "notify"],
-      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/skill-evolving-expert",
+      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/email-notify",
       "license": "MIT"
     },
     {
@@ -60,7 +60,7 @@
       "source": "./plugins/project-structure",
       "category": "productivity",
       "tags": ["structure", "file", "project"],
-      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/skill-evolving-expert",
+      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/project-structure",
       "license": "MIT"
     }
   ]
