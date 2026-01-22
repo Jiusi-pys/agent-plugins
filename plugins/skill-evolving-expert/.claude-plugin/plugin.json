@@ -4,9 +4,5 @@
   "version": "1.0.0",
   "author": {
     "name": "九思"
-  },
-  "category": "productivity",
-  "tags": ["knowledge-management", "self-evolving", "expert-system", "automation"],
-  "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/skill-evolving-expert",
-  "license": "MIT"
+  }
 }
