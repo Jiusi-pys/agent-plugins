@@ -5,8 +5,6 @@
   "author": {
     "name": "九思"
   },
-  "category": "productivity",
-  "tags": ["email", "notification", "gmail", "smtp", "automation"],
   "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/email-notify",
   "license": "MIT"
 }
