@@ -25,6 +25,32 @@
       "license": "MIT"
     },
     {
+      "name": "email-notify",
+      "description": "Gmail SMTP email notification system for Claude Code. Send email alerts when Claude Code completes generation tasks via Postfix + Gmail SMTP relay.",
+      "version": "1.0.0",
+      "author": {
+        "name": "九思"
+      },
+      "source": "./plugins/email-notify",
+      "category": "productivity",
+      "tags": ["email", "notification", "gmail", "smtp", "automation"],
+      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/email-notify",
+      "license": "MIT"
+    },
+    {
+      "name": "project-structure",
+      "description": "Project engineering file management and directory structure enforcement. Initialize projects with standardized layouts, validate structure compliance, and clean messy root directories. Supports C/C++, ROS2, Python, Rust, Node.js, embedded systems.",
+      "version": "1.0.0",
+      "author": {
+        "name": "九思"
+      },
+      "source": "./plugins/project-structure",
+      "category": "development",
+      "tags": ["project-management", "structure", "engineering", "templates", "scaffolding"],
+      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/project-structure",
+      "license": "MIT"
+    },
+    {
       "name": "skill-evolving-expert",
       "description": "自我进化专家系统。每次问题解决后自动提取关键知识点，持久化存储，后续任务自动检索应用。支持知识闭环、渐进积累、模式提炼。",
       "version": "1.0.0",
