@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./hooks/scripts/detect_ohos_context.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/detect_ohos_context.sh"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./hooks/scripts/on_compile_error.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/on_compile_error.sh"
           }
         ]
       }
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./hooks/scripts/on_session_end.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/on_session_end.sh"
           }
         ]
       }

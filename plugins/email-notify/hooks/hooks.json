@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./hooks/scripts/on_task_complete.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/on_task_complete.sh"
           }
         ]
       }
