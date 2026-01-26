@@ -222,6 +222,35 @@ Expert sub-agent 执行流程：
 - 被 pattern 合并的 solutions：保留引用，可归档原文
 - 明确过时的方案：添加 `deprecated: true` 标记
 
+## Agent 规范
+
+请查看 [AGENT_SPEC.md](../AGENT_SPEC.md) 了解完整的 Agent 行为规范。
+
+**核心原则**:
+
+1. **完整性**: 记录所有尝试的方案，包括失败的
+2. **引用优先**: 避免冗余复制，使用 `ref:*` 格式引用文档
+3. **YAML Header**: 所有文档必须包含 YAML frontmatter
+4. **Session 记录**: 完整记录对话历史、指令、文档链接
+
+**关键工具**:
+
+```bash
+# 对话和引用管理
+./scripts/conversation_recorder.sh init                    # 初始化记录系统
+./scripts/conversation_recorder.sh create-session <id>     # 创建新 Session
+./scripts/conversation_recorder.sh log-instruction <id> <cmd>
+                                                          # 记录指令
+./scripts/conversation_recorder.sh update-metadata <id>    # 更新元数据
+./scripts/conversation_recorder.sh add-reference <cat> <id> <title> <url>
+                                                          # 添加引用
+
+# 知识库管理
+./scripts/knowledge_manager.sh add "标题" "tags" file.md   # 添加解决方案
+./scripts/knowledge_manager.sh stats                       # 统计信息
+./scripts/knowledge_manager.sh check-merge                 # 检查可提炼模式
+```
+
 ## 配置项
 
 ```json
@@ -230,13 +259,20 @@ Expert sub-agent 执行流程：
   "extract_threshold": "new_solution|better_solution|pitfall",
   "pattern_merge_threshold": 3,
   "knowledge_base_path": "./knowledge",
-  "max_solutions_per_tag": 50
+  "max_solutions_per_tag": 50,
+  "yaml_compliance_required": true,
+  "reference_system_enabled": true,
+  "session_recording_enabled": true
 }
 ```
 
 ## 初始化命令
 
 ```bash
-mkdir -p knowledge/{solutions,patterns}
+# 初始化知识库
+mkdir -p knowledge/{solutions,patterns,session_logs,conversation_history,references}
 echo '{"solutions":[],"patterns":[]}' > knowledge/index.json
+
+# 初始化对话和引用系统
+./scripts/conversation_recorder.sh init
 ```

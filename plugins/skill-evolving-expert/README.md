@@ -161,6 +161,65 @@ skill-evolving-expert/
 }
 \`\`\`
 
+## 规范和最佳实践
+
+### 📋 Agent 行为规范
+
+所有使用本插件的 Agent **必须** 遵守 [AGENT_SPEC.md](./AGENT_SPEC.md) 中的规范。
+
+**核心要求**:
+
+1. **完整性**: 记录所有尝试，不使用紧凑摘要
+2. **YAML Header**: 所有文档必须有 YAML frontmatter
+3. **引用优先**: 使用 `ref:*` 避免冗余复制
+4. **Session 记录**: 使用 `conversation_recorder.sh` 记录完整对话
+
+### 📚 YAML Header 示例
+
+所有知识库文档都必须包含这样的 header:
+
+```markdown
+---
+title: 问题名称
+type: solution
+created: 2025-01-26T10:00:00Z
+tags: [tag1, tag2, tag3]
+summary: 一句话描述
+references:
+  - ref:related_doc_1
+  - ref:external_resource_1
+---
+
+# 文档内容...
+```
+
+### 🔗 引用系统使用
+
+```bash
+# 添加引用
+conversation_recorder.sh add-reference internal_docs ref_hdc_commands "HDC 命令参考" "skills/hdc-kaihongOS/references/HDC-COMMANDS.md"
+
+# 在文档中使用
+参见 ref:hdc_commands 了解详细命令列表
+```
+
+### 📝 Session 记录
+
+```bash
+# 初始化
+conversation_recorder.sh init
+
+# 创建 Session
+SESSION_ID=$(date '+%Y%m%d_%H%M%S')
+conversation_recorder.sh create-session $SESSION_ID
+
+# 记录指令
+conversation_recorder.sh log-instruction $SESSION_ID "your command"
+
+# 结束时更新元数据
+conversation_recorder.sh update-metadata $SESSION_ID 45000 completed
+```
+
 ## License
 
 MIT

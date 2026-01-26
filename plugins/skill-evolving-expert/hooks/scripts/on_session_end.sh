@@ -16,9 +16,11 @@ PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_ROOT="${PLUGIN_DIR%/hooks/scripts}"
 KNOWLEDGE_BASE="${KNOWLEDGE_BASE:-${PLUGIN_ROOT}/skills/evolving-expert/knowledge}"
 SCRIPT_DIR="${PLUGIN_ROOT}/skills/evolving-expert/scripts"
+HOOKS_SCRIPT_DIR="${PLUGIN_DIR}"
 INDEX_FILE="$KNOWLEDGE_BASE/index.json"
 ARCHIVE_DIR="${KNOWLEDGE_BASE}/archives"
 SUMMARY_FILE="${KNOWLEDGE_BASE}/SUMMARY.md"
+CONVERSATION_HISTORY_DIR="${KNOWLEDGE_BASE}/conversation_history"
 
 # 颜色定义
 RED='\033[0;31m'
@@ -112,12 +114,34 @@ extract_patterns() {
 generate_summary() {
     local stats="$1"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local iso_timestamp=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
     local archive_timestamp=$(date '+%Y%m%d_%H%M%S')
 
     echo -e "${BLUE}[INFO]${NC} 生成知识库总结..."
 
-    # 生成总结内容
+    # 生成带 YAML header 的总结
     cat > "$SUMMARY_FILE" << EOF
+---
+title: 知识库档案 - $timestamp
+archive_id: ${archive_timestamp}
+created: ${iso_timestamp}
+version: 1.0.0
+agent: skill-evolving-expert
+metadata:
+  total_solutions: $(echo "$stats" | jq '.total_solutions')
+  total_patterns: $(echo "$stats" | jq '.total_patterns')
+  total_tags: $(echo "$stats" | jq '.total_tags')
+  solutions_added_this_session: 0
+  patterns_discovered: 0
+description: Session 结束时的知识库快照，包含统计信息和最常用方案
+tags: [knowledge-archive, session-summary]
+references:
+  - type: archive
+    id: knowledge_archive_${archive_timestamp}
+    path: archives/knowledge_archive_${archive_timestamp}.tar.gz
+    size_bytes: 0
+---
+
 # 知识库档案 - $timestamp
 
 ## 📊 知识库快照

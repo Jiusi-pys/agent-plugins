@@ -14,6 +14,8 @@ PLUGIN_ROOT="${PLUGIN_DIR%/hooks/scripts}"
 KNOWLEDGE_BASE="${KNOWLEDGE_BASE:-${PLUGIN_ROOT}/skills/evolving-expert/knowledge}"
 SUMMARY_FILE="${KNOWLEDGE_BASE}/SUMMARY.md"
 ARCHIVE_DIR="${KNOWLEDGE_BASE}/archives"
+CONVERSATION_HISTORY_DIR="${KNOWLEDGE_BASE}/conversation_history"
+REFERENCES_INDEX="${KNOWLEDGE_BASE}/references.json"
 
 # 颜色定义
 BLUE='\033[0;34m'
@@ -133,12 +135,51 @@ main() {
     # 生成并显示报告
     generate_session_report "$stats"
 
+    # 显示最近的 Session 记录
+    if [ -d "$CONVERSATION_HISTORY_DIR" ]; then
+        local latest_session=$(ls -t "$CONVERSATION_HISTORY_DIR"/session_*.md 2>/dev/null | head -1)
+        if [ -n "$latest_session" ]; then
+            echo ""
+            echo "📜 最近的 Session 记录"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            local session_id=$(basename "$latest_session" | sed 's/session_//;s/.md//')
+            echo "会话 ID: $session_id"
+
+            # 解析 YAML header
+            if grep -q '^---' "$latest_session"; then
+                local status=$(sed -n 's/^status: //p' "$latest_session" | head -1)
+                local context_used=$(sed -n 's/^context_used: //p' "$latest_session" | head -1)
+                local outcomes=$(sed -n 's/^outcomes: //p' "$latest_session" | head -1)
+
+                echo "状态: $status"
+                [ -n "$context_used" ] && echo "Context 使用: $context_used tokens"
+                echo ""
+            fi
+        fi
+    fi
+
     # 如果存在摘要文件，也显示它
     if [ -f "$SUMMARY_FILE" ]; then
         echo ""
         echo "📝 最新归档总结"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        head -50 "$SUMMARY_FILE"
+
+        # 解析 YAML header 并显示关键信息
+        local archive_id=$(sed -n 's/^archive_id: //p' "$SUMMARY_FILE" | head -1)
+        local created=$(sed -n 's/^created: //p' "$SUMMARY_FILE" | head -1)
+        local total_solutions=$(sed -n 's/^  total_solutions: //p' "$SUMMARY_FILE" | head -1)
+        local total_patterns=$(sed -n 's/^  total_patterns: //p' "$SUMMARY_FILE" | head -1)
+
+        if [ -n "$archive_id" ]; then
+            echo "🗂️  归档 ID: $archive_id"
+            echo "📅 创建时间: $created"
+            echo "📊 方案数: $total_solutions | 模式数: $total_patterns"
+            echo ""
+        fi
+
+        # 显示内容（跳过 YAML header）
+        tail -n +$(($(grep -n '^---$' "$SUMMARY_FILE" | tail -1 | cut -d: -f1) + 1)) "$SUMMARY_FILE" | head -40
+
         if [ $(wc -l < "$SUMMARY_FILE") -gt 50 ]; then
             echo ""
             echo "(... 省略 $(( $(wc -l < "$SUMMARY_FILE") - 50 )) 行 ...)"
