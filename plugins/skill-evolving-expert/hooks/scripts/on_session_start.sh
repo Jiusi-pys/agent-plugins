@@ -62,58 +62,42 @@ get_kb_stats() {
 }
 
 # ============================================================================
-# 生成会话初始化报告
+# 生成简洁的会话初始化报告（后台操作，对用户透明）
 # ============================================================================
 generate_session_report() {
     local stats="$1"
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 
-    cat << EOF
-╔════════════════════════════════════════════════════════════════════╗
-║                  知识库 - 快速启动总结                             ║
-╚════════════════════════════════════════════════════════════════════╝
+    # 仅显示关键信息的摘要
+    echo "$stats" | jq -r '
+        if .total_solutions > 0 or .total_patterns > 0 then
+            "知识库已就绪 (" + (.total_solutions | tostring) + " 解决方案, " +
+            (.total_patterns | tostring) + " 模式)"
+        else
+            ""
+        end
+    ' | grep -v "^$"
+}
 
-📅 Session 启动时间: $timestamp
+# ============================================================================
+# 后台同步统计信息（对用户透明）
+# ============================================================================
+sync_stats_silently() {
+    local local_kb="${1:-./.evolving-expert}"
+    local global_kb="${HOME}/.claude/knowledge-base"
 
-📊 知识库统计
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-$(echo "$stats" | jq -r '
-    "• 解决方案总数: " + (.total_solutions | tostring) + " 个\n" +
-    "• 已提炼模式: " + (.total_patterns | tostring) + " 个\n" +
-    "• 涉及标签: " + (.total_tags | tostring) + " 个"
-')
-
-🏆 高频问题解决 (最常用 Top 3)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-$(echo "$stats" | jq -r '
-    .frequent_solutions |
-    to_entries |
-    map("  \(.key + 1). \(.value.title) (命中: \(.value.hit_count) 次)") |
-    join("\n")
-')
-
-🏷️  常见标签分布 (Top 5)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-$(echo "$stats" | jq -r '
-    .top_tags |
-    to_entries |
-    map("  • \(.value.tag): \(.value.count) 解决方案") |
-    join("\n")
-')
-
-💡 快速使用
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-查询知识库:
-  关键词搜索: knowledge_manager.sh search "<keyword>"
-  按 ID 查看: knowledge_manager.sh read "<solution_id>"
-  查看统计: knowledge_manager.sh stats
-
-管理知识库:
-  添加解决方案: knowledge_manager.sh add "<title>" "<tags>" "<file>"
-  检查可提炼模式: knowledge_manager.sh check-merge
-  清理过期条目: knowledge_manager.sh cleanup 90
-
-EOF
+    # 后台更新统计，不显示输出
+    (
+        if [ -f "$local_kb/index.json" ]; then
+            local count_sol=$(jq '.solutions | length' "$local_kb/index.json" 2>/dev/null || echo 0)
+            local count_pat=$(jq '.patterns | length' "$local_kb/index.json" 2>/dev/null || echo 0)
+            jq --arg count_sol "$count_sol" --arg count_pat "$count_pat" \
+                '.meta.solutions_count = ($count_sol | tonumber) |
+                 .meta.patterns_count = ($count_pat | tonumber) |
+                 .meta.last_synced = "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"' \
+                "$local_kb/index.json" > "$local_kb/index.json.tmp" 2>/dev/null && \
+                mv "$local_kb/index.json.tmp" "$local_kb/index.json"
+        fi
+    ) 2>/dev/null &
 }
 
 # ============================================================================
@@ -122,69 +106,15 @@ EOF
 main() {
     # 检查知识库是否初始化
     if ! check_knowledge_base; then
-        # 知识库尚未初始化，提示用户
-        echo -e "${YELLOW}[INFO]${NC} 知识库尚未初始化"
-        echo "运行以下命令初始化:"
-        echo "  /skill-evolving-expert:kb-init"
+        # 知识库尚未初始化，提示用户（仅一次）
         return 0
     fi
 
-    # 获取知识库统计
-    local stats=$(get_kb_stats)
+    # 在后台静默同步统计信息
+    sync_stats_silently "$KNOWLEDGE_BASE"
 
-    # 生成并显示报告
-    generate_session_report "$stats"
-
-    # 显示最近的 Session 记录
-    if [ -d "$CONVERSATION_HISTORY_DIR" ]; then
-        local latest_session=$(ls -t "$CONVERSATION_HISTORY_DIR"/session_*.md 2>/dev/null | head -1)
-        if [ -n "$latest_session" ]; then
-            echo ""
-            echo "📜 最近的 Session 记录"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            local session_id=$(basename "$latest_session" | sed 's/session_//;s/.md//')
-            echo "会话 ID: $session_id"
-
-            # 解析 YAML header
-            if grep -q '^---' "$latest_session"; then
-                local status=$(sed -n 's/^status: //p' "$latest_session" | head -1)
-                local context_used=$(sed -n 's/^context_used: //p' "$latest_session" | head -1)
-                local outcomes=$(sed -n 's/^outcomes: //p' "$latest_session" | head -1)
-
-                echo "状态: $status"
-                [ -n "$context_used" ] && echo "Context 使用: $context_used tokens"
-                echo ""
-            fi
-        fi
-    fi
-
-    # 如果存在摘要文件，也显示它
-    if [ -f "$SUMMARY_FILE" ]; then
-        echo ""
-        echo "📝 最新归档总结"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-        # 解析 YAML header 并显示关键信息
-        local archive_id=$(sed -n 's/^archive_id: //p' "$SUMMARY_FILE" | head -1)
-        local created=$(sed -n 's/^created: //p' "$SUMMARY_FILE" | head -1)
-        local total_solutions=$(sed -n 's/^  total_solutions: //p' "$SUMMARY_FILE" | head -1)
-        local total_patterns=$(sed -n 's/^  total_patterns: //p' "$SUMMARY_FILE" | head -1)
-
-        if [ -n "$archive_id" ]; then
-            echo "🗂️  归档 ID: $archive_id"
-            echo "📅 创建时间: $created"
-            echo "📊 方案数: $total_solutions | 模式数: $total_patterns"
-            echo ""
-        fi
-
-        # 显示内容（跳过 YAML header）
-        tail -n +$(($(grep -n '^---$' "$SUMMARY_FILE" | tail -1 | cut -d: -f1) + 1)) "$SUMMARY_FILE" | head -40
-
-        if [ $(wc -l < "$SUMMARY_FILE") -gt 50 ]; then
-            echo ""
-            echo "(... 省略 $(( $(wc -l < "$SUMMARY_FILE") - 50 )) 行 ...)"
-        fi
-    fi
+    # 不向用户显示繁琐的统计细节
+    # 知识库功能在后台运行，对用户透明
 }
 
 # ============================================================================
