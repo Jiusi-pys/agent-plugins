@@ -1,39 +1,146 @@
 ---
 description: 整理和归档仓库中的现有文档
 allowed-tools:
-  - Bash(find,grep,stat)
+  - Bash(find,stat,wc,head,grep)
 ---
 
-# 文档整理和归档
+# 整理和归档文档
 
-扫描当前仓库中的文档，自动整理、分类、归档到知识库，并生成统计报告。
+为当前项目扫描、整理、分类和归档所有现有文档，生成完整的文档索引和统计报告。
 
-## 功能概述
+## 命令功能
 
-此命令会：
+你可以使用这个命令来：
 
-1. **扫描文档** - 递归扫描仓库中的所有文档文件（支持自定义扩展名）
-2. **提取元数据** - 自动识别文档标题、分类、内容摘要
-3. **分类标签化** - 根据目录结构和内容自动生成标签
-4. **归档导入** - 将文档导入知识库，建立引用关系
-5. **生成报告** - 输出详细的统计和分类报告
+1. **📄 扫描文档** - 自动发现仓库中的所有文档（Markdown、文本、RST等）
+2. **🏷️ 自动分类** - 根据目录路径和文件名自动生成标签
+3. **📊 提取元数据** - 自动识别标题、摘要、大小、行数等
+4. **📦 归档整理** - 将文档副本保存到 `archives/imported/` 目录
+5. **📈 生成报告** - 生成详细的统计报告和 JSON 元数据索引
 
-## 支持的文档格式
+## 快速使用
 
-- Markdown (`.md`)
-- 纯文本 (`.txt`)
-- 代码注释文档 (`.c`, `.h`, `.py`, `.js`, `.rs`, etc.)
-- 配置说明 (`.yaml`, `.json`, `.toml`)
+### 最简单的方式 - 扫描整个项目
+
+我会为你：
+1. 检查当前项目的 `./docs/.evolving-expert/` 是否存在（自动初始化）
+2. 运行文档整理脚本扫描所有文档
+3. 生成详细的扫描报告
+4. 显示统计结果和导入的文档清单
+
+**只需说**："执行 `/doc-organize`"
+
+### 带选项的扫描
+
+你也可以指定：
+- `--scan-root <path>` - 扫描的起始目录（默认：`.`）
+- `--default-tags <tags>` - 添加默认标签，如 `ros2,legacy`
+- `--exclude <dirs>` - 排除的目录，如 `tests,build`
+
+**例如**："执行 `/doc-organize --scan-root ./docs --default-tags ros2,rmw_dsoftbus`"
+
+## 输出结果
+
+命令会生成：
+
+- **metadata.json** - 完整的文档元数据索引（JSON格式）
+- **report.txt** - 人类可读的扫描报告
+- **imported/** - 归档的文档副本目录
+
+其中包含：
+- ✅ 文档总数、总行数、总大小
+- ✅ 标签分布统计
+- ✅ 每个文档的详细信息（标题、摘要、标签等）
+- ✅ 导入状态和置信度评分
+
+## 后续步骤
+
+整理完成后，你可以：
+
+1. **查看报告** - 了解项目有多少文档
+2. **导入知识库** - 将整理的文档导入到解决方案库
+3. **建立关联** - 在文档和解决方案间建立交叉引用
+4. **定期更新** - 有新文档时重新运行此命令
+
+---
+
+## 执行逻辑
+
+当用户运行 `/doc-organize [options]` 时，你应该：
+
+### 步骤 1: 检查和初始化
+
+```bash
+# 检查知识库目录是否存在
+if [ ! -d "./docs/.evolving-expert" ]; then
+    echo "初始化本地知识库..."
+    mkdir -p ./docs/.evolving-expert/{solutions,patterns,archives/imported}
+fi
+```
+
+### 步骤 2: 解析参数
+
+从用户输入中提取：
+- `--scan-root` - 扫描根目录（默认：`.`）
+- `--default-tags` - 默认标签（默认：`documentation,legacy`）
+- `--exclude` - 排除的目录（可选）
+
+### 步骤 3: 运行扫描脚本
+
+```bash
+bash ./docs/.evolving-expert/organize_documents_v2.sh \
+  --scan-root "$SCAN_ROOT" \
+  --output-dir "./docs/.evolving-expert/archives" \
+  --default-tags "$DEFAULT_TAGS"
+```
+
+### 步骤 4: 显示结果
+
+扫描完成后，显示：
+1. 扫描报告内容（`report.txt`）
+2. 统计摘要（文档数、总行数、标签分布）
+3. 导入的文档清单（前 10 个）
+
+### 步骤 5: 提供后续建议
+
+根据扫描结果建议：
+- 导入知识库的命令
+- 查看完整元数据的方式
+- 定期更新的计划
 
 ## 使用示例
 
-### 基础用法 - 扫描整个仓库
-
-```bash
-./docs/.evolving-expert/organize_documents.sh \
-  --scan-root . \
-  --output-dir ./docs/.evolving-expert/archives
+### 示例 1: 扫描整个项目
 ```
+用户: /doc-organize
+系统: 扫描 . 目录下的所有文档
+结果: 显示找到的文档数量和标签分布
+```
+
+### 示例 2: 扫描特定目录
+```
+用户: /doc-organize --scan-root ./docs
+系统: 仅扫描 ./docs 目录
+结果: 显示该目录的文档统计
+```
+
+### 示例 3: 添加项目标签
+```
+用户: /doc-organize --default-tags "ros2,rmw_dsoftbus,v2.0"
+系统: 扫描项目并为所有文档添加这些标签
+结果: 显示带有项目标签的文档索引
+```
+
+---
+
+现在，请告诉我你想要如何进行文档整理：
+
+1. **立即扫描整个项目** - `/doc-organize`
+2. **仅扫描 docs 目录** - `/doc-organize --scan-root ./docs`
+3. **添加项目标签** - `/doc-organize --default-tags "ros2,rmw_dsoftbus"`
+4. **查看详细帮助** - `/doc-organize --help`
+
+我会自动执行扫描，并显示详细的整理结果！
 
 ### 扫描特定目录
 

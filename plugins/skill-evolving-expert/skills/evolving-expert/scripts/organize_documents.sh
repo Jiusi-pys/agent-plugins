@@ -177,38 +177,17 @@ main() {
     # 创建输出目录
     mkdir -p "$OUTPUT_DIR/imported"
 
-    # 构建 find 命令
-    local find_cmd="find \"$SCAN_ROOT\" -type f"
-
-    # 添加文件类型过滤
-    IFS=',' read -ra TYPE_ARRAY <<< "$FILE_TYPES"
-    local type_filter=""
-    for ftype in "${TYPE_ARRAY[@]}"; do
-        ftype=$(echo "$ftype" | xargs)
-        if [ -z "$type_filter" ]; then
-            type_filter="-name \"*.${ftype}\""
-        else
-            type_filter="$type_filter -o -name \"*.${ftype}\""
-        fi
-    done
-
-    # 添加排除目录过滤
-    local exclude_filter=""
-    IFS=',' read -ra EXCLUDE_ARRAY <<< "$EXCLUDE_DIRS"
-    for dir in "${EXCLUDE_ARRAY[@]}"; do
-        dir=$(echo "$dir" | xargs)
-        exclude_filter="$exclude_filter -not -path \"*/$dir/*\""
-    done
-
     # 执行扫描
     local documents="[]"
     local doc_count=0
     local total_size=0
     local total_lines=0
     local tag_stats="{}"
-    local dir_stats="{}"
 
-    eval "find \"$SCAN_ROOT\" -type f \\( $type_filter \\) $exclude_filter" | sort | while read -r file; do
+    # 使用 find 扫描文档
+    find "$SCAN_ROOT" -type f \( \
+        -name "*.md" -o -name "*.txt" -o -name "*.rst" \
+    \) | sort | while read -r file; do
         # 跳过某些文件
         if [[ $(basename "$file") == .* ]]; then
             continue
