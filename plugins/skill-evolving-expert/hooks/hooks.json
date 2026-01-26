@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "hooks": {
+    "Start": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./hooks/scripts/on_session_start.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./hooks/scripts/on_session_end.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
