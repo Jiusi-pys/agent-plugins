@@ -7,7 +7,32 @@ description: HDC (HarmonyOS Device Connector) operations for RK3588S KaihongOS d
 
 HDC commands for interacting with RK3588S KaihongOS devices. **Supports multiple platforms with automatic detection.**
 
-## Quick Start: Auto Platform Detection
+## For Claude Agents: Use `device-control.sh` (Recommended)
+
+Claude agents should use `device-control.sh` for all device operations. This wrapper:
+- ✅ Automatically detects your platform (Linux/Windows/WSL/macOS)
+- ✅ Safely handles complex commands with quotes (no escaping needed)
+- ✅ Provides a unified interface regardless of environment
+- ✅ **You don't need to think about platform differences**
+
+```bash
+# Just use it directly - platform detection is automatic
+./scripts/device-control.sh list                              # List devices
+./scripts/device-control.sh -t <device_id> shell ls          # Run command
+./scripts/device-control.sh -t <device_id> file send app /tmp/   # Push file
+./scripts/device-control.sh -t <device_id> hilog             # View logs
+
+# Complex commands work without quote escaping issues
+./scripts/device-control.sh -t <id> shell "echo 'hello world' && ls -la"
+```
+
+**Why use this?** On WSL with PowerShell, complex commands with mixed quotes (like `hdc shell 'echo "test"'`) cause quote matching errors. This wrapper handles all the escaping automatically.
+
+See `device-control.sh --help` for all available operations.
+
+---
+
+## For Users: Quick Start with Auto Platform Detection
 
 Use `hdc-auto.sh` for automatic platform detection - no need to remember which HDC command to use!
 

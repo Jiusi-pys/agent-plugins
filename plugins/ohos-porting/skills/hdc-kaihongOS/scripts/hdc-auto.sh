@@ -87,11 +87,9 @@ get_hdc_command() {
 }
 
 # ============================================================================
-# WSL PowerShell 包装执行
+# WSL PowerShell 包装执行 (参数数组版本，避免引号问题)
 # ============================================================================
 wsl_execute() {
-    local args="$@"
-    
     # 查找 PowerShell
     local ps_cmd=""
     if command -v powershell.exe &>/dev/null; then
@@ -102,9 +100,19 @@ wsl_execute() {
         echo -e "${RED}[ERROR]${NC} PowerShell not found" >&2
         return 1
     fi
-    
+
+    # 构建参数数组以安全处理复杂命令
+    # 方法: 将每个参数用单引号包装，PowerShell 会正确处理
+    local ps_args=()
+    for arg in "$@"; do
+        # 转义单引号: 单引号 -> 两个单引号
+        arg="${arg//\'/\'\'}"
+        ps_args+=("'$arg'")
+    done
+
     # 通过 PowerShell 执行 Windows 侧的 hdc
-    $ps_cmd -NoProfile -Command "hdc $args"
+    # 使用 -Command 而不是 -ArgumentList 来执行动态构建的命令
+    $ps_cmd -NoProfile -NonInteractive -Command "& hdc $(printf '%s ' "${ps_args[@]}")"
 }
 
 # ============================================================================
