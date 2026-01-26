@@ -77,6 +77,235 @@ references:
 ...
 ```
 
+## 文档整理和归档（新功能）
+
+### 为什么需要文档整理?
+
+对于已使用多年的代码仓库，通常存在：
+- 📄 散落的文档（docs、README、注释等）
+- 🔀 不规范的目录结构
+- 📝 缺失的元数据和分类
+- 🔗 文档之间没有关联关系
+
+**文档整理的目的**：将这些散落的文档系统化、结构化，建立清晰的索引和分类，为知识复用奠定基础。
+
+### 快速开始
+
+#### 1. 一行命令扫描整个仓库
+
+```bash
+cd /home/jiusi/M-DDS/ros2/src/ros2/rmw_dsoftbus
+
+# 扫描所有文档，自动分类和归档
+./docs/.evolving-expert/organize_documents.sh \
+  --scan-root . \
+  --output-dir ./docs/.evolving-expert/archives
+```
+
+#### 2. 查看归档报告
+
+```bash
+# 查看详细的扫描和导入报告
+cat ./docs/.evolving-expert/archives/report.txt
+
+# 查看元数据 (JSON 格式)
+cat ./docs/.evolving-expert/archives/metadata.json | jq .
+```
+
+#### 3. 高级选项
+
+```bash
+# 仅扫描特定目录
+./docs/.evolving-expert/organize_documents.sh \
+  --scan-root ./docs \
+  --exclude "tests,build,node_modules"
+
+# 指定文件类型
+./docs/.evolving-expert/organize_documents.sh \
+  --scan-root . \
+  --file-types "md,txt,rst"
+
+# 添加自定义默认标签
+./docs/.evolving-expert/organize_documents.sh \
+  --scan-root . \
+  --default-tags "ros2,legacy,documentation"
+```
+
+### 输出结构
+
+整理后的归档目录结构：
+
+```
+./docs/.evolving-expert/archives/
+├── metadata.json              # 所有导入文档的完整元数据
+├── report.txt                 # 扫描和导入报告
+├── stats.json                 # 统计数据（可选）
+└── imported/
+    ├── 20260126_001_xxx.md
+    ├── 20260126_002_yyy.md
+    └── ...                    # 所有整理后的文档副本
+```
+
+### 元数据文件详解
+
+`metadata.json` 包含所有文档的详细信息：
+
+```json
+{
+  "scan": {
+    "timestamp": "2026-01-26T10:45:00Z",
+    "scan_root": ".",
+    "total_files_scanned": 42,
+    "files_imported": 18,
+    "total_size_bytes": 1024000
+  },
+  "documents": [
+    {
+      "import_id": "20260126_001_cmake_build_guide",
+      "original_path": "docs/cmake_build_guide.md",
+      "title": "CMake Build Configuration Guide",
+      "file_size": 5240,
+      "line_count": 120,
+      "created": "2026-01-26T10:45:00Z",
+      "modified": "2026-01-25",
+      "tags": ["cmake", "build", "documentation", "ros2"],
+      "summary": "Complete guide for setting up CMake configuration...",
+      "archived_path": "imported/20260126_001_cmake_build_guide.md",
+      "confidence": 0.95
+    }
+  ],
+  "statistics": {
+    "total_documents": 18,
+    "total_lines": 3250,
+    "total_size": 1024000,
+    "avg_doc_size": 56889,
+    "by_tag": {
+      "documentation": 12,
+      "ros2": 10,
+      "cmake": 7
+    }
+  }
+}
+```
+
+### 标签和分类
+
+整理脚本会**自动**分配标签：
+
+1. **默认标签** - 应用于所有文档
+   ```
+   documentation, legacy
+   ```
+
+2. **基于目录的标签** - 根据文件所在目录
+   ```
+   docs/api/          → api, reference
+   docs/tutorials/    → guide, tutorial
+   docs/troubleshoot/ → troubleshooting, faq
+   ```
+
+3. **基于文件名的标签** - 根据文件名关键词
+   ```
+   setup_guide.md     → setup, installation
+   build_instructions.md → build, compilation
+   ```
+
+### 示例输出
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 文档整理报告
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+扫描信息
+  扫描时间: 2026-01-26T10:45:00Z
+  扫描根目录: /home/jiusi/M-DDS/ros2/src/ros2/rmw_dsoftbus
+  导入文件: 18 个
+  总大小: 1.02 MB
+
+文档统计
+  总行数: 3,250
+  总大小: 1,048,576 bytes
+  平均文档大小: 58,254 bytes
+
+标签分布 (Top 10)
+  • documentation: 12 文档
+  • ros2: 10 文档
+  • cmake: 7 文档
+  • build: 5 文档
+  • api: 4 文档
+
+最大的文档 (Top 5)
+  cmake_build_guide: 120 lines
+  ros2_setup_guide: 98 lines
+  api_reference: 85 lines
+  ...
+
+导入的文档清单
+  [20260126_001] CMake Build Configuration Guide
+      路径: docs/cmake_build_guide.md
+      标签: cmake, build, documentation
+      大小: 5,240 bytes | 行数: 120
+
+  [20260126_002] ROS2 Setup Instructions
+      路径: docs/ros2_setup.md
+      标签: ros2, setup, installation
+      大小: 4,120 bytes | 行数: 95
+  ...
+
+总结
+  归档目录: ./docs/.evolving-expert/archives
+  元数据: ./docs/.evolving-expert/archives/metadata.json
+  文档文件: ./docs/.evolving-expert/archives/imported/
+```
+
+### 将归档文档导入知识库
+
+整理完成后，可以将这些文档导入到知识库中：
+
+```bash
+# 遍历所有归档文档，导入到知识库
+for doc in ./docs/.evolving-expert/archives/imported/*.md; do
+    # 从元数据中获取标题和标签
+    import_id=$(basename "$doc" .md)
+    title=$(jq -r ".documents[] | select(.archived_path | endswith(\"$(basename \"$doc\")\")) | .title" \
+            ./docs/.evolving-expert/archives/metadata.json)
+    tags=$(jq -r ".documents[] | select(.archived_path | endswith(\"$(basename \"$doc\")\")) | .tags | join(\",\")" \
+           ./docs/.evolving-expert/archives/metadata.json)
+
+    # 导入到知识库
+    /home/jiusi/agent-plugins/plugins/skill-evolving-expert/skills/evolving-expert/scripts/knowledge_manager_v2.sh add \
+        "$title" "$tags" "$doc"
+done
+```
+
+### 配置文件
+
+可以创建 `organize.config` 文件自定义扫描规则：
+
+```bash
+# 复制配置模板
+cp ./docs/.evolving-expert/organize.config.example \
+   ./docs/.evolving-expert/organize.config
+
+# 编辑配置文件
+vim ./docs/.evolving-expert/organize.config
+
+# 使用自定义配置 (脚本会自动读取)
+./docs/.evolving-expert/organize_documents.sh \
+  --scan-root .
+```
+
+配置文件支持：
+- 自定义扫描规则（包含/排除目录）
+- 自定义分类规则（基于目录和文件名）
+- 自定义标签策略
+- 自定义元数据提取方式
+
+详见 `organize.config.example` 了解所有选项。
+
+---
+
 ## 查询知识库
 
 ### 搜索解决方案

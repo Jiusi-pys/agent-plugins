@@ -1,0 +1,159 @@
+# organize_documents.sh 配置文件示例
+#
+# 使用方式：
+#   1. 复制此文件为 organize.config
+#   2. 根据项目需要修改配置
+#   3. 脚本会自动读取配置文件
+#
+# YAML 格式
+
+# ============================================================================
+# 扫描规则
+# ============================================================================
+scan:
+  # 包含的文件类型 (默认: md,txt,rst)
+  file_types: [md, txt, rst, adoc]
+
+  # 排除的目录 (不会扫描这些目录)
+  exclude_dirs:
+    - tests
+    - build
+    - node_modules
+    - .git
+    - venv
+    - __pycache__
+    - target
+    - dist
+    - coverage
+    - vendor
+    - .vscode
+    - .idea
+
+  # 排除的文件模式 (glob patterns)
+  exclude_patterns:
+    - "*.test.md"
+    - "*~"
+    - ".*.bak"
+    - "*.swp"
+
+# ============================================================================
+# 分类和标签规则
+# ============================================================================
+categorization:
+  # 基于目录路径自动添加标签
+  # 如果文件路径包含这些目录，会添加相应的标签
+  directory_tags:
+    docs/architecture: [architecture, design]
+    docs/api: [api, reference]
+    docs/tutorials: [tutorial, guide, beginner]
+    docs/troubleshooting: [troubleshooting, faq, debug]
+    docs/setup: [setup, installation, configure]
+    src: [implementation, code]
+    config: [configuration, setting]
+
+  # 基于文件名的关键词匹配
+  # 如果文件名包含这些关键词，会添加相应的标签
+  filename_keywords:
+    setup:
+      keywords: [setup, installation, install, configure, config]
+      tags: [setup, installation]
+    build:
+      keywords: [build, compile, cmake, makefile, gradle]
+      tags: [build, compilation]
+    test:
+      keywords: [test, unittest, spec, qa]
+      tags: [test, qa]
+    api:
+      keywords: [api, endpoint, interface, protocol]
+      tags: [api, reference]
+    architecture:
+      keywords: [architecture, design, pattern]
+      tags: [architecture, design]
+    deployment:
+      keywords: [deploy, release, docker, k8s, kubernetes]
+      tags: [deployment, devops]
+
+  # 全局默认标签 (应用于所有导入的文档)
+  default_tags:
+    - documentation
+    - legacy
+    - archived
+
+# ============================================================================
+# 元数据提取规则
+# ============================================================================
+metadata:
+  # 标题来源优先级
+  # 尝试从这些地方提取标题，顺序为优先级
+  title_sources:
+    - h1_heading        # Markdown H1 标题 (# Title)
+    - yaml_title        # YAML front matter 中的 title 字段
+    - filename          # 文件名（作为最后的备选）
+
+  # 摘要提取方法
+  summary_method: first_paragraph  # first_paragraph 或 auto_extract
+
+  # 摘要长度限制 (字符数)
+  summary_max_length: 150
+
+  # 自动检测的内容特征
+  detect_features:
+    - code_blocks       # 是否包含代码块
+    - tables            # 是否包含表格
+    - images            # 是否包含图片
+    - links             # 是否包含链接
+
+# ============================================================================
+# 导入规则
+# ============================================================================
+import:
+  # 是否保留原始文件副本
+  preserve_original: true
+
+  # 是否保持目录结构
+  preserve_structure: false
+
+  # 文档ID生成方式
+  # yyyymmdd_seq_slugified_title (推荐)
+  # yyyymmdd_hhmmss_slugified_title
+  # uuid_slugified_title
+  id_format: "yyyymmdd_seq_slugified_title"
+
+  # 是否自动创建引用关系
+  auto_reference: true
+
+# ============================================================================
+# 输出设置
+# ============================================================================
+output:
+  # 归档输出目录
+  archive_dir: "./.evolving-expert/archives"
+
+  # 是否生成统计报告
+  generate_report: true
+
+  # 是否生成 JSON 统计
+  generate_stats: true
+
+  # 报告格式 (text 或 markdown)
+  report_format: text
+
+# ============================================================================
+# 高级选项
+# ============================================================================
+advanced:
+  # 最小文件大小 (字节) - 小于此大小的文件会被跳过
+  min_file_size: 10
+
+  # 最大文件大小 (字节) - 大于此大小的文件会被标记为警告
+  max_file_size: 1048576  # 1MB
+
+  # 多线程处理 (加快大规模扫描)
+  parallel_processing: true
+  max_workers: 4
+
+  # 是否生成导入前后的对比报告
+  generate_diff_report: false
+
+  # 日志级别 (debug, info, warning, error)
+  log_level: info
