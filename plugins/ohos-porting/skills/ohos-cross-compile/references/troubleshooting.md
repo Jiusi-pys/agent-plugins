@@ -673,6 +673,286 @@ CXXFLAGS += -march=armv8-a -mtune=cortex-a76
 
 ---
 
+## ABI 兼容性问题
+
+### 问题根源
+
+musl ABI 不兼容通常发生在以下情况：
+
+1. **混用不同的 C++ 标准库**（libc++ vs libstdc++）
+2. **混用不同版本的 sysroot**（SDK sysroot vs OpenHarmony 源码 sysroot）
+3. **工具链和库文件来源不一致**
+
+### C1: musl libc 版本不匹配
+
+**现象**:
+```
+error: version `GLIBC_2.38' not found (required by ./myapp)
+```
+
+**诊断**:
+```bash
+# 查看二进制所需的 libc 版本
+readelf -V myapp | grep libc
+
+# 检查设备上的 libc 版本
+hdc shell /system/lib64/libc.so
+```
+
+**根本原因**:
+- 编译时使用的 sysroot 中 libc 版本 > 设备上 libc 版本
+- OHOS 设备使用 musl libc，glibc 特定版本号不适用
+
+### C2: libc++ 与 libstdc++ 混用
+
+**现象**:
+```
+undefined reference to `std::__cxx11::basic_string<...>'
+Error relocating ./myapp: undefined symbol in std::
+```
+
+**诊断**:
+```bash
+# 检查二进制依赖的 C++ 库
+readelf -d myapp | grep NEEDED | grep -E "(libc\+\+|libstdc)"
+
+# 检查库链接的 C++ 库
+ldd ./myapp | grep -E "(libc\+\+|libstdc)"
+```
+
+**解决方案**:
+
+```bash
+# 方案 1: 使用 SDK 的 libc++（推荐）
+SDK_ROOT=$(find ~ -type d -path "*command-line-tools/sdk/*/openharmony/native" 2>/dev/null | head -1)
+if [ -z "$SDK_ROOT" ]; then
+  echo "未找到 SDK，请检查安装位置"
+  # 备选查找位置
+  SDK_ROOT=$(find /opt -type d -name "openharmony" 2>/dev/null | head -1)
+fi
+
+export LLVM_ROOT="$SDK_ROOT/llvm"
+export SYSROOT="$SDK_ROOT/sysroot"
+
+# 编译时指定
+clang++ -stdlib=libc++ \
+    -I$LLVM_ROOT/include/libcxx-ohos/include/c++/v1 \
+    -L$LLVM_ROOT/lib/aarch64-linux-ohos \
+    -lc++ -lc++abi mycode.cpp -o myapp
+
+# 方案 2: 使用 GCC Linaro 的 libstdc++（静态链接）
+TOOLCHAIN_ROOT=$(find ~ -type d -path "*gcc-linaro*" 2>/dev/null | head -1)
+if [ -z "$TOOLCHAIN_ROOT" ]; then
+  TOOLCHAIN_ROOT=$(find /opt -type d -name "gcc-linaro*" 2>/dev/null | head -1)
+fi
+
+$TOOLCHAIN_ROOT/bin/aarch64-linux-gnu-g++ \
+    -static-libstdc++ -static-libgcc \
+    mycode.cpp -o myapp
+```
+
+### C3: 完整 SDK 一致性检查清单
+
+编译成功的关键是**所有工具和库都来自同一个 SDK**：
+
+```bash
+# 1. 找到 SDK 根目录
+SDK_ROOT=$(find ~ -type d -path "*command-line-tools/sdk/*/openharmony/native" 2>/dev/null | head -1)
+echo "SDK_ROOT: $SDK_ROOT"
+
+# 2. 验证编译器
+LLVM_BIN="$SDK_ROOT/llvm/bin/clang++"
+ls -la "$LLVM_BIN" || echo "❌ clang++ 未找到"
+
+# 3. 验证 sysroot
+SYSROOT="$SDK_ROOT/sysroot"
+ls -la "$SYSROOT/usr/include/stdio.h" || echo "❌ sysroot 不完整"
+
+# 4. 验证 C++ 头文件
+LIBCXX_INCLUDE="$SDK_ROOT/llvm/include/libcxx-ohos/include/c++/v1"
+ls -la "$LIBCXX_INCLUDE/__vector" || echo "❌ libc++ 头文件缺失"
+
+# 5. 验证 C++ 运行时库
+LIBCXX_LIB="$SDK_ROOT/llvm/lib/aarch64-linux-ohos"
+ls -la "$LIBCXX_LIB/libc++.a" || echo "❌ libc++ 库缺失"
+ls -la "$LIBCXX_LIB/libc++_shared.so" || echo "❌ libc++_shared.so 缺失"
+
+# 6. 验证系统库
+SYSROOT_LIB="$SYSROOT/usr/lib/aarch64-linux-ohos"
+ls -la "$SYSROOT_LIB/libc.so" || echo "❌ musl libc 缺失"
+```
+
+### C4: BUILD.gn 中的关键配置
+
+```gni
+# 从单一 SDK 的所有组件
+_sdk_root = exec_script("find_sdk_root.py", [], "string")
+_llvm_root = "$_sdk_root/llvm"
+_sysroot = "$_sdk_root/sysroot"
+
+# 编译时指定 target triple 和 sysroot
+_common_flags = "--target=aarch64-linux-ohos --sysroot=$_sysroot"
+
+# C++ 头文件使用 SDK 中的 libc++
+_common_cflags = "$_common_flags -I$_llvm_root/include/libcxx-ohos/include/c++/v1"
+
+# 链接时使用 SDK 中的 libc++ 和 libc++abi
+_common_ldflags = "$_common_flags -L$_llvm_root/lib/aarch64-linux-ohos -lc++ -lc++abi"
+
+shared_library("mylib") {
+    cflags_cc = _common_cflags
+    ldflags = _common_ldflags
+}
+```
+
+配套的 `find_sdk_root.py`:
+```python
+#!/usr/bin/env python3
+import os
+import glob
+
+# 搜索 SDK 根目录
+patterns = [
+    os.path.expanduser("~/command-line-tools/sdk/*/openharmony/native"),
+    "/opt/openharmony/sdk/native",
+    os.getenv("OHOS_SDK_ROOT", "")
+]
+
+for pattern in patterns:
+    if pattern:
+        matches = glob.glob(pattern)
+        if matches:
+            print(matches[0])
+            exit(0)
+
+exit(1)
+```
+
+### C5: 编译产物的依赖链验证
+
+```bash
+# 验证编译产物使用了正确的库
+readelf -d myapp | grep NEEDED
+
+# 预期输出：
+#   NEEDED: libc++_shared.so    # SDK 的 C++ 运行时
+#   NEEDED: libc.so             # musl libc
+#   NOT: libstdc++.so           # ✓ 确保没有混用 libstdc++
+```
+
+### C6: 常见错误配置 vs 正确配置
+
+| 配置项 | ❌ 错误（导致 ABI 不兼容） | ✓ 正确 |
+|--------|-------------------------|--------|
+| **sysroot** | OpenHarmony 源码树的 sysroot | SDK 的 sysroot |
+| **编译器路径** | 系统 clang 或不同版本 | SDK 的 clang |
+| **C++ 库** | libstdc++ 或混用 | SDK 的 libc++ |
+| **编译器 target** | aarch64-linux-gnu | aarch64-linux-ohos 或 aarch64-unknown-linux-ohos |
+| **库搜索路径** | 混用多个 SDK 的路径 | 仅一个 SDK 的路径 |
+
+### C7: 为什么之前遇到问题
+
+**错误的配置示例**:
+
+```bash
+# ❌ 错误 1: 使用 OpenHarmony 源码树的工具链（目标架构不匹配）
+/path/to/M-DDS/OpenHarmony/prebuilts/clang/ohos/linux-x86_64/llvm/bin/clang
+
+# ❌ 错误 2: 混用不同的 sysroot
+--sysroot=/path/to/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/sysroot
+# 与
+--sysroot=/path/to/command-line-tools/sdk/default/openharmony/native/sysroot
+
+# ❌ 错误 3: 使用静态 C++ 库可能导致符号冲突
+-lc++_static  # 可能与系统库冲突
+```
+
+### C8: 正确的环境配置脚本
+
+```bash
+#!/bin/bash
+# setup_ohos_env.sh - 自动定位 SDK 并配置编译环境
+
+# 1. 自动查找 SDK 根目录
+find_sdk_root() {
+    local patterns=(
+        "$HOME/command-line-tools/sdk/*/openharmony/native"
+        "/opt/openharmony/sdk/native"
+        "$OHOS_SDK_ROOT"
+    )
+
+    for pattern in "${patterns[@]}"; do
+        for match in $pattern; do
+            if [ -d "$match/llvm/bin" ] && [ -d "$match/sysroot" ]; then
+                echo "$match"
+                return 0
+            fi
+        done
+    done
+
+    echo "❌ 无法找到 OpenHarmony SDK" >&2
+    return 1
+}
+
+# 2. 获取 SDK 路径
+SDK_ROOT=$(find_sdk_root) || exit 1
+echo "✓ SDK 路径: $SDK_ROOT"
+
+# 3. 设置编译环境变量
+export OHOS_SDK_ROOT="$SDK_ROOT"
+export LLVM_ROOT="$SDK_ROOT/llvm"
+export SYSROOT="$SDK_ROOT/sysroot"
+export CC="$LLVM_ROOT/bin/clang"
+export CXX="$LLVM_ROOT/bin/clang++"
+export AR="$LLVM_ROOT/bin/llvm-ar"
+
+# 4. 编译标志
+export CXXFLAGS="--target=aarch64-linux-ohos --sysroot=$SYSROOT -stdlib=libc++ -O2"
+export LDFLAGS="-L$LLVM_ROOT/lib/aarch64-linux-ohos -lc++ -lc++abi"
+
+echo "✓ 编译环境已配置"
+echo "  CC: $CC"
+echo "  CXX: $CXX"
+echo "  SYSROOT: $SYSROOT"
+```
+
+### C9: 快速诊断脚本
+
+```bash
+#!/bin/bash
+# diagnose_abi.sh - ABI 兼容性诊断
+
+binary="$1"
+
+echo "=== ABI 兼容性诊断 ==="
+echo ""
+
+# 1. 检查架构
+echo "1. 架构检查:"
+file "$binary" | grep -q "aarch64" && echo "   ✓ 正确架构 (aarch64)" || echo "   ❌ 错误架构"
+
+# 2. 检查依赖库
+echo ""
+echo "2. 依赖库检查:"
+readelf -d "$binary" | grep NEEDED
+
+# 3. 检查是否混用了 libstdc++
+echo ""
+echo "3. C++ 库混用检查:"
+if readelf -d "$binary" | grep -q "libstdc++"; then
+    echo "   ⚠ 警告: 检测到 libstdc++ 依赖（可能与 libc++ 冲突）"
+else
+    echo "   ✓ 无 libstdc++ 混用"
+fi
+
+# 4. 检查符号要求
+echo ""
+echo "4. libc 版本要求:"
+readelf -V "$binary" 2>/dev/null || echo "   (无版本符号表)"
+```
+
+---
+
 ## 参考文档
 
 - `rmw_dsoftbus/BUILD.gn` - GN 构建配置示例
