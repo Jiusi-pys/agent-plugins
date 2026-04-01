@@ -12,6 +12,7 @@ mkdir -p "$BACKUP_DIR"
 [ -f "$CLAUDE_DIR/settings.json" ] && cp "$CLAUDE_DIR/settings.json" "$BACKUP_DIR/" 2>/dev/null || true
 [ -d "$CLAUDE_DIR/skills" ] && cp -R "$CLAUDE_DIR/skills" "$BACKUP_DIR/" 2>/dev/null || true
 [ -d "$CLAUDE_DIR/hooks" ] && cp -R "$CLAUDE_DIR/hooks" "$BACKUP_DIR/" 2>/dev/null || true
+[ -d "$CLAUDE_DIR/plugins" ] && cp -R "$CLAUDE_DIR/plugins" "$BACKUP_DIR/" 2>/dev/null || true
 
 echo "[auto-clean] Backup created at $BACKUP_DIR"
 
@@ -25,14 +26,32 @@ rm -rf "$CLAUDE_DIR"
 rm -f "$CLAUDE_JSON"
 echo "[auto-clean] Level 5: full reset completed"
 
-# Restore settings.json with the required env setting
+# Restore plugins directory so hooks and caches survive
 mkdir -p "$CLAUDE_DIR"
-python3 -c '
+if [ -d "$BACKUP_DIR/plugins" ]; then
+    cp -R "$BACKUP_DIR/plugins" "$CLAUDE_DIR/" 2>/dev/null || true
+    echo "[auto-clean] Restored plugins directory"
+fi
+
+# Restore settings.json and add CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
+if [ -f "$BACKUP_DIR/settings.json" ]; then
+    CLAUDE_SETTINGS_SRC="$BACKUP_DIR/settings.json"
+    export CLAUDE_SETTINGS_SRC
+    python3 -c '
 import json, os
+src = os.environ.get("CLAUDE_SETTINGS_SRC", "")
+try:
+    with open(src, "r") as f: d = json.load(f)
+except: d = {}
+if "env" not in d or not isinstance(d.get("env"), dict):
+    d["env"] = {}
+d["env"]["CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"] = "1"
 out = os.path.expanduser("~/.claude/settings.json")
-d = {"env": {"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"}}
 with open(out, "w") as f: json.dump(d, f, indent=2)
-print("[auto-clean] Created settings.json with env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1")
+print("[auto-clean] Restored settings.json with env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1")
 ' 2>/dev/null || echo '{"env":{"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC":"1"}}' > "$CLAUDE_DIR/settings.json"
+else
+    echo '{"env":{"CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC":"1"}}' > "$CLAUDE_DIR/settings.json"
+fi
 
 echo "[auto-clean] Init completed successfully"
