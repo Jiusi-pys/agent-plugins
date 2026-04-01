@@ -1,4 +1,3 @@
-```markdown
 ---
 name: remote-openharmony-build
 description: Control remote servers exclusively for OpenHarmony image compilation. Use ONLY when building OpenHarmony system images. Requires syncing local code changes to remote before compilation. Supports multiple build servers.
@@ -95,5 +94,4 @@ ssh <HOST> 'pkill -f build.sh'
 Check disk:
 ```bash
 ssh <HOST> 'df -h <REMOTE_HOME>'
-```
 ```

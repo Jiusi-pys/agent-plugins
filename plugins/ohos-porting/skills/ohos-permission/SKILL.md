@@ -1,3 +1,8 @@
+---
+name: ohos-permission
+description: OpenHarmony/KaihongOS 特有的权限配置技术。涵盖 DSoftBus Session 权限、AccessToken 处理、配置文件格式规范等关键知识点。
+---
+
 # OHOS Permission Skill
 
 ## 概述

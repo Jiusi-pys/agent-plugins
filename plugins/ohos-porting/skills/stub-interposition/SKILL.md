@@ -1,3 +1,8 @@
+---
+name: stub-interposition
+description: 运行时函数打桩技术，实现免改源码、免重编译的测试插桩。通过 LD_PRELOAD 机制劫持动态链接符号，自动记录 I/O、系统调用、内存操作等行为。
+---
+
 # Stub Interposition Skill
 
 ## 概述

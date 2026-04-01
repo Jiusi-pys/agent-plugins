@@ -1,3 +1,8 @@
+---
+name: agent-routing
+description: OHOS Agent 自动路由指南。提供 OHOS 相关任务的自动 agent 调度规则，确保正确的 agent 被调用以处理特定任务。
+---
+
 # OHOS Agent 自动路由指南
 
 ## 概述

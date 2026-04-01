@@ -1,12 +1,12 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "jiusi-agent-plugins",
-  "version": "1.1.0",
   "owner": {
     "name": "九思"
   },
   "metadata": {
-    "description": "OpenHarmony/KaihongOS software porting workflow and Claude Code privacy cleanup tools"
+    "description": "OpenHarmony/KaihongOS software porting workflow",
+    "version": "1.2.0"
   },
   "plugins": [
     {
