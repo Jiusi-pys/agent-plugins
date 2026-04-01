@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "ohos-porting-marketplace",
+  "name": "jiusi-agent-plugins",
   "version": "1.0.0",
   "owner": {
     "name": "九思"
