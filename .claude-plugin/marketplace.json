@@ -1,19 +1,17 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "jiusi-agent-plugins",
-  "version": "1.1.0",
+  "name": "ohos-porting-marketplace",
+  "version": "1.0.0",
   "owner": {
-    "name": "九思",
-    "email": "jiusi@example.com"
+    "name": "九思"
   },
   "metadata": {
-    "description": "九思的 Claude Code 插件集合，包含 OpenHarmony 移植工具、自进化专家系统等",
-    "version": "1.1.0"
+    "description": "OpenHarmony/KaihongOS software porting workflow plugin"
   },
   "plugins": [
     {
       "name": "ohos-porting",
-      "description": "OpenHarmony/KaihongOS 软件移植工作流。将 Linux 库/软件适配到 OHOS，包含诊断分析、交叉编译、设备部署全流程支持。",
+      "description": "OpenHarmony/KaihongOS software porting workflow.将 Linux 库/软件适配到 OHOS，包含诊断分析、交叉编译、设备部署全流程支持。",
       "version": "1.0.0",
       "author": {
         "name": "九思"
@@ -22,45 +20,6 @@
       "category": "development",
       "tags": ["openharmony", "kaihongos", "porting", "cross-compile", "embedded", "arm64"],
       "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/ohos-porting",
-      "license": "MIT"
-    },
-    {
-      "name": "skill-evolving-expert",
-      "description": "自我进化专家系统。每次问题解决后自动提取关键知识点，持久化存储，后续任务自动检索应用。支持知识闭环、渐进积累、模式提炼。",
-      "version": "1.0.0",
-      "author": {
-        "name": "九思"
-      },
-      "source": "./plugins/skill-evolving-expert",
-      "category": "productivity",
-      "tags": ["knowledge-management", "self-evolving", "expert-system", "automation"],
-      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/skill-evolving-expert",
-      "license": "MIT"
-    },
-    {
-      "name": "email-notify",
-      "description": "邮件提醒hook，当对话结束发送邮件提醒用户。",
-      "version": "1.0.0",
-      "author": {
-        "name": "九思"
-      },
-      "source": "./plugins/email-notify",
-      "category": "productivity",
-      "tags": ["email", "gmail", "notify"],
-      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/email-notify",
-      "license": "MIT"
-    },
-    {
-      "name": "project-structure",
-      "description": "项目文件结构管理器。",
-      "version": "1.0.0",
-      "author": {
-        "name": "九思"
-      },
-      "source": "./plugins/project-structure",
-      "category": "productivity",
-      "tags": ["structure", "file", "project"],
-      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/project-structure",
       "license": "MIT"
     }
   ]
