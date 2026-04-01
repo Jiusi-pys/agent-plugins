@@ -1,12 +1,12 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "jiusi-agent-plugins",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "owner": {
     "name": "九思"
   },
   "metadata": {
-    "description": "OpenHarmony/KaihongOS software porting workflow plugin"
+    "description": "OpenHarmony/KaihongOS software porting workflow and Claude Code privacy cleanup tools"
   },
   "plugins": [
     {
@@ -20,6 +20,19 @@
       "category": "development",
       "tags": ["openharmony", "kaihongos", "porting", "cross-compile", "embedded", "arm64"],
       "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/ohos-porting",
+      "license": "MIT"
+    },
+    {
+      "name": "auto-clean",
+      "description": "Auto-cleans Claude Code tracking data and privacy information. Supports init reset, deep clean, and automatic cleanup on exit.",
+      "version": "1.0.0",
+      "author": {
+        "name": "九思"
+      },
+      "source": "./plugins/auto-clean",
+      "category": "utility",
+      "tags": ["privacy", "cleanup", "telemetry", "security"],
+      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/auto-clean",
       "license": "MIT"
     }
   ]

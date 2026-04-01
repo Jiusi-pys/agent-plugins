@@ -1,0 +1,8 @@
+{
+  "name": "auto-clean",
+  "description": "Auto-cleans Claude Code tracking data and privacy information. Supports init reset, deep clean, and automatic cleanup on exit.",
+  "version": "1.0.0",
+  "author": {
+    "name": "九思"
+  }
+}
