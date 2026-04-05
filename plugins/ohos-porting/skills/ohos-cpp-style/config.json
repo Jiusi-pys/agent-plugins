@@ -1,23 +1,23 @@
 {
-    "paths": {
-        "openharmony_source": "/home/jiusi/M-DDS/OpenHarmony",
-        "openharmony_prebuilts": "/home/jiusi/M-DDS/openharmony_prebuilts",
-        "output_dir": "/home/jiusi/M-DDS/OpenHarmony/out/"
-    },
-    "toolchain": {
-        "gcc_linaro": "gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu",
-        "clang": "clang_linux-x86_64-81cdec-20240308",
-        "gn": "gn",
-        "ninja": "ninja"
-    },
-    "target": {
-        "cpu": "arm64",
-        "os": "ohos",
-        "board": "rk3588s",
-        "is_clang": true
-    },
-    "project": {
-        "part_name": "communication_dsoftbus",
-        "subsystem_name": "communication"
-    }
+  "paths": {
+    "openharmony_source": "/path/to/OpenHarmony",
+    "openharmony_prebuilts": "/path/to/openharmony_prebuilts",
+    "output_dir": "/path/to/OpenHarmony/out/<board>"
+  },
+  "toolchain": {
+    "gcc_linaro": "gcc-linaro-<version>",
+    "clang": "clang-<version>",
+    "gn": "gn",
+    "ninja": "ninja"
+  },
+  "target": {
+    "cpu": "arm64",
+    "os": "ohos",
+    "board": "<board>",
+    "is_clang": true
+  },
+  "project": {
+    "part_name": "<part_name>",
+    "subsystem_name": "<subsystem_name>"
+  }
 }
