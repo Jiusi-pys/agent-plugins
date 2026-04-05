@@ -9,11 +9,12 @@ Use this skill when editing, deploying, or validating OpenHarmony permission con
 
 ## Verified Workflow
 
-Prefer the verified template and deployment scripts that already live in this skill.
+For production-scoped changes, start from `templates/minimal.json` and narrow only the fields you need.
 
 ```bash
-cp templates/verified.json /tmp/softbus_perm.json
+cp templates/minimal.json /tmp/softbus_perm.json
 ./scripts/deploy_softbus_permission.sh <DEVICE_ID> /tmp/softbus_perm.json
+# reboot the device before verification
 ./scripts/verify_softbus_permission.sh <DEVICE_ID>
 ```
 
@@ -46,9 +47,9 @@ cp templates/verified.json /tmp/softbus_perm.json
 
 ## Working Files
 
-- `templates/minimal.json` for the smallest valid starting point
-- `templates/dev.json` for development-focused edits
-- `templates/verified.json` for known-good deployment
+- `templates/minimal.json` for the safest production starting point
+- `templates/dev.json` for development-only edits; narrow before deployment
+- `templates/verified.json` for known-good reference data; wildcard or empty `PKG_NAME` fallback entries are non-production and must be narrowed before deployment
 - `scripts/deploy_softbus_permission.sh` for device-side installation
 - `scripts/verify_softbus_permission.sh` for validation
 
@@ -58,8 +59,12 @@ cp templates/verified.json /tmp/softbus_perm.json
 2. Edit only the fields needed for the target package or session name.
 3. Back up the current device file before deployment.
 4. Deploy with the provided script.
-5. Reboot if required by the target device.
+5. Reboot the device before verification.
 6. Run the verification script and capture the output.
+
+## AccessToken Notes
+
+If the target flow needs native token setup, see `examples/native_token.cpp` and the `RMW_DSOFTBUS_TOKEN_ID` and `RMW_DSOFTBUS_DISABLE_NATIVE_TOKEN` environment variables.
 
 ## Troubleshooting
 
