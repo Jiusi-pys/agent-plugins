@@ -1,6 +1,6 @@
 ---
 name: ohos-hdc
-description: HDC operations for OpenHarmony and KaihongOS devices. Use when Codex needs to detect OHOS devices, choose a target device, run shell commands over HDC, transfer files, collect logs, or handle cross-platform HDC wrappers on Linux, macOS, Windows, or WSL.
+description: HDC operations for OpenHarmony and KaihongOS devices. Use when Codex needs to detect OHOS devices, choose a target device, run shell commands over HDC, transfer files, collect logs, or handle cross-platform HDC wrappers on Linux, macOS, Git Bash/MSYS on Windows, or WSL.
 ---
 
 # OHOS HDC
@@ -59,7 +59,7 @@ For WSL, use the staged workflow in `references/WSL-GUIDE.md` instead of these d
 ## Platform Notes
 
 - Linux and macOS prefer `hdc_std` when present, then fall back to `hdc`.
-- Windows uses `hdc` or `hdc.exe`.
+- Git Bash/MSYS on Windows uses `hdc` or `hdc.exe`.
 - WSL uses the PowerShell wrapper path to avoid broken nested quoting.
 - For platform-specific details, read:
   - `references/HDC-COMMANDS.md`

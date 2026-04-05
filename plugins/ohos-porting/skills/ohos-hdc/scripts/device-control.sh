@@ -193,11 +193,11 @@ Examples:
   # View logs
   device-control.sh -t FA00ABCD01234567 hilog | grep myapp
 
-Platform Detection:
+  Platform Detection:
 
   This script automatically detects your platform:
   - Linux:   Uses hdc_std or hdc
-  - Windows: Uses hdc.exe or hdc
+  - Git Bash/MSYS/CYGWIN on Windows: Uses hdc.exe or hdc
   - WSL:     Uses PowerShell to call Windows-side hdc.exe
   - macOS:   Uses hdc_std or hdc
 
