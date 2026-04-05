@@ -1,0 +1,4 @@
+interface:
+  display_name: "OHOS Permission"
+  short_description: "Configure OpenHarmony permissions"
+  default_prompt: "Use $ohos-permission to update or verify this OpenHarmony permission setup and keep the JSON and deployment steps correct."
