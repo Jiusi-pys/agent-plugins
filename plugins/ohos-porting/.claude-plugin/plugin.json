@@ -1,8 +1,0 @@
-{
-  "name": "ohos-porting",
-  "description": "OpenHarmony/KaihongOS 软件移植工作流。将 Linux 库/软件适配到 OHOS，包含诊断分析、交叉编译、设备部署全流程支持。",
-  "version": "1.0.0",
-  "author": {
-    "name": "九思"
-  }
-}
