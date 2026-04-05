@@ -108,18 +108,17 @@ main() {
     local platform=$(detect_platform)
     local hdc_cmd=$(get_hdc_command "$platform")
 
+    # No arguments: show help before checking whether HDC is installed.
+    if [[ $# -eq 0 ]]; then
+        show_help
+        return 0
+    fi
+
     # 验证 HDC 可用性
     if [[ -z "$hdc_cmd" && "$platform" != "wsl" ]]; then
         echo -e "${RED}[ERROR]${NC} HDC not found on $platform platform" >&2
         echo "Platform: $platform" >&2
-        echo "Run 'hdc-auto.sh --install' to install HDC" >&2
         return 1
-    fi
-
-    # 无参数显示帮助
-    if [[ $# -eq 0 ]]; then
-        show_help
-        return 0
     fi
 
     # 执行设备命令
@@ -151,8 +150,7 @@ Usage: device-control.sh <operation> [arguments]
 Supported Operations:
 
   DEVICE LISTING & INFO:
-    device-control.sh list              List connected devices
-    device-control.sh targets           List device targets
+    device-control.sh list targets      List connected devices
     device-control.sh -t <id> info      Get device info
 
   SHELL COMMANDS:
@@ -178,7 +176,7 @@ Supported Operations:
 Examples:
 
   # List connected devices
-  device-control.sh list
+  device-control.sh list targets
 
   # Execute command on device (id: FA00ABCD01234567)
   device-control.sh -t FA00ABCD01234567 shell ls -la /data/local/tmp

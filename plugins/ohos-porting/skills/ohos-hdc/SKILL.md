@@ -10,7 +10,7 @@ Use this skill to work with OpenHarmony or KaihongOS devices over HDC.
 ## Quick Start
 
 Prefer `scripts/device-control.sh` for device-facing operations because it hides platform-specific quoting and wrapper differences.
-These examples are for Linux, macOS, and native Windows. For WSL file transfer, follow the staged workflow in `references/WSL-GUIDE.md`.
+These examples are for Linux, macOS, and Git Bash/MSYS on Windows. For WSL file transfer, follow the staged workflow in `references/WSL-GUIDE.md`.
 
 ```bash
 ./scripts/device-control.sh list targets
