@@ -4,7 +4,7 @@ description: 运行时错误诊断专家。USE PROACTIVELY when runtime errors o
 tools: Bash, Read, Grep
 model: sonnet
 permissionMode: default
-skills: runtime-debug, hdc-kaihongOS
+skills: runtime-debug, ohos-hdc
 ---
 
 # Runtime Debugger Agent

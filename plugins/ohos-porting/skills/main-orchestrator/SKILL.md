@@ -226,4 +226,4 @@ project/
 - OHOS 编程规范: `skills/ohos-cpp-style/`
 - 交叉编译指南: `skills/ohos-cross-compile/`
 - 权限配置: `skills/ohos-permission/`
-- HDC 操作: `skills/hdc-kaihongOS/`
+- HDC 操作: `skills/ohos-hdc/`

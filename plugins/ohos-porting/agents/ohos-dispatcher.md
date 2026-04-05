@@ -92,7 +92,7 @@ Task: 调用 remote-commander agent
 - C/C++ 规范问题 → 参考 ohos-cpp-style skill
 - 交叉编译问题 → 参考 ohos-cross-compile skill
 - 权限配置问题 → 参考 ohos-permission skill
-- HDC 操作问题 → 参考 hdc-kaihongOS skill
+- HDC 操作问题 → 参考 ohos-hdc skill
 
 ## 执行流程
 
