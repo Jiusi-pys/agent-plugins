@@ -1,24 +1,22 @@
-# agent-plugins
+# Codex Skills Repository (`openai` branch)
 
-This repository is organized around two branch roles:
+This branch is the Codex-first branch of this repository.
 
-- `main` is the stable upstream branch.
-- `openai` is the Codex-oriented migration branch, where Claude-specific plugin content is being converted for Codex use.
+## Branch Split
 
-The current converted output lives in `plugins/ohos-porting`.
+- `main` keeps the original Claude-oriented source layout.
+- `openai` keeps Codex-ready skill outputs.
 
-## Converted Plugin
+## Available Skills
 
-`plugins/ohos-porting` is the active converted plugin output in this branch. It represents the Codex-oriented porting workflow derived from the original OHOS tooling.
+The current root-level skills in this branch are:
 
-## Retained Codex Skills
+- `skills/ohos-hdc`
+- `skills/ohos-cpp-style`
+- `skills/ohos-permission`
 
-The migration keeps these Codex skills available:
+## Notes
 
-- `ohos-hdc`
-- `ohos-cpp-style`
-- `ohos-permission`
-
-## Repository Notes
-
-This branch is focused on Codex-facing migration output. Its documentation and converted artifacts should describe the openai branch as the migration destination for Codex use, not as a home for Claude plugin source-of-truth content.
+- This branch is organized for direct Codex skill consumption.
+- The retained OHOS skills are self-contained and can be copied or installed individually.
+- Repository docs should describe the root-level `skills/` layout, not a plugin container layout.
