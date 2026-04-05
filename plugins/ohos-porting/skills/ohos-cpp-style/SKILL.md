@@ -5,8 +5,6 @@ description: OpenHarmony and KaihongOS C/C++ coding guidance. Use when Codex nee
 
 # OHOS C++ Style
 
-Use when Codex needs to write or review OpenHarmony C/C++ code.
-
 Use this skill when producing or reviewing C/C++ code for OpenHarmony or KaihongOS projects.
 
 ## Start Here
