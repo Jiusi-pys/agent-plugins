@@ -1,213 +1,90 @@
 ---
 name: ohos-cpp-style
-description: "OpenHarmony/KaihongOS C/C++ 编程规范。当 Claude 需要为 OpenHarmony、KaihongOS 移植项目编写或审查 C/C++ 代码时使用。涵盖：(1) 代码格式化（clang-format 配置），(2) 命名规范，(3) GN 构建配置，(4) 文档注释规范，(5) 权限配置，(6) 线程同步。"
+description: OpenHarmony and KaihongOS C/C++ coding guidance. Use when Codex needs to write, edit, review, or refactor OHOS-native C/C++ code, create or update BUILD.gn files, apply OHOS naming and file layout conventions, or check threading, serialization, and permission-related implementation patterns.
 ---
 
-# OpenHarmony C/C++ 编程规范
+# OHOS C++ Style
 
-## 配置文件
+Use when Codex needs to write or review OpenHarmony C/C++ code.
 
-使用前先读取 \`config.json\` 获取路径配置：
+Use this skill when producing or reviewing C/C++ code for OpenHarmony or KaihongOS projects.
 
-\`\`\`json
+## Start Here
+
+Read `config.json` before relying on repository-specific paths or toolchain values.
+
+```json
 {
-    "paths": {
-        "openharmony_source": "/path/to/OpenHarmony",
-        "openharmony_prebuilts": "/path/to/openharmony_prebuilts",
-        "output_dir": "/path/to/out/<board>"
-    },
-    "toolchain": {
-        "clang": "clang_linux-x86_64-<version>"
-    },
-    "target": {
-        "cpu": "arm64",
-        "os": "ohos",
-        "board": "rk3588s"
-    },
-    "project": {
-        "part_name": "<your_part_name>",
-        "subsystem_name": "<your_subsystem>"
-    }
+  "paths": {
+    "openharmony_source": "/path/to/OpenHarmony",
+    "openharmony_prebuilts": "/path/to/openharmony_prebuilts",
+    "output_dir": "/path/to/out/<board>"
+  }
 }
-\`\`\`
+```
 
----
+If the config values are placeholders, keep generated code generic and avoid inventing machine-specific paths.
 
-## 快速参考
+## Core Conventions
 
-### 文件头模板
+- Use `CamelCase` for namespaces, classes, and structs.
+- Use `camelCase` for methods.
+- Use `snake_case_` for member fields.
+- Use `UPPER_SNAKE_CASE` for macros and constants.
+- Use `snake_case` for file names.
+- Keep platform-specific code isolated instead of scattering conditional compilation across unrelated files.
 
-\`\`\`cpp
+## File Skeleton
+
+```cpp
 /*
  * Copyright (c) 2024-2026 Your Organization
- * Licensed under the Apache License, Version 2.0 (the "License");
- * ...
- */
-
-/**
- * @file module_name.h
- * @brief Brief description of the module
- * @since 1.0
- * @version 1.0
+ * Licensed under the Apache License, Version 2.0
  */
 
 #ifndef PROJECT__MODULE_NAME_H_
 #define PROJECT__MODULE_NAME_H_
 
-// Your code
+namespace OHOS {
+class SessionManager {
+public:
+    int32_t Initialize();
+private:
+    bool initialized_ = false;
+};
+}  // namespace OHOS
 
 #endif  // PROJECT__MODULE_NAME_H_
-\`\`\`
+```
 
-### 命名规范
+## BUILD.gn and Layout Guidance
 
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 命名空间 | CamelCase | \`namespace OHOS { }\` |
-| 类/结构体 | CamelCase | \`class SessionManager\` |
-| C API 函数 | CamelCase | \`CreateSession()\` |
-| 成员函数 | camelCase | \`initialize()\` |
-| 成员变量 | snake_case_ | \`initialized_\`, \`data_\` |
-| 宏/常量 | UPPER_SNAKE_CASE | \`MAX_BUFFER_SIZE\` |
-| 文件名 | snake_case | \`module_name.cpp\` |
+- Prefer explicit targets and dependencies in `BUILD.gn`.
+- Keep headers and sources grouped by responsibility.
+- Use the templates in `asserts/BUILD.gn` and `references/gn-templates.md` as the baseline shape.
+- When adding a new OHOS-specific module, keep the interface minimal and isolate adaptation code in a dedicated file pair.
 
-### 格式化配置
+## Formatting
 
-\`\`\`bash
-# 使用项目 clang-format
-clang-format -style=file -i file.cpp
-\`\`\`
+Prefer the repository clang-format file when present.
 
-**关键参数**: 4 空格缩进，120 字符行宽，指针右对齐
+```bash
+clang-format -style=file -i file.cpp file.h
+```
 
-配置文件: \`asserts/.clang-format\`
+Use `asserts/.clang-format` as the reference when a project-local file is missing.
 
-### GN 构建快速模板
+## Reference Files
 
-\`\`\`gni
-import("//build/ohos.gni")
+Read these only when they are relevant:
 
-ohos_shared_library("mylib") {
-    sources = ["src/file.cpp"]
-    
-    cflags_cc = ["-std=c++17", "-fvisibility=default"]
-    
-    external_deps = [
-        "c_utils:utils",
-        "hilog:libhilog",
-    ]
-    
-    part_name = "mycomponent"           # 必需
-    subsystem_name = "mysubsystem"      # 必需
-    install_enable = true
-    install_images = ["system"]
-}
-\`\`\`
+- `references/gn-templates.md` for `BUILD.gn` patterns
+- `references/thread-patterns.md` for synchronization and concurrency patterns
+- `references/serialization.md` for data encoding and marshaling patterns
+- `references/permission-config.md` for permission-related native code considerations
 
----
+## Output Expectations
 
-## 详细内容索引
-
-### 基础规范
-
-- **格式化**: 见 \`asserts/.clang-format\`
-- **代码模板**: 见 \`asserts/template.h\` 和 \`asserts/template.cpp\`
-- **GN 构建**: 见 \`references/gn-templates.md\`
-
-### 高级模式
-
-- **权限配置**: 见 \`references/permission-config.md\`
-  - dlopen 动态加载模式
-  - AccessToken API 初始化
-  - 权限架构详解
-  
-- **线程同步**: 见 \`references/thread-patterns.md\`
-  - Meyer's Singleton 模式
-  - Lock Ordering 文档规范
-  - Condition Variable 用法
-  - 原子操作模式
-
-- **序列化**: 见 \`references/serialization.md\`
-  - Buffer 管理
-  - 字节序处理
-  - 对齐计算
-
-### 何时查阅详细文档
-
-| 场景 | 查阅文档 |
-|------|----------|
-| 配置系统权限 | \`references/permission-config.md\` |
-| 编写多线程代码 | \`references/thread-patterns.md\` |
-| 实现消息序列化 | \`references/serialization.md\` |
-| 编写 BUILD.gn | \`references/gn-templates.md\` |
-
----
-
-## 代码审查清单
-
-使用前快速检查：
-
-- [ ] Apache 2.0 许可证头
-- [ ] 头文件 include guard
-- [ ] 命名符合规范
-- [ ] 文档注释完整
-- [ ] clang-format 格式化
-- [ ] BUILD.gn 配置正确（part_name, subsystem_name）
-- [ ] external_deps 格式正确
-- [ ] 错误处理完整
-- [ ] 资源正确释放（RAII）
-
----
-
-## 提交消息格式
-
-\`\`\`
-[subsystem] brief summary (type)
-
-详细说明（可选）
-- 要点 1
-- 要点 2
-\`\`\`
-
-**类型**: \`feat\`, \`fix\`, \`refactor\`, \`docs\`, \`test\`, \`perf\`, \`build\`
-
----
-
-## 常用 external_deps
-
-\`\`\`gni
-# 基础工具库
-"c_utils:utils"
-
-# 日志
-"hilog:libhilog"
-
-# IPC
-"ipc:ipc_core"
-
-# Samgr (系统服务管理)
-"samgr:samgr_proxy"
-
-# 分布式软总线 (如需使用)
-"dsoftbus:softbus_client"
-
-# 安全
-"access_token:libaccesstoken_sdk"
-"access_token:libnativetoken"
-\`\`\`
-
----
-
-## 相关资源
-
-### Skill 内部文件
-
-- \`config.json\` - 项目路径配置（使用前设置）
-- \`asserts/\` - 模板文件（.clang-format, template.h, BUILD.gn）
-- \`references/\` - 详细参考文档
-
-### OHOS 官方文档
-
-- OpenHarmony 编码规范
-- GN 构建系统指南
-- 子系统开发指南
+- Produce code that matches OHOS naming and layout conventions.
+- Keep comments sparse and useful.
+- Prefer small, focused files and explicit ownership boundaries.

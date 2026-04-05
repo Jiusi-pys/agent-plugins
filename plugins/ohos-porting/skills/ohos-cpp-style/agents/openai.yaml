@@ -1,0 +1,4 @@
+interface:
+  display_name: "OHOS C++ Style"
+  short_description: "Write OpenHarmony C/C++ cleanly"
+  default_prompt: "Use $ohos-cpp-style to write or review this OpenHarmony C/C++ code and keep the result aligned with OHOS conventions."
