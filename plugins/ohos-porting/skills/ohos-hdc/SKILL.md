@@ -1,6 +1,6 @@
 ---
 name: ohos-hdc
-description: HDC operations for OpenHarmony and KaihongOS devices. Use when Codex needs to detect OHOS devices, choose a target device, run shell commands over HDC, transfer files, collect logs, install packages, or handle cross-platform HDC wrappers on Linux, macOS, Windows, or WSL.
+description: HDC operations for OpenHarmony and KaihongOS devices. Use when Codex needs to detect OHOS devices, choose a target device, run shell commands over HDC, transfer files, collect logs, or handle cross-platform HDC wrappers on Linux, macOS, Windows, or WSL.
 ---
 
 # OHOS HDC
@@ -16,14 +16,6 @@ Prefer `scripts/device-control.sh` for device-facing operations because it hides
 ./scripts/device-control.sh -t <device_id> shell "uname -a"
 ./scripts/device-control.sh -t <device_id> file send ./local.bin /data/local/tmp/
 ./scripts/device-control.sh -t <device_id> hilog
-```
-
-Use `scripts/hdc-auto.sh` when you need the raw HDC command shape but still want automatic platform detection.
-
-```bash
-./scripts/hdc-auto.sh --platform
-./scripts/hdc-auto.sh list targets
-./scripts/hdc-auto.sh -t <device_id> shell
 ```
 
 ## Workflow
@@ -59,7 +51,6 @@ Use `scripts/hdc-auto.sh` when you need the raw HDC command shape but still want
 
 ```bash
 ./scripts/device-control.sh -t <device_id> hilog
-./scripts/linux/hilog-monitor.sh <device_id>
 ```
 
 ## Platform Notes
