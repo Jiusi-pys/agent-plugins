@@ -1,69 +1,81 @@
 ---
-name: hdc-kaihongos
-description: HDC (HarmonyOS Device Connector) operations for RK3588S KaihongOS development boards. Auto-detects platform (Linux/Windows/WSL) and uses correct HDC command. Use when: (1) Executing shell commands on KaihongOS device, (2) Transferring files between host and device, (3) Managing device connections and ports, (4) Installing/uninstalling OpenHarmony applications (.hap/.hsp), (5) Debugging device logs and processes, (6) Port forwarding for remote debugging. Supports: Native Linux (hdc_std), Windows (hdc), WSL (powershell.exe wrapper). CRITICAL: Multi-device scenarios require -t parameter for device selection.
+name: ohos-hdc
+description: HDC operations for OpenHarmony and KaihongOS devices. Use when Codex needs to detect OHOS devices, choose a target device, run shell commands over HDC, transfer files, collect logs, install packages, or handle cross-platform HDC wrappers on Linux, macOS, Windows, or WSL.
 ---
 
-# HDC KaihongOS Operations
+# OHOS HDC
 
-HDC commands for interacting with RK3588S KaihongOS devices. **Supports multiple platforms with automatic detection.**
+Use this skill to work with OpenHarmony or KaihongOS devices over HDC.
 
-## For Claude Agents: Use `device-control.sh` (Recommended)
+## Quick Start
 
-Claude agents should use `device-control.sh` for all device operations. This wrapper:
-- ✅ Automatically detects your platform (Linux/Windows/WSL/macOS)
-- ✅ Safely handles complex commands with quotes (no escaping needed)
-- ✅ Provides a unified interface regardless of environment
-- ✅ **You don't need to think about platform differences**
+Prefer `scripts/device-control.sh` for device-facing operations because it hides platform-specific quoting and wrapper differences.
 
 ```bash
-# Just use it directly - platform detection is automatic
-./scripts/device-control.sh list                              # List devices
-./scripts/device-control.sh -t <device_id> shell ls          # Run command
-./scripts/device-control.sh -t <device_id> file send app /tmp/   # Push file
-./scripts/device-control.sh -t <device_id> hilog             # View logs
-
-# Complex commands work without quote escaping issues
-./scripts/device-control.sh -t <id> shell "echo 'hello world' && ls -la"
+./scripts/device-control.sh list
+./scripts/device-control.sh -t <device_id> shell "uname -a"
+./scripts/device-control.sh -t <device_id> file send ./local.bin /data/local/tmp/
+./scripts/device-control.sh -t <device_id> hilog
 ```
 
-**Why use this?** On WSL with PowerShell, complex commands with mixed quotes (like `hdc shell 'echo "test"'`) cause quote matching errors. This wrapper handles all the escaping automatically.
-
-See `device-control.sh --help` for all available operations.
-
----
-
-## For Users: Quick Start with Auto Platform Detection
-
-Use `hdc-auto.sh` for automatic platform detection - no need to remember which HDC command to use!
+Use `scripts/hdc-auto.sh` when you need the raw HDC command shape but still want automatic platform detection.
 
 ```bash
-# Check your platform
 ./scripts/hdc-auto.sh --platform
-
-# Auto-detect and execute HDC commands
 ./scripts/hdc-auto.sh list targets
 ./scripts/hdc-auto.sh -t <device_id> shell
-./scripts/hdc-auto.sh file send ./local /remote
 ```
 
-### Platform Detection Logic
+## Workflow
 
-| Platform | Detection | HDC Command |
-|----------|-----------|-------------|
-| **Native Linux** | `uname -s` = Linux, no Microsoft in /proc/version | `hdc_std` (优先) / `hdc` |
-| **Windows** | MINGW/MSYS/CYGWIN | `hdc` / `hdc.exe` |
-| **WSL** | Linux + Microsoft in /proc/version | `powershell.exe -c "hdc ..."` |
-| **macOS** | Darwin | `hdc_std` / `hdc` |
+1. Detect the host platform and available HDC wrapper.
+2. List devices and require `-t <device_id>` when more than one target is connected.
+3. Use `device-control.sh` for shell, file, and log operations unless a raw HDC command is specifically needed.
+4. Keep deployment artifacts under `/data/local/tmp` unless the user explicitly asks for a more permanent location.
+5. Collect enough command output to confirm success before moving on.
 
-### Setup Alias (Recommended)
+## Common Operations
+
+### List devices
 
 ```bash
-# Add to ~/.bashrc or ~/.zshrc
-alias hdc="./path/to/scripts/hdc-auto.sh"
-
-# Then use normally
-hdc list targets
-hdc -t \$DEVICE_ID shell
+./scripts/device-control.sh list
 ```
 
+### Run a shell command
 
+```bash
+./scripts/device-control.sh -t <device_id> shell "ls -la /data/local/tmp"
+```
+
+### Push and pull files
+
+```bash
+./scripts/device-control.sh -t <device_id> file send ./artifact /data/local/tmp/
+./scripts/device-control.sh -t <device_id> file recv /data/local/tmp/artifact ./artifact
+```
+
+### Collect logs
+
+```bash
+./scripts/device-control.sh -t <device_id> hilog
+./scripts/linux/hilog-monitor.sh <device_id>
+```
+
+## Platform Notes
+
+- Linux and macOS prefer `hdc_std` when present, then fall back to `hdc`.
+- Windows uses `hdc` or `hdc.exe`.
+- WSL uses the PowerShell wrapper path to avoid broken nested quoting.
+- For platform-specific details, read:
+  - `references/HDC-COMMANDS.md`
+  - `references/LINUX-GUIDE.md`
+  - `references/WSL-GUIDE.md`
+  - `references/WORKFLOW-PATTERNS.md`
+
+## Safety Rules
+
+- Do not modify `/system` or `/vendor` unless the user explicitly authorizes it.
+- Prefer `/data/local/tmp` for test binaries and temporary libraries.
+- When multiple devices are attached, always specify the device target.
+- Preserve command output for troubleshooting when file transfer or execution fails.
