@@ -12,7 +12,7 @@ Use this skill to work with OpenHarmony or KaihongOS devices over HDC.
 Prefer `scripts/device-control.sh` for device-facing operations because it hides platform-specific quoting and wrapper differences.
 
 ```bash
-./scripts/device-control.sh list
+./scripts/device-control.sh list targets
 ./scripts/device-control.sh -t <device_id> shell "uname -a"
 ./scripts/device-control.sh -t <device_id> file send ./local.bin /data/local/tmp/
 ./scripts/device-control.sh -t <device_id> hilog
@@ -22,7 +22,7 @@ Prefer `scripts/device-control.sh` for device-facing operations because it hides
 
 1. Detect the host platform and available HDC wrapper.
 2. List devices and require `-t <device_id>` when more than one target is connected.
-3. Use `device-control.sh` for shell, file, and log operations unless a raw HDC command is specifically needed.
+3. Use `device-control.sh` for shell and log operations unless a raw HDC command is specifically needed. For WSL file transfer, follow the staged workflow in `references/WSL-GUIDE.md`.
 4. Keep deployment artifacts under `/data/local/tmp` unless the user explicitly asks for a more permanent location.
 5. Collect enough command output to confirm success before moving on.
 
@@ -31,7 +31,7 @@ Prefer `scripts/device-control.sh` for device-facing operations because it hides
 ### List devices
 
 ```bash
-./scripts/device-control.sh list
+./scripts/device-control.sh list targets
 ```
 
 ### Run a shell command
