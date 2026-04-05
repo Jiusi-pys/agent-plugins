@@ -22,7 +22,7 @@ cp templates/minimal.json /tmp/softbus_perm.json
 
 - The DSoftBus permission file must use a top-level JSON array.
 - Do not wrap the data in an extra `trans_permission` object.
-- Device reboot may be required after updating the permission file.
+- Reboot is required after deployment before the permission change is active.
 - Keep a backup before overwriting a device-side permission file.
 
 ## Correct Shape
@@ -55,12 +55,13 @@ cp templates/minimal.json /tmp/softbus_perm.json
 
 ## Practical Workflow
 
-1. Pick the closest template.
-2. Edit only the fields needed for the target package or session name.
-3. Back up the current device file before deployment.
-4. Deploy with the provided script.
-5. Reboot the device before verification.
-6. Run the verification script and capture the output.
+1. Start from `templates/minimal.json` for production-scoped changes.
+2. Use `templates/dev.json` or permissive `templates/verified.json` entries only as references or narrowed debug starting points.
+3. Edit only the fields needed for the target package or session name.
+4. Back up the current device file before deployment.
+5. Deploy with the provided script.
+6. Reboot the device before verification.
+7. Run the verification script and capture the output.
 
 ## AccessToken Notes
 
