@@ -1,11 +1,11 @@
 ---
 name: ohos-permission
-description: OpenHarmony and KaihongOS permission configuration guidance. Use when Codex needs to configure, deploy, or verify OHOS native permissions, especially DSoftBus session permissions, AccessToken-related setup, or device-side permission JSON updates.
+description: DSoftBus session permission configuration guidance for OpenHarmony and KaihongOS. Use when Codex needs to configure, deploy, or verify DSoftBus session permission JSON and related device-side updates.
 ---
 
 # OHOS Permission
 
-Use this skill when editing, deploying, or validating OpenHarmony permission configuration.
+Use this skill when editing, deploying, or validating DSoftBus session permission configuration.
 
 ## Verified Workflow
 
@@ -14,7 +14,7 @@ For production-scoped changes, start from `templates/minimal.json` and narrow on
 ```bash
 cp templates/minimal.json /tmp/softbus_perm.json
 ./scripts/deploy_softbus_permission.sh <DEVICE_ID> /tmp/softbus_perm.json
-# reboot the device before verification
+hdc shell 'reboot'
 ./scripts/verify_softbus_permission.sh <DEVICE_ID>
 ```
 
@@ -61,11 +61,12 @@ cp templates/minimal.json /tmp/softbus_perm.json
 4. Back up the current device file before deployment.
 5. Deploy with the provided script.
 6. Reboot the device before verification.
-7. Run the verification script and capture the output.
+7. Run the verification script as a deployment sanity check.
+8. After the reboot, run the actual DSoftBus/session functional flow and confirm it works end to end.
 
 ## AccessToken Notes
 
-If the target flow needs native token setup, see `examples/native_token.cpp` and the `RMW_DSOFTBUS_TOKEN_ID` and `RMW_DSOFTBUS_DISABLE_NATIVE_TOKEN` environment variables.
+For KaihongOS API 11 verified-device workarounds only, see `examples/native_token.cpp` and the `RMW_DSOFTBUS_TOKEN_ID` and `RMW_DSOFTBUS_DISABLE_NATIVE_TOKEN` environment variables. Do not treat this as general OHOS permission guidance.
 
 ## Troubleshooting
 
