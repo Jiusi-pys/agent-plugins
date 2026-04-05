@@ -23,13 +23,13 @@ plugins
 └── ohos-porting/
     ├── README.md
     └── skills/
-    ├── ohos-cpp-style/
-    ├── ohos-hdc/
-    └── ohos-permission/
+        ├── ohos-cpp-style/
+        ├── ohos-hdc/
+        └── ohos-permission/
 ```
 
 ## Notes
 
-- This branch keeps only the skills that remain useful in Codex.
+- This directory keeps only the skills that remain useful in Codex.
 - Legacy plugin commands, hooks, and agent definitions are intentionally removed here.
 - Each retained skill includes the OpenAI agent manifest so Codex can surface it cleanly.
