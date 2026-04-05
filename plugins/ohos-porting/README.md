@@ -31,5 +31,5 @@ plugins
 ## Notes
 
 - This branch keeps only the skills that remain useful in Codex.
-- Claude plugin commands, hooks, and agent definitions are intentionally removed here.
+- Legacy plugin commands, hooks, and agent definitions are intentionally removed here.
 - Each retained skill includes the OpenAI agent manifest so Codex can surface it cleanly.
