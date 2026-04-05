@@ -14,7 +14,7 @@ For production-scoped changes, start from `templates/minimal.json` and narrow on
 ```bash
 cp templates/minimal.json /tmp/softbus_perm.json
 ./scripts/deploy_softbus_permission.sh <DEVICE_ID> /tmp/softbus_perm.json
-hdc shell 'reboot'
+hdc -t <DEVICE_ID> shell 'reboot'
 ./scripts/verify_softbus_permission.sh <DEVICE_ID>
 ```
 
