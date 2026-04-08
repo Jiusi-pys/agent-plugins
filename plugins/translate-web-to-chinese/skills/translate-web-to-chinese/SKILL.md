@@ -70,7 +70,7 @@ Use the bundled sample site when you need a no-network smoke test:
 
 ```bash
 python3 scripts/crawl_site.py \
-  --url file:///Users/jiusi/Documents/agent-plugins/plugins/translate-web-to-chinese/skills/translate-web-to-chinese/assets/sample-site/index.html \
+  --url file:///absolute/path/to/plugins/translate-web-to-chinese/skills/translate-web-to-chinese/assets/sample-site/index.html \
   --output-dir /tmp/sample-crawl
 
 python3 scripts/translate_site.py --manifest /tmp/sample-crawl/manifest.json --output-dir /tmp/sample-zh --backend mock
