@@ -1,0 +1,37 @@
+{
+  "name": "ohos-porting",
+  "version": "0.1.0",
+  "description": "Codex plugin for OpenHarmony and KaihongOS porting workflows, device operations, build guidance, runtime debugging, and related delivery support.",
+  "author": {
+    "name": "Jiusi-pys",
+    "url": "https://github.com/Jiusi-pys"
+  },
+  "homepage": "https://github.com/Jiusi-pys/agent-plugins",
+  "repository": "https://github.com/Jiusi-pys/agent-plugins",
+  "license": "MIT",
+  "keywords": [
+    "ohos",
+    "openharmony",
+    "kaihongos",
+    "hdc",
+    "cross-compile",
+    "porting"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "OHOS Porting",
+    "shortDescription": "Port, build, deploy, and debug OpenHarmony software on Linux",
+    "longDescription": "Use the OHOS Porting plugin to assess portability, map Linux APIs to OpenHarmony equivalents, compile with OpenHarmony command-line tools and prebuilts, deploy over HDC, debug runtime failures, and track delivery work across long-running porting efforts.",
+    "developerName": "Jiusi-pys",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/Jiusi-pys/agent-plugins",
+    "defaultPrompt": [
+      "Use the OHOS Porting plugin to assess this codebase, set up the Linux build flow, and debug device deployment or runtime issues."
+    ],
+    "brandColor": "#0F766E"
+  }
+}
