@@ -18,6 +18,6 @@ Use this skill to keep a durable record of a porting effort.
 ## Helpers
 
 ```bash
-./scripts/create_task.sh
+./scripts/create_task.sh <library-name> <version> [source-url]
 ./scripts/show_task.sh <task-id>
 ```

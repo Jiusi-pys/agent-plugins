@@ -28,4 +28,4 @@ Codex plugin for Linux-first OpenHarmony and KaihongOS porting work.
 ## Notes
 
 - This plugin does not ship legacy command shims or legacy agent wrappers.
-- Repo-level Codex hooks provide OHOS-aware Bash guidance and guardrails.
+- OHOS-aware Codex hooks are planned as repo-level follow-up work.
