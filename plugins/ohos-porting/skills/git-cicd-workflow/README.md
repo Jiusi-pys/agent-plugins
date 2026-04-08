@@ -85,7 +85,7 @@ docs/progress/
 
 ## 详细文档
 
-- **工作流层级**: `references/workflow-layers.md`
+- **工作流指南**: `references/workflow-guide.md`
 - **Commit 规范**: `references/commit-standards.md`
 - **PR 管理**: `references/pr-management.md`
 - **文档记录**: `references/documentation.md`

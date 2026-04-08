@@ -33,8 +33,6 @@ cat > "$COMMIT_MSG_FILE" <<EOF
 Phase: $PHASE
 Stage: $STAGE
 Track: $TRACK
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 
 # 显示 commit message

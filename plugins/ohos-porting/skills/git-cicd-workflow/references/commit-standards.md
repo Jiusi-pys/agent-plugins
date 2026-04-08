@@ -12,8 +12,6 @@
 Phase: <phase-name>
 Stage: <stage-name>
 Track: <track-name>
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ## Type 说明
@@ -44,6 +42,4 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 Phase: publisher-create
 Stage: pubsub-implementation
 Track: rmw-dsoftbus-development
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```

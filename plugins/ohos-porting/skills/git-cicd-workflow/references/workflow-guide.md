@@ -65,8 +65,6 @@ OpenHarmony 项目的层级化 Git 工作流规范。
 Phase: <phase-name>
 Stage: <stage-name>
 Track: <track-name>
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ---
@@ -176,7 +174,7 @@ git checkout -b track1/stage1/phase1
 cat docs/progress/track1/stage1/phase1_report.md
 
 # 4. 执行 commit（已由 agent 完成，或手动）
-./scripts/git-workflow/commit_phase.sh \
+./scripts/commit_phase.sh \
   track1 stage1 phase1 \
   "初始化 rmw_dsoftbus 框架" \
   feat
@@ -192,7 +190,7 @@ git checkout -b track1/stage1/phase2
 
 /ohos-dev Track1/Stage1/Phase2: 实现 Session 管理器
 
-./scripts/git-workflow/commit_phase.sh \
+./scripts/commit_phase.sh \
   track1 stage1 phase2 \
   "实现 SessionManager 类" \
   feat
@@ -251,7 +249,7 @@ cat > docs/progress/track1/stage1/STAGE_SUMMARY.md <<'EOF'
 EOF
 
 # 5. 创建 Draft PR
-./scripts/git-workflow/create_stage_pr.sh track1 stage1
+./scripts/create_stage_pr.sh track1 stage1
 
 # 输出:
 # ✅ Draft PR created: #10
@@ -359,8 +357,6 @@ git push origin --delete track1
 Phase: <phase-name>
 Stage: <stage-name>
 Track: <track-name>
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ### Type 说明
@@ -391,8 +387,6 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 Phase: session-manager-impl
 Stage: core-infrastructure
 Track: rmw-dsoftbus-development
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ---
@@ -712,7 +706,7 @@ git log --oneline --graph
 
 ## Scripts 参考
 
-详见: `scripts/git-workflow/README.md`
+详见: `scripts/README.md`
 
 ---
 

@@ -61,10 +61,6 @@ first_nonspace_char() {
     grep -o '[^[:space:]]' "$1" | head -1
 }
 
-to_windows_path() {
-    printf '%s\n' "$1" | sed -E 's|^/mnt/([a-z])/|\U\1:/|' | sed 's|/|\\|g'
-}
-
 if [[ $# -lt 2 ]]; then
     usage
     exit 1
@@ -126,12 +122,7 @@ BACKUP_NAME="softbus_trans_permission.json.bak.$(date +%Y%m%d_%H%M%S)"
 log_ok "已备份为 $BACKUP_NAME"
 
 log_info "[5/7] 传输新配置文件..."
-if [[ "$CONFIG_FILE" == /mnt/* ]]; then
-    WIN_PATH=$(to_windows_path "$CONFIG_FILE")
-    "$HDC_BIN" -t "$DEVICE_ID" file send "$WIN_PATH" "$TARGET_PATH"
-else
-    "$HDC_BIN" -t "$DEVICE_ID" file send "$CONFIG_FILE" "$TARGET_PATH"
-fi
+"$HDC_BIN" -t "$DEVICE_ID" file send "$CONFIG_FILE" "$TARGET_PATH"
 log_ok "传输完成"
 
 log_info "[6/7] 设置文件权限..."

@@ -29,12 +29,12 @@ Project (ROS2 KaihongOS 移植)
 
 **用法**:
 ```bash
-./scripts/git-workflow/generate_phase_report.sh <track> <stage> <phase>
+./scripts/generate_phase_report.sh <track> <stage> <phase>
 ```
 
 **示例**:
 ```bash
-./scripts/git-workflow/generate_phase_report.sh track1 stage1 phase2
+./scripts/generate_phase_report.sh track1 stage1 phase2
 
 # 生成文件: docs/progress/track1/stage1/phase2_report.md
 ```
@@ -49,7 +49,7 @@ Project (ROS2 KaihongOS 移植)
 
 **用法**:
 ```bash
-./scripts/git-workflow/commit_phase.sh <track> <stage> <phase> <message> [type]
+./scripts/commit_phase.sh <track> <stage> <phase> <message> [type]
 ```
 
 **参数**:
@@ -68,13 +68,13 @@ Project (ROS2 KaihongOS 移植)
 **示例**:
 ```bash
 # 新功能
-./scripts/git-workflow/commit_phase.sh track1 stage1 phase2 "实现 Session 管理器" feat
+./scripts/commit_phase.sh track1 stage1 phase2 "实现 Session 管理器" feat
 
 # Bug 修复
-./scripts/git-workflow/commit_phase.sh track1 stage1 phase3 "修复权限问题" fix
+./scripts/commit_phase.sh track1 stage1 phase3 "修复权限问题" fix
 
 # 重构
-./scripts/git-workflow/commit_phase.sh track1 stage2 phase1 "重构 Publisher 实现" refactor
+./scripts/commit_phase.sh track1 stage2 phase1 "重构 Publisher 实现" refactor
 ```
 
 **生成的 Commit Message**:
@@ -84,8 +84,6 @@ Project (ROS2 KaihongOS 移植)
 Phase: phase2
 Stage: stage1
 Track: track1
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ---
@@ -96,7 +94,7 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 **用法**:
 ```bash
-./scripts/git-workflow/create_stage_pr.sh <track> <stage>
+./scripts/create_stage_pr.sh <track> <stage>
 ```
 
 **前提条件**:
@@ -105,7 +103,7 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 **示例**:
 ```bash
-./scripts/git-workflow/create_stage_pr.sh track1 stage1
+./scripts/create_stage_pr.sh track1 stage1
 
 # 创建 Draft PR，标题: [track1/stage1] <Stage Title>
 ```
@@ -138,13 +136,13 @@ git checkout -b track1/stage1/phase2
 # ... 开发 ...
 
 # 3. 生成 Phase 报告
-./scripts/git-workflow/generate_phase_report.sh track1 stage1 phase2
+./scripts/generate_phase_report.sh track1 stage1 phase2
 
 # 4. 编辑报告（填写详细内容）
 vi docs/progress/track1/stage1/phase2_report.md
 
 # 5. 执行 Phase commit
-./scripts/git-workflow/commit_phase.sh track1 stage1 phase2 "实现核心功能X" feat
+./scripts/commit_phase.sh track1 stage1 phase2 "实现核心功能X" feat
 
 # 6. 推送
 git push origin track1/stage1/phase2
@@ -174,7 +172,7 @@ cat > docs/progress/track1/stage1/STAGE_SUMMARY.md <<EOF
 EOF
 
 # 3. 创建 Draft PR
-./scripts/git-workflow/create_stage_pr.sh track1 stage1
+./scripts/create_stage_pr.sh track1 stage1
 
 # 4. 测试通过后转为正式 PR
 gh pr ready <pr-number>
@@ -270,8 +268,6 @@ docs/progress/
 Phase: <phase-name>
 Stage: <stage-name>
 Track: <track-name>
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ### Type 说明
@@ -291,7 +287,7 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ```bash
 # 1. 创建 Draft PR
-./scripts/git-workflow/create_stage_pr.sh track1 stage1
+./scripts/create_stage_pr.sh track1 stage1
 
 # 2. 运行测试
 make test
@@ -331,13 +327,13 @@ git push origin main
 
 ```bash
 # Phase commit
-./scripts/git-workflow/commit_phase.sh <track> <stage> <phase> "<msg>" <type>
+./scripts/commit_phase.sh <track> <stage> <phase> "<msg>" <type>
 
 # 生成 Phase 报告
-./scripts/git-workflow/generate_phase_report.sh <track> <stage> <phase>
+./scripts/generate_phase_report.sh <track> <stage> <phase>
 
 # 创建 Stage Draft PR
-./scripts/git-workflow/create_stage_pr.sh <track> <stage>
+./scripts/create_stage_pr.sh <track> <stage>
 
 # PR 转正式
 gh pr ready <pr-number>
