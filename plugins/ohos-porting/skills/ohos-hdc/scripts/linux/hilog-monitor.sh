@@ -73,12 +73,12 @@ fi
 
 # 选择设备
 if [[ -z "\$TARGET" ]]; then
-    DEVICES=\$(\$HDC_CMD list targets 2>/dev/null | grep -v "^\$" || true)
+    DEVICES=$($HDC_CMD list targets 2>/dev/null | grep -v "^\$" || true)
     if [[ -z "\$DEVICES" ]]; then
         echo -e "\${RED}[ERROR]\${NC} 未检测到设备"
         exit 1
     fi
-    TARGET=\$(echo "\$DEVICES" | head -1)
+    TARGET=$(echo "$DEVICES" | head -1)
 fi
 
 HDC="\$HDC_CMD -t \$TARGET"

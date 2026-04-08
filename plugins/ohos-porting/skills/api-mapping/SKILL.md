@@ -45,11 +45,6 @@ grep -A 10 "epoll" references/linux-api-mapping.md
 | /sys/* | 不支持 | - |
 | statfs | statvfs | 低 |
 
-## 代码模板
-
-详见 [references/code-templates.md](references/code-templates.md)
-
 ## 参考
 
 - [references/linux-api-mapping.md](references/linux-api-mapping.md) - 完整映射表
-- [references/code-templates.md](references/code-templates.md) - 适配代码模板

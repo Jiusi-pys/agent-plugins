@@ -1,5 +1,5 @@
 ---
-name: remote-openharmony-build
+name: ohos-remote-build
 description: Control remote servers exclusively for OpenHarmony image compilation. Use ONLY when building OpenHarmony system images. Requires syncing local code changes to remote before compilation. Supports multiple build servers.
 ---
 

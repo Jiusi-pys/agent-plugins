@@ -7,7 +7,7 @@
 
 set -e
 
-SCRIPT_DIR="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "\$SCRIPT_DIR/hdc-wrapper.sh" 2>/dev/null || true
 
 RED='\033[0;31m'
@@ -84,8 +84,8 @@ fi
 
 # 选择设备
 if [[ -z "\$TARGET" ]]; then
-    DEVICES=\$(\$HDC_CMD list targets 2>/dev/null | grep -v "^\$" || true)
-    DEVICE_COUNT=\$(echo "\$DEVICES" | grep -c . || echo 0)
+    DEVICES=$($HDC_CMD list targets 2>/dev/null | grep -v "^\$" || true)
+    DEVICE_COUNT=$(echo "$DEVICES" | grep -c . || echo 0)
     
     if [[ \$DEVICE_COUNT -eq 0 ]]; then
         log_error "未检测到设备"
@@ -97,7 +97,7 @@ if [[ -z "\$TARGET" ]]; then
         echo "\$DEVICES" | nl
         echo -n "请选择设备: "
         read -r choice
-        TARGET=\$(echo "\$DEVICES" | sed -n "\${choice}p")
+        TARGET=$(echo "$DEVICES" | sed -n "${choice}p")
     fi
 fi
 
@@ -110,7 +110,7 @@ HDC="\$HDC_CMD -t \$TARGET"
 deploy_file() {
     local src="\$1"
     local dst="\$2"
-    local filename=\$(basename "\$src")
+    local filename=$(basename "$src")
     
     log_info "部署: \$src -> \$dst/\$filename"
     
@@ -146,8 +146,8 @@ deploy_dir() {
     
     # 遍历并部署
     find "\$src" -type f | while read -r file; do
-        rel_path=\${file#\$src/}
-        remote_dir="\$dst/\$(dirname "\$rel_path")"
+        rel_path=${file#$src/}
+        remote_dir="$dst/$(dirname "$rel_path")"
         deploy_file "\$file" "\$remote_dir"
     done
 }
@@ -165,7 +165,7 @@ else
     
     # 执行
     if [[ "\$EXEC_AFTER" == true ]]; then
-        FILENAME=\$(basename "\$LOCAL_PATH")
+        FILENAME=$(basename "$LOCAL_PATH")
         log_info "执行: \$REMOTE_PATH/\$FILENAME"
         \$HDC shell "cd \$REMOTE_PATH && ./\$FILENAME"
     fi

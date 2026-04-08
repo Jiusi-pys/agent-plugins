@@ -63,11 +63,6 @@ hdc shell "logcat -d | grep avc"
 ## 快速诊断脚本
 
 ```bash
-./scripts/collect_logs.sh myapp
-./scripts/analyze_crash.sh crash.txt
+hdc shell "hilog -x" > hilog.txt
+hdc shell "ls /data/log/faultlog/"
 ```
-
-## 参考
-
-- [references/crash-analysis.md](references/crash-analysis.md)
-- [references/permission-issues.md](references/permission-issues.md)

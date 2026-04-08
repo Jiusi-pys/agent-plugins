@@ -68,5 +68,4 @@ bpf()                                    → 不支持
 
 ## 参考文档
 
-- [references/linux-api-mapping.md](references/linux-api-mapping.md) - 完整 API 映射表
-- [references/common-issues.md](references/common-issues.md) - 常见问题和解决方案
+- [../api-mapping/references/linux-api-mapping.md](../api-mapping/references/linux-api-mapping.md) - 完整 API 映射表

@@ -124,14 +124,14 @@ convert_wsl_path() {
     # 如果是 WSL 路径，转换为 Windows 路径
     if [[ "$path" == /mnt/* ]]; then
         # /mnt/c/foo -> C:\foo
-        local drive=\$(echo "$path" | cut -d'/' -f3)
-        local rest=\$(echo "$path" | cut -d'/' -f4-)
+        local drive=$(echo "$path" | cut -d'/' -f3)
+        local rest=$(echo "$path" | cut -d'/' -f4-)
         echo "${drive^^}:\\${rest//\//\\}"
     elif [[ -f "$path" || -d "$path" ]]; then
         # 暂存到 Windows 可访问的路径
         local staging_dir="/mnt/c/tmp/hdc_staging"
         mkdir -p "$staging_dir"
-        local filename=\$(basename "$path")
+        local filename=$(basename "$path")
         cp -r "$path" "$staging_dir/$filename"
         echo "C:\\tmp\\hdc_staging\\$filename"
     else
@@ -212,8 +212,8 @@ run_installer() {
 # 主函数
 # ============================================================================
 main() {
-    local platform=\$(detect_platform)
-    local hdc_cmd=\$(get_hdc_command "$platform")
+    local platform=$(detect_platform)
+    local hdc_cmd=$(get_hdc_command "$platform")
     
     # 处理特殊选项
     case "${1:-}" in
@@ -279,7 +279,7 @@ main() {
                         new_args+=("-t")
                         skip_next=true
                     elif [[ -f "$arg" || -d "$arg" ]]; then
-                        new_args+=("\$(convert_wsl_path "$arg")")
+                        new_args+=("$(convert_wsl_path "$arg")")
                     else
                         new_args+=("$arg")
                     fi

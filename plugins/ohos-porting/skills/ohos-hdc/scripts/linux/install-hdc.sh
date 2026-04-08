@@ -74,7 +74,7 @@ check_system() {
     fi
     
     # 检查架构
-    ARCH=\$(uname -m)
+    ARCH=$(uname -m)
     case \$ARCH in
         x86_64) ARCH_NAME="x64" ;;
         aarch64) ARCH_NAME="arm64" ;;
@@ -213,7 +213,7 @@ verify_install() {
     log_info "验证安装..."
     
     if command -v hdc &>/dev/null; then
-        HDC_VERSION=\$(hdc version 2>/dev/null || echo "unknown")
+        HDC_VERSION=$(hdc version 2>/dev/null || echo "unknown")
         log_success "HDC 安装成功!"
         log_info "版本: \$HDC_VERSION"
         log_info "路径: \$(which hdc)"

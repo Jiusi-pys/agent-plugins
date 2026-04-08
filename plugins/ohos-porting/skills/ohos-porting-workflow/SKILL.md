@@ -1,5 +1,5 @@
 ---
-name: main-orchestrator
+name: ohos-porting-workflow
 description: OpenHarmony/KaihongOS 通用移植编排器。管理从 Linux 到 OHOS 的移植项目全生命周期，包含评估、准备、适配、验证四个阶段。
 ---
 

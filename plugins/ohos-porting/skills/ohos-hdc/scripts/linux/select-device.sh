@@ -19,7 +19,7 @@ if ! command -v "\$HDC_CMD" &>/dev/null; then
 fi
 
 # 获取设备列表
-DEVICES=\$(\$HDC_CMD list targets 2>/dev/null | grep -v "^\$" || true)
+DEVICES=$($HDC_CMD list targets 2>/dev/null | grep -v "^\$" || true)
 
 if [[ -z "\$DEVICES" ]]; then
     echo -e "\${RED}[ERROR]\${NC} 未检测到设备" >&2
@@ -30,7 +30,7 @@ if [[ -z "\$DEVICES" ]]; then
     exit 1
 fi
 
-DEVICE_COUNT=\$(echo "\$DEVICES" | wc -l)
+DEVICE_COUNT=$(echo "$DEVICES" | wc -l)
 
 if [[ \$DEVICE_COUNT -eq 1 ]]; then
     echo "\$DEVICES"
@@ -44,7 +44,7 @@ echo "" >&2
 i=1
 while IFS= read -r device; do
     # 获取设备信息
-    MODEL=\$(\$HDC_CMD -t "\$device" shell getprop ro.product.model 2>/dev/null || echo "Unknown")
+    MODEL=$($HDC_CMD -t "$device" shell getprop ro.product.model 2>/dev/null || echo "Unknown")
     echo -e "  [\$i] \$device (\$MODEL)" >&2
     ((i++))
 done <<< "\$DEVICES"
@@ -58,5 +58,5 @@ if [[ \$choice -lt 1 || \$choice -gt \$DEVICE_COUNT ]] 2>/dev/null; then
     exit 1
 fi
 
-SELECTED=\$(echo "\$DEVICES" | sed -n "\${choice}p")
+SELECTED=$(echo "$DEVICES" | sed -n "${choice}p")
 echo "\$SELECTED"

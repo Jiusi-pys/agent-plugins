@@ -34,7 +34,7 @@ list_devices() {
 # 选择设备
 select_device() {
     local devices
-    devices=\$(list_devices)
+    devices=$(list_devices)
     
     if [[ -z "\$devices" ]]; then
         echo -e "\${RED}[ERROR]\${NC} 未检测到设备" >&2
@@ -46,7 +46,7 @@ select_device() {
     fi
     
     local count
-    count=\$(echo "\$devices" | wc -l)
+    count=$(echo "$devices" | wc -l)
     
     if [[ \$count -eq 1 ]]; then
         echo "\$devices"

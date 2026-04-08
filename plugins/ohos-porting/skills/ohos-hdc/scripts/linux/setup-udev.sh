@@ -67,7 +67,7 @@ create_udev_rules() {
     
     # 获取当前用户组
     if [[ -n "\$SUDO_USER" ]]; then
-        USER_GROUP=\$(id -gn "\$SUDO_USER")
+        USER_GROUP=$(id -gn "$SUDO_USER")
     else
         USER_GROUP="plugdev"
     fi
@@ -165,7 +165,7 @@ add_custom_vendor() {
         return 1
     fi
     
-    VENDOR_ID=\$(echo "\$VENDOR_ID" | tr '[:upper:]' '[:lower:]')
+    VENDOR_ID=$(echo "$VENDOR_ID" | tr '[:upper:]' '[:lower:]')
     
     # 检查是否已存在
     if grep -q "idVendor}==\"\$VENDOR_ID\"" "\$UDEV_RULES_FILE" 2>/dev/null; then
