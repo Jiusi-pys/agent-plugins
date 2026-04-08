@@ -1,0 +1,8 @@
+{
+  "name": "translate-web-to-chinese-scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@openai/codex-sdk": "latest"
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Translate Web To Chinese"
+  short_description: "Crawl and translate linked web pages to Chinese"
+  default_prompt: "Use $translate-web-to-chinese to crawl this English site, translate linked pages into Simplified Chinese, and save the Chinese mirror plus the page graph."
