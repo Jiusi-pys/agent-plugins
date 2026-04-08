@@ -12,6 +12,7 @@ Use this skill when a Linux host needs to operate an OpenHarmony or KaihongOS de
 - The host is Linux.
 - Prefer `hdc_std`; fall back to `hdc`.
 - Do not route through host-side wrappers or staging paths.
+- Use `./scripts/hdc-auto.sh` or `./scripts/device-control.sh` in examples unless you have already resolved the active HDC binary.
 
 ## Quick Start
 
@@ -34,7 +35,7 @@ Use this skill when a Linux host needs to operate an OpenHarmony or KaihongOS de
 
 - `scripts/hdc-auto.sh`: Resolve and run `hdc_std` or `hdc` on Linux.
 - `scripts/device-control.sh`: Direct wrapper for shell, file, install, uninstall, reboot, and log flows.
-- `scripts/linux/install-hdc.sh`: Install or verify HDC on Linux.
+- `scripts/linux/install-hdc.sh`: Verify Linux host assumptions and report how to expose `hdc_std` or `hdc` on `PATH`.
 - `scripts/linux/setup-udev.sh`: Set up USB access for OpenHarmony devices on Linux.
 - `references/LINUX-GUIDE.md`: Linux-specific HDC setup and troubleshooting.
 - `references/HDC-COMMANDS.md`: Direct HDC command reference.
