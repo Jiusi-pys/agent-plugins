@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stub Interposition"
+  short_description: "Instrument binaries with LD_PRELOAD stubs"
+  default_prompt: "Use $stub-interposition to build and run LD_PRELOAD stubs for runtime tracing without recompiling the target."

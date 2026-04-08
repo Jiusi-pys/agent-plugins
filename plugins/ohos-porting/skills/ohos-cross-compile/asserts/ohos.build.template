@@ -1,0 +1,13 @@
+{
+  "subsystem": "thirdparty",
+  "parts": {
+    "myproject": {
+      "module_list": [
+        "//path/to/myproject:myproject",
+        "//path/to/myproject:myapp"
+      ],
+      "inner_kits": [],
+      "test_list": []
+    }
+  }
+}

@@ -1,0 +1,319 @@
+#!/bin/bash
+# stubctl - Stub Interposition 统一入口
+# 用法:
+#   stubctl build <stub-name> [--target=arm64-ohos]
+#   stubctl run <stub-name> [--env=VAR=val] -- <command> [args...]
+#   stubctl list
+#   stubctl check <binary>
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+STUBS_DIR="$SKILL_DIR/stubs"
+CACHE_DIR="${STUB_CACHE_DIR:-$HOME/.cache/stub-interposition}"
+
+# 颜色
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info()  { echo -e "${BLUE}[INFO]${NC} $*"; }
+log_ok()    { echo -e "${GREEN}[OK]${NC} $*"; }
+log_warn()  { echo -e "${YELLOW}[WARN]${NC} $*"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
+
+usage() {
+    cat << 'USAGE'
+stubctl - Stub Interposition Controller
+
+Usage:
+    stubctl build <stub-name> [options]     Build stub shared library
+    stubctl run <stub-name> -- <cmd>        Run command with stub injected
+    stubctl list                            List available stubs
+    stubctl check <binary>                  Check if binary supports LD_PRELOAD
+
+Build Options:
+    --target=<target>    Cross-compile target (e.g., arm64-ohos, aarch64-linux-gnu)
+    --cc=<compiler>      Specify compiler (default: gcc or target toolchain)
+    --clean              Force rebuild
+
+Run Options:
+    --env=VAR=value      Set environment variable
+    --log=<file>         Write logs to file (in addition to stderr)
+    --preview=<n>        Content preview bytes (default: 80)
+    --hex                Output hex encoding for binary data
+    --filter=<fds>       Only log specified fds (e.g., "1,2")
+
+Available Stubs:
+    write-logger         Intercept write() syscall
+    net-logger           Intercept network calls (TODO)
+    malloc-tracer        Intercept memory allocation (TODO)
+
+Examples:
+    stubctl build write-logger
+    stubctl run write-logger -- ./myapp arg1 arg2
+    stubctl run write-logger --log=/tmp/io.log -- ./myapp
+    stubctl check ./myapp
+USAGE
+}
+
+# 列出可用 stub
+cmd_list() {
+    log_info "Available stubs:"
+    for d in "$STUBS_DIR"/*/; do
+        if [ -d "$d" ]; then
+            name=$(basename "$d")
+            src=$(ls "$d"/*.c 2>/dev/null | head -1)
+            if [ -n "$src" ]; then
+                echo "  - $name"
+            fi
+        fi
+    done
+}
+
+# 检查二进制是否支持 LD_PRELOAD
+cmd_check() {
+    local binary="$1"
+    
+    if [ ! -f "$binary" ]; then
+        log_error "File not found: $binary"
+        return 1
+    fi
+    
+    local file_info=$(file "$binary")
+    
+    echo "Binary: $binary"
+    echo "Type: $file_info"
+    echo
+    
+    if echo "$file_info" | grep -q "dynamically linked"; then
+        log_ok "Supports LD_PRELOAD (dynamically linked)"
+        return 0
+    elif echo "$file_info" | grep -q "statically linked"; then
+        log_warn "Does NOT support LD_PRELOAD (statically linked)"
+        log_info "Use --wrap linker option instead, or rebuild with dynamic linking"
+        return 1
+    else
+        log_warn "Unknown binary type, LD_PRELOAD may not work"
+        return 1
+    fi
+}
+
+# 构建 stub
+cmd_build() {
+    local stub_name="$1"
+    shift
+    
+    local target=""
+    local cc="gcc"
+    local clean=0
+    
+    # 解析选项
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --target=*)
+                target="${1#--target=}"
+                ;;
+            --cc=*)
+                cc="${1#--cc=}"
+                ;;
+            --clean)
+                clean=1
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                return 1
+                ;;
+        esac
+        shift
+    done
+    
+    # 检查 stub 目录
+    local stub_dir="$STUBS_DIR/$stub_name"
+    if [ ! -d "$stub_dir" ]; then
+        log_error "Stub not found: $stub_name"
+        cmd_list
+        return 1
+    fi
+    
+    # 查找源文件
+    local src=$(ls "$stub_dir"/*.c 2>/dev/null | head -1)
+    if [ -z "$src" ]; then
+        log_error "No source file found in $stub_dir"
+        return 1
+    fi
+    
+    # 确定输出路径
+    mkdir -p "$CACHE_DIR"
+    local out_name="libstub_${stub_name}.so"
+    if [ -n "$target" ]; then
+        out_name="libstub_${stub_name}_${target}.so"
+        # 设置交叉编译器
+        case "$target" in
+            arm64-ohos|aarch64-ohos)
+                cc="${OHOS_NDK}/llvm/bin/clang --target=aarch64-linux-ohos"
+                ;;
+            aarch64-linux-gnu)
+                cc="aarch64-linux-gnu-gcc"
+                ;;
+            *)
+                log_warn "Unknown target: $target, using default compiler"
+                ;;
+        esac
+    fi
+    
+    local out="$CACHE_DIR/$out_name"
+    
+    # 检查缓存
+    if [ $clean -eq 0 ] && [ -f "$out" ] && [ "$out" -nt "$src" ]; then
+        log_ok "Using cached: $out"
+        echo "$out"
+        return 0
+    fi
+    
+    # 构建
+    log_info "Building $stub_name..."
+    log_info "  Source: $src"
+    log_info "  Output: $out"
+    log_info "  Compiler: $cc"
+    
+    $cc -shared -fPIC -O2 -o "$out" "$src" -ldl -pthread
+    
+    if [ $? -eq 0 ]; then
+        log_ok "Built successfully: $out"
+        echo "$out"
+    else
+        log_error "Build failed"
+        return 1
+    fi
+}
+
+# 运行带 stub 的程序
+cmd_run() {
+    local stub_name="$1"
+    shift
+    
+    local env_vars=()
+    local log_file=""
+    local preview=""
+    local hex=""
+    local filter=""
+    
+    # 解析选项直到遇到 --
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --)
+                shift
+                break
+                ;;
+            --env=*)
+                env_vars+=("${1#--env=}")
+                ;;
+            --log=*)
+                log_file="${1#--log=}"
+                ;;
+            --preview=*)
+                preview="${1#--preview=}"
+                ;;
+            --hex)
+                hex=1
+                ;;
+            --filter=*)
+                filter="${1#--filter=}"
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                return 1
+                ;;
+        esac
+        shift
+    done
+    
+    if [ $# -eq 0 ]; then
+        log_error "No command specified"
+        usage
+        return 1
+    fi
+    
+    # 构建 stub（使用缓存）
+    local stub_so=$(cmd_build "$stub_name" 2>/dev/null | tail -1)
+    if [ -z "$stub_so" ] || [ ! -f "$stub_so" ]; then
+        log_error "Failed to build stub: $stub_name"
+        return 1
+    fi
+    
+    # 检查目标程序
+    local cmd="$1"
+    if [ -f "$cmd" ]; then
+        if ! cmd_check "$cmd" >/dev/null 2>&1; then
+            log_warn "Target may not support LD_PRELOAD"
+        fi
+    fi
+    
+    # 构建环境变量
+    local env_prefix="LD_PRELOAD=$stub_so"
+    
+    if [ -n "$log_file" ]; then
+        env_prefix="$env_prefix STUB_LOG_FILE=$log_file"
+    fi
+    if [ -n "$preview" ]; then
+        env_prefix="$env_prefix STUB_PREVIEW=$preview"
+    fi
+    if [ -n "$hex" ]; then
+        env_prefix="$env_prefix STUB_HEX=1"
+    fi
+    if [ -n "$filter" ]; then
+        env_prefix="$env_prefix STUB_FILTER_FD=$filter"
+    fi
+    
+    for v in "${env_vars[@]}"; do
+        env_prefix="$env_prefix $v"
+    done
+    
+    log_info "Running with stub: $stub_name"
+    log_info "Command: $*"
+    log_info "Environment: $env_prefix"
+    echo
+    
+    # 执行
+    env $env_prefix "$@"
+}
+
+# 主入口
+main() {
+    if [ $# -eq 0 ]; then
+        usage
+        exit 1
+    fi
+    
+    local cmd="$1"
+    shift
+    
+    case "$cmd" in
+        build)
+            cmd_build "$@"
+            ;;
+        run)
+            cmd_run "$@"
+            ;;
+        list)
+            cmd_list
+            ;;
+        check)
+            cmd_check "$@"
+            ;;
+        -h|--help|help)
+            usage
+            ;;
+        *)
+            log_error "Unknown command: $cmd"
+            usage
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

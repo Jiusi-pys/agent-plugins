@@ -1,0 +1,158 @@
+# OpenHarmony Cross-Compilation Makefile Template
+#
+# Prerequisites:
+#   1. Set OHOS_SDK_ROOT environment variable or edit below
+#   2. Run device_survey.sh on target before deployment
+#
+# Usage:
+#   make                  # Build all
+#   make lib              # Build shared library only
+#   make app              # Build executable only
+#   make clean            # Clean build artifacts
+#   make deploy           # Deploy to device via HDC
+#   make check            # Verify build output
+
+#========================================
+# Configuration
+#========================================
+
+# Project name (used for library naming)
+PROJECT := myproject
+
+# Source files
+LIB_SOURCES := src/lib.cpp src/utils.cpp
+APP_SOURCES := src/main.cpp
+
+# Output names
+TARGET_LIB := lib$(PROJECT).so
+TARGET_APP := $(PROJECT)
+
+# Include directories
+INCLUDES := -Iinclude
+
+#========================================
+# Toolchain Configuration
+#========================================
+
+# SDK root - set via environment or edit here
+OHOS_SDK_ROOT ?= $(error OHOS_SDK_ROOT not set)
+
+# Toolchain paths
+LLVM_BIN := $(OHOS_SDK_ROOT)/llvm/bin
+CC  := $(LLVM_BIN)/aarch64-unknown-linux-ohos-clang
+CXX := $(LLVM_BIN)/aarch64-unknown-linux-ohos-clang++
+AR  := $(LLVM_BIN)/llvm-ar
+STRIP := $(LLVM_BIN)/llvm-strip
+READELF := $(LLVM_BIN)/llvm-readelf
+NM := $(LLVM_BIN)/llvm-nm
+
+#========================================
+# Compiler Flags
+#========================================
+
+# Common flags
+CFLAGS := -O2 -Wall -Wextra -fPIC
+CXXFLAGS := -std=c++17 -O2 -Wall -Wextra -fPIC
+
+# Linker flags
+LDFLAGS := -fuse-ld=lld
+
+# RPATH - runtime library search paths
+RPATH := -Wl,-rpath,/data -Wl,-rpath,/system/lib64
+
+# Debug build (make DEBUG=1)
+ifdef DEBUG
+    CFLAGS := -O0 -g -Wall -fPIC -DDEBUG=1
+    CXXFLAGS := -std=c++17 -O0 -g -Wall -fPIC -DDEBUG=1
+endif
+
+#========================================
+# Deployment Configuration
+#========================================
+
+DEVICE_PATH := /data
+HDC := hdc
+
+#========================================
+# Build Rules
+#========================================
+
+.PHONY: all lib app clean deploy check help
+
+all: lib app
+
+# Shared library
+lib: $(TARGET_LIB)
+
+$(TARGET_LIB): $(LIB_SOURCES)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -shared -o $@ $^
+	@echo "Built: $@"
+
+# Executable
+app: $(TARGET_APP)
+
+$(TARGET_APP): $(APP_SOURCES) $(TARGET_LIB)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) $(RPATH) \
+		-o $@ $(APP_SOURCES) -L. -l$(PROJECT)
+	@echo "Built: $@"
+
+# Clean
+clean:
+	rm -f $(TARGET_LIB) $(TARGET_APP) *.o
+
+#========================================
+# Deployment
+#========================================
+
+deploy: all
+	@echo "Deploying to device..."
+	$(HDC) file send $(TARGET_LIB) $(DEVICE_PATH)/
+	$(HDC) file send $(TARGET_APP) $(DEVICE_PATH)/
+	$(HDC) shell chmod +x $(DEVICE_PATH)/$(TARGET_APP)
+	@echo "Deployed to $(DEVICE_PATH)/"
+
+# Deploy C++ runtime (first time only)
+deploy-runtime:
+	$(HDC) file send $(OHOS_SDK_ROOT)/llvm/lib/aarch64-linux-ohos/libc++_shared.so $(DEVICE_PATH)/
+
+#========================================
+# Verification
+#========================================
+
+check: all
+	@echo "=== Binary Architecture ==="
+	@file $(TARGET_APP) $(TARGET_LIB)
+	@echo ""
+	@echo "=== Library Dependencies ==="
+	@$(READELF) -d $(TARGET_APP) | grep -E "(NEEDED|RPATH)"
+	@echo ""
+	@echo "=== Exported Symbols (library) ==="
+	@$(NM) -D $(TARGET_LIB) | grep " T " | head -10
+	@echo ""
+	@echo "=== Size ==="
+	@ls -lh $(TARGET_LIB) $(TARGET_APP)
+
+#========================================
+# Help
+#========================================
+
+help:
+	@echo "OpenHarmony Cross-Compilation Makefile"
+	@echo ""
+	@echo "Targets:"
+	@echo "  all            Build library and executable (default)"
+	@echo "  lib            Build shared library only"
+	@echo "  app            Build executable only"
+	@echo "  clean          Remove build artifacts"
+	@echo "  deploy         Deploy to device via HDC"
+	@echo "  deploy-runtime Deploy libc++_shared.so (first time)"
+	@echo "  check          Verify build output"
+	@echo ""
+	@echo "Variables:"
+	@echo "  OHOS_SDK_ROOT  Path to OHOS SDK (required)"
+	@echo "  DEBUG=1        Build with debug symbols"
+	@echo "  DEVICE_PATH    Deployment path (default: /data)"
+	@echo ""
+	@echo "Example:"
+	@echo "  OHOS_SDK_ROOT=/path/to/sdk make"
+	@echo "  OHOS_SDK_ROOT=/path/to/sdk make deploy"

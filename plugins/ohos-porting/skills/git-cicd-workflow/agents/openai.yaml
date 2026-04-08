@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git CI/CD Workflow"
+  short_description: "Apply the staged delivery workflow for porting work"
+  default_prompt: "Use $git-cicd-workflow to structure commits, reports, and handoff checkpoints for this porting track."

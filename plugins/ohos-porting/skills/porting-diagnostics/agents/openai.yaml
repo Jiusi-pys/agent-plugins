@@ -1,0 +1,4 @@
+interface:
+  display_name: "Porting Diagnostics"
+  short_description: "Scan source trees for OHOS portability risks"
+  default_prompt: "Use $porting-diagnostics to assess dependencies, unsupported APIs, and migration risk before editing code."

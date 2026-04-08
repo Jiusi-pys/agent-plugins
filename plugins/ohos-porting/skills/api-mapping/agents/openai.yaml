@@ -1,0 +1,4 @@
+interface:
+  display_name: "API Mapping"
+  short_description: "Map Linux APIs to OpenHarmony replacements"
+  default_prompt: "Use $api-mapping to map Linux APIs to OpenHarmony equivalents and draft adaptation notes or code stubs."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "OHOS Porting Workflow"
+  short_description: "Guide end-to-end OpenHarmony porting work"
+  default_prompt: "Use $ohos-porting-workflow to assess, prepare, adapt, validate, and document this OHOS port."
