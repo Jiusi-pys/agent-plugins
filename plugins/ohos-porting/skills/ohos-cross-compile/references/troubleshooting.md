@@ -16,6 +16,8 @@ readelf -d ./build/myapp | grep NEEDED
 ## Check device-side deployment
 
 ```bash
-hdc -t <device_id> shell 'ls -lh /data/local/tmp'
-hdc -t <device_id> shell 'ldd /data/local/tmp/myapp'
+HDC_BIN="${HDC_BIN:-$(command -v hdc_std || command -v hdc || true)}"
+[ -n "$HDC_BIN" ] || { echo "HDC not found" >&2; exit 1; }
+"$HDC_BIN" -t <device_id> shell 'ls -lh /data/local/tmp'
+"$HDC_BIN" -t <device_id> shell 'ldd /data/local/tmp/myapp'
 ```
