@@ -1,22 +1,23 @@
-# Codex Skills Repository (`openai` branch)
+# Codex plugins repository (`openai` branch)
 
-This branch is the Codex-first branch of this repository.
+This branch packages Codex-ready plugins from this repository under `plugins/`.
 
-## Branch Split
+## Branch split
 
-- `main` keeps the original Claude-oriented source layout.
-- `openai` keeps Codex-ready skill outputs.
+- `main`: Claude-oriented source material and original plugin content
+- `openai`: Codex-native plugin packaging, hooks, and skill rewrites
 
-## Available Skills
+## Available plugins
 
-The current root-level skills in this branch are:
+- `plugins/ohos-porting`
+- `plugins/translate-web-to-chinese`
 
-- `skills/ohos-hdc`
-- `skills/ohos-cpp-style`
-- `skills/ohos-permission`
+## Repo-local Codex surfaces
+
+- `/.agents/plugins/marketplace.json`
+- `/.codex/hooks.json`
 
 ## Notes
 
-- This branch is organized for direct Codex skill consumption.
-- The retained OHOS skills are self-contained and can be copied or installed individually.
-- Repository docs should describe the root-level `skills/` layout, not a plugin container layout.
+- `ohos-porting` is Linux-only and uses direct `hdc_std` or `hdc`.
+- OHOS build guidance is standardized on `command-line-tools` and `openharmony_prebuilts`.
