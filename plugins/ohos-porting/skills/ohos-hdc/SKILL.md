@@ -1,75 +1,41 @@
 ---
 name: ohos-hdc
-description: HDC operations for OpenHarmony and KaihongOS devices. Use when Codex needs to detect OHOS devices, choose a target device, run shell commands over HDC, transfer files, collect logs, or handle cross-platform HDC wrappers on Linux, macOS, Git Bash/MSYS on Windows, or WSL.
+description: Linux-only HDC operations for OpenHarmony and KaihongOS devices. Use when Codex needs to detect devices, select a target, run shell commands, transfer files, collect logs, or deploy artifacts over direct `hdc_std` or `hdc`.
 ---
 
 # OHOS HDC
 
-Use this skill to work with OpenHarmony or KaihongOS devices over HDC.
+Use this skill when a Linux host needs to operate an OpenHarmony or KaihongOS device over HDC.
+
+## Host Assumptions
+
+- The host is Linux.
+- Prefer `hdc_std`; fall back to `hdc`.
+- Do not route through host-side wrappers or staging paths.
 
 ## Quick Start
 
-Prefer `scripts/device-control.sh` for device-facing operations because it hides platform-specific quoting and wrapper differences.
-These examples are for Linux, macOS, and Git Bash/MSYS on Windows. For WSL file transfer, follow the staged workflow in `references/WSL-GUIDE.md`.
-
 ```bash
-./scripts/device-control.sh list targets
+./scripts/hdc-auto.sh list targets
 ./scripts/device-control.sh -t <device_id> shell "uname -a"
-./scripts/device-control.sh -t <device_id> file send ./local.bin /data/local/tmp/
+./scripts/device-control.sh -t <device_id> file send ./artifact /data/local/tmp/
 ./scripts/device-control.sh -t <device_id> hilog
 ```
 
 ## Workflow
 
-1. Detect the host platform and available HDC wrapper.
-2. List devices and require `-t <device_id>` when more than one target is connected.
-3. Use `device-control.sh` for shell and log operations unless a raw HDC command is specifically needed. For WSL file transfer, follow the staged workflow in `references/WSL-GUIDE.md`.
-4. Keep deployment artifacts under `/data/local/tmp` unless the user explicitly asks for a more permanent location.
-5. Collect enough command output to confirm success before moving on.
+1. Detect the available HDC binary with `scripts/hdc-auto.sh`.
+2. List targets and require `-t <device_id>` whenever more than one device is visible.
+3. Prefer `/data/local/tmp` for temporary binaries, logs, and test payloads.
+4. Use the Linux helper scripts under `scripts/linux/` when you need repeatable deployment, device selection, log monitoring, or udev setup.
+5. Do not modify `/system` or `/vendor` unless the user has explicitly authorized it.
 
-## Common Operations
+## Files
 
-### List devices
-
-```bash
-./scripts/device-control.sh list targets
-```
-
-### Run a shell command
-
-```bash
-./scripts/device-control.sh -t <device_id> shell "ls -la /data/local/tmp"
-```
-
-### Push and pull files
-
-For WSL, use the staged workflow in `references/WSL-GUIDE.md` instead of these direct file-transfer examples.
-
-```bash
-./scripts/device-control.sh -t <device_id> file send ./artifact /data/local/tmp/
-./scripts/device-control.sh -t <device_id> file recv /data/local/tmp/artifact ./artifact
-```
-
-### Collect logs
-
-```bash
-./scripts/device-control.sh -t <device_id> hilog
-```
-
-## Platform Notes
-
-- Linux and macOS prefer `hdc_std` when present, then fall back to `hdc`.
-- Git Bash/MSYS on Windows uses `hdc` or `hdc.exe`.
-- WSL uses the PowerShell wrapper path to avoid broken nested quoting.
-- For platform-specific details, read:
-  - `references/HDC-COMMANDS.md`
-  - `references/LINUX-GUIDE.md`
-  - `references/WSL-GUIDE.md`
-  - `references/WORKFLOW-PATTERNS.md`
-
-## Safety Rules
-
-- Do not modify `/system` or `/vendor` unless the user explicitly authorizes it.
-- Prefer `/data/local/tmp` for test binaries and temporary libraries.
-- When multiple devices are attached, always specify the device target.
-- Preserve command output for troubleshooting when file transfer or execution fails.
+- `scripts/hdc-auto.sh`: Resolve and run `hdc_std` or `hdc` on Linux.
+- `scripts/device-control.sh`: Direct wrapper for shell, file, install, uninstall, reboot, and log flows.
+- `scripts/linux/install-hdc.sh`: Install or verify HDC on Linux.
+- `scripts/linux/setup-udev.sh`: Set up USB access for OpenHarmony devices on Linux.
+- `references/LINUX-GUIDE.md`: Linux-specific HDC setup and troubleshooting.
+- `references/HDC-COMMANDS.md`: Direct HDC command reference.
+- `references/WORKFLOW-PATTERNS.md`: Common Linux-side deployment and debugging sequences.

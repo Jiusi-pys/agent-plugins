@@ -1,97 +1,23 @@
 ---
 name: ohos-remote-build
-description: Control remote servers exclusively for OpenHarmony image compilation. Use ONLY when building OpenHarmony system images. Requires syncing local code changes to remote before compilation. Supports multiple build servers.
+description: Linux-to-Linux remote OpenHarmony image build guidance. Use when Codex needs to sync local changes to a remote Linux host that already contains an OpenHarmony source tree and then run a product or target build there.
 ---
 
-# Remote OpenHarmony Image Compilation
+# OHOS Remote Build
 
-## Server Configuration
-
-| Host | Remote HOME | OpenHarmony Source |
-|------|-------------|-------------------|
-| cp | /kh_data/pengys | /kh_data/pengys |
-
-Add more servers to this table as needed. OpenHarmony source path may differ from HOME.
-
-## Usage Restriction
-
-Remote servers are **ONLY** for OpenHarmony image compilation. Do NOT use for other compilation tasks.
-
-## Parameters
-
-- `<HOST>`: SSH config host name
-- `<REMOTE_HOME>`: Remote home directory
-- `<OH_SOURCE>`: OpenHarmony source path on remote
-- `<product>`: Product name (e.g., rk3568)
-- `<target>`: Build target component
+Use this skill only for remote Linux build hosts that compile full OpenHarmony images or very large integrated targets.
 
 ## Workflow
 
-### Step 1: Sync Local Changes to Remote
+1. Confirm the remote host alias, remote home, and OpenHarmony source root.
+2. Sync only the changed files needed for the target build.
+3. Run the remote build from the OpenHarmony source root.
+4. Collect the build log and artifact paths.
+5. Document the exact remote command and result in `working-records`.
+
+## Example
 
 ```bash
-# Single file
-scp <local_path> <HOST>:<OH_SOURCE>/<corresponding_path>
-
-# Directory
-scp -r <local_dir> <HOST>:<OH_SOURCE>/<corresponding_path>
-
-# Rsync (recommended for incremental sync)
-rsync -avz --progress <local_path> <HOST>:<OH_SOURCE>/<corresponding_path>
-```
-
-### Step 2: Compile Image
-
-```bash
-ssh <HOST> 'cd <OH_SOURCE> && ./build.sh --product-name <product> --ccache'
-```
-
-### Step 3: Retrieve Build Artifacts (Optional)
-
-```bash
-scp <HOST>:<OH_SOURCE>/out/<product>/packages/phone/images/<image_file> <local_dest>
-```
-
-## Build Commands
-
-Full build:
-```bash
-ssh <HOST> 'cd <OH_SOURCE> && ./build.sh --product-name <product> --ccache'
-```
-
-Build specific component:
-```bash
-ssh <HOST> 'cd <OH_SOURCE> && ./build.sh --product-name <product> --build-target <target> --ccache'
-```
-
-Clean build:
-```bash
-ssh <HOST> 'cd <OH_SOURCE> && ./build.sh --product-name <product> --ccache --clean'
-```
-
-## Utility Commands
-
-Check build output:
-```bash
-ssh <HOST> 'ls -la <OH_SOURCE>/out/<product>/packages/phone/images/'
-```
-
-Monitor build:
-```bash
-ssh <HOST> 'ps aux | grep build'
-```
-
-View build log:
-```bash
-ssh <HOST> 'tail -f <OH_SOURCE>/out/<product>/build.log'
-```
-
-Kill build:
-```bash
-ssh <HOST> 'pkill -f build.sh'
-```
-
-Check disk:
-```bash
-ssh <HOST> 'df -h <REMOTE_HOME>'
+rsync -avz ./subsystem/ cp:/kh_data/pengys/subsystem/
+ssh cp 'cd /kh_data/pengys && ./build.sh --product-name rk3588 --ccache'
 ```

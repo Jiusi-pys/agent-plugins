@@ -1,68 +1,23 @@
 ---
 name: runtime-debug
-description: OHOS 设备运行时调试。分析程序崩溃、权限错误、动态库问题。部署测试出错时自动加载。
+description: Linux-hosted runtime debugging for OpenHarmony devices. Use when Codex needs to inspect crashes, permission failures, missing shared libraries, or bad runtime behavior over direct `hdc` shell and log collection.
 ---
 
-# Runtime Debug Skill
+# Runtime Debug
 
-## 概述
+Use this skill when an OHOS binary fails after deployment.
 
-提供 OHOS 设备端程序运行时问题的诊断能力。
-
-## 日志收集
-
-### 系统日志
-```bash
-hdc shell "logcat -d" > logcat.txt
-hdc shell "logcat -d | grep -E 'FATAL|CRASH|SIGSEGV'"
-```
-
-### 崩溃日志
-```bash
-hdc shell "ls /data/log/faultlog/"
-hdc shell "cat /data/log/faultlog/cppcrash-*"
-```
-
-### 动态库依赖
-```bash
-hdc shell "ldd /data/local/tmp/myapp"
-```
-
-## 常见问题
-
-### 1. 动态库加载失败
-**症状**: `error while loading shared libraries`
-
-**诊断**:
-```bash
-hdc shell "ldd /data/local/tmp/myapp"
-```
-
-**修复**:
-- 推送缺失库到设备
-- 使用静态链接
-- 设置 LD_LIBRARY_PATH
-
-### 2. 段错误 (SIGSEGV)
-**症状**: 程序崩溃
-
-**诊断**:
-```bash
-hdc shell "logcat -d | grep backtrace"
-```
-
-### 3. 权限错误
-**症状**: `Permission denied`
-
-**诊断**:
-```bash
-hdc shell "getenforce"
-hdc shell "logcat -d | grep avc"
-```
-
-## 快速诊断脚本
+## Quick Checks
 
 ```bash
-hdc shell "hilog -x" > hilog.txt
-hdc shell "ls /data/log/faultlog/"
+hdc -t <device_id> hilog
+hdc -t <device_id> shell 'ls /data/log/faultlog/'
+hdc -t <device_id> shell 'ldd /data/local/tmp/myapp'
 ```
+
+## Workflow
+
+1. Collect `hilog` output and any fault logs.
+2. Check dynamic library resolution with `ldd`.
+3. Check file permissions and execution path under `/data/local/tmp`.
+4. If the failure smells like access control or session policy, hand off to `ohos-permission`.
