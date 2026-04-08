@@ -716,9 +716,9 @@ git log --oneline --graph
 
 ---
 
-## Agent 参考
+## Skill 参考
 
-详见: `.claude/agents/OHOS_EXPERT_GUIDE.md`
+详见: `plugins/ohos-porting/skills/ohos-porting-workflow/SKILL.md`
 
 ---
 

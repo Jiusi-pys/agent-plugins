@@ -55,15 +55,15 @@ gh pr merge <pr-number> --squash
 
 ```bash
 # Phase commit
-.claude/skills/git-cicd-workflow/scripts/commit_phase.sh \
+plugins/ohos-porting/skills/git-cicd-workflow/scripts/commit_phase.sh \
   track1 stage1 phase1 "实现功能X" feat
 
 # 生成 Phase 报告
-.claude/skills/git-cicd-workflow/scripts/generate_phase_report.sh \
+plugins/ohos-porting/skills/git-cicd-workflow/scripts/generate_phase_report.sh \
   track1 stage1 phase1
 
 # 创建 Stage PR
-.claude/skills/git-cicd-workflow/scripts/create_stage_pr.sh \
+plugins/ohos-porting/skills/git-cicd-workflow/scripts/create_stage_pr.sh \
   track1 stage1
 ```
 
