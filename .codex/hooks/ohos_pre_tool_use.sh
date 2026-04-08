@@ -8,7 +8,7 @@ if ! printf '%s' "$COMMAND" | grep -Eqi '(^|[[:space:]])(hdc|hdc_std)([[:space:]
   exit 0
 fi
 
-if printf '%s' "$COMMAND" | grep -Eqi '(/system|/vendor).*(rm|cp|mv|dd|mount)|target mount|smode'; then
+if printf '%s' "$COMMAND" | grep -Eqi 'target mount|smode|(^|[[:space:]])(rm|cp|mv|dd|mount)([[:space:]]|$).*(/system|/vendor)|(/system|/vendor).*(^|[[:space:]])(rm|cp|mv|dd|mount)([[:space:]]|$)'; then
   python3 -c 'import json; print(json.dumps({
     "systemMessage": "OHOS guardrail: modifying /system, /vendor, remounting partitions, or escalating device privileges requires explicit user authorization.",
     "hookSpecificOutput": {
