@@ -36,18 +36,27 @@ const codex = new Codex({ env });
 const thread = codex.startThread({
   workingDirectory: request.workingDirectory,
   skipGitRepoCheck: true,
-});
-
-const turn = await thread.run(request.prompt, {
-  outputSchema: request.outputSchema,
   model: request.model,
   modelReasoningEffort: request.reasoningEffort,
 });
 
+const turn = await thread.run(request.prompt, {
+  outputSchema: request.outputSchema,
+});
+
+let finalResponse = turn.finalResponse;
+if (typeof finalResponse === "string") {
+  try {
+    finalResponse = JSON.parse(finalResponse);
+  } catch {
+    // Keep the raw string when the SDK returns a non-JSON final response.
+  }
+}
+
 process.stdout.write(
   JSON.stringify(
     {
-      finalResponse: turn.finalResponse,
+      finalResponse,
       items: turn.items ?? [],
     },
     null,
