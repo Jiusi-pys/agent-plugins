@@ -11,6 +11,7 @@ This branch packages Codex-ready plugins from this repository under `plugins/`.
 
 - `plugins/ohos-porting`
 - `plugins/translate-web-to-chinese`
+- `plugins/codebase-frontmatter-summary`
 
 ## Repo-local Codex surfaces
 
@@ -21,3 +22,4 @@ This branch packages Codex-ready plugins from this repository under `plugins/`.
 
 - `ohos-porting` is Linux-only and uses direct `hdc_std` or `hdc`.
 - OHOS build guidance is standardized on `command-line-tools` and `openharmony_prebuilts`.
+- `codebase-frontmatter-summary` scans a tree bottom-up, adds managed file frontmatter, and writes one summary file per directory.
