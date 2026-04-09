@@ -16,7 +16,7 @@ Use this skill to build a Chinese mirror of a linked English site while keeping 
 3. Expose Codex as MCP only when another local process needs it.
    Use `scripts/start_codex_mcp.py --print-config` to emit a config snippet or `--foreground` to run `codex mcp-server`.
 4. Translate pages iteratively.
-   Use `scripts/translate_site.py` with `--backend auto` unless the user explicitly wants a fixed backend.
+   Use `scripts/translate_site.py` with its defaults unless the user explicitly wants a different backend, model, or reasoning effort.
 5. Re-render relation reports after any manifest edits.
    Use `scripts/render_relations.py`.
 
@@ -30,11 +30,13 @@ Use this skill to build a Chinese mirror of a linked English site while keeping 
 
 ## Backend Choice
 
-- `auto`: Prefer this. It tries local Codex MCP first, then the SDK bridge, then `codex exec`.
-- `mcp`: Force the local Codex MCP server path.
+- `mcp`: Default. Use the local Codex MCP server path.
+- `auto`: Try local Codex MCP first, then the SDK bridge, then `codex exec`.
 - `sdk`: Force `scripts/codex_sdk_bridge.mjs`. Use this only after `npm install @openai/codex-sdk` in `scripts/`.
 - `exec`: Use the installed Codex CLI with `--output-schema` for structured page translations.
 - `mock`: Use for local smoke tests when no live Codex call should be made.
+
+Default Codex settings for this skill are `mcp` backend, `gpt-5.4-mini`, and `high` reasoning effort.
 
 The current official Codex SDK is TypeScript-based, so this skill keeps orchestration in Python and uses the Node bridge only as an optional backend.
 

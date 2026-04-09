@@ -10,7 +10,12 @@ import tempfile
 from pathlib import Path
 from typing import Dict, Optional
 
-from codex_mcp_client import run_translation_via_codex_mcp
+from codex_mcp_client import (
+    DEFAULT_BACKEND,
+    DEFAULT_MODEL,
+    DEFAULT_MODEL_REASONING_EFFORT,
+    run_translation_via_codex_mcp,
+)
 from site_common import (
     ensure_directory,
     load_json,
@@ -38,12 +43,26 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", required=True, help="Directory for translated outputs")
     parser.add_argument(
         "--backend",
-        default="auto",
+        default=DEFAULT_BACKEND,
         choices=["auto", "mcp", "sdk", "exec", "mock"],
-        help="Translation backend. 'auto' prefers local Codex MCP, then the SDK bridge, then codex exec.",
+        help="Translation backend. Defaults to Codex MCP. 'auto' tries MCP, then the SDK bridge, then codex exec.",
     )
-    parser.add_argument("--model", help="Optional Codex model name for the CLI backend.")
-    parser.add_argument("--sdk-bridge", default=str(Path(__file__).with_name("codex_sdk_bridge.mjs")), help="Path to the optional Node.js SDK bridge script.")
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help="Codex model name. Defaults to gpt-5.4-mini.",
+    )
+    parser.add_argument(
+        "--reasoning-effort",
+        default=DEFAULT_MODEL_REASONING_EFFORT,
+        choices=["minimal", "low", "medium", "high", "xhigh"],
+        help="Codex reasoning effort. Defaults to high.",
+    )
+    parser.add_argument(
+        "--sdk-bridge",
+        default=str(Path(__file__).with_name("codex_sdk_bridge.mjs")),
+        help="Path to the optional Node.js SDK bridge script.",
+    )
     parser.add_argument("--resume", action="store_true", help="Skip pages that are already translated.")
     parser.add_argument("--max-pages", type=int, help="Limit the number of translated pages.")
     parser.add_argument(
@@ -102,6 +121,7 @@ def main() -> int:
             backend=backend,
             sdk_bridge=Path(args.sdk_bridge),
             model=args.model,
+            reasoning_effort=args.reasoning_effort,
             working_dir=Path(args.working_dir).resolve(),
         )
         if backend == "auto" and translation.get("_backend_used"):
@@ -168,30 +188,31 @@ def translate_page(
     backend: str,
     sdk_bridge: Path,
     model: Optional[str],
+    reasoning_effort: str,
     working_dir: Path,
 ) -> Dict[str, str]:
     prompt = build_prompt(page, raw_html)
     if backend == "mock":
         return mock_translation(page, raw_html)
     if backend == "mcp":
-        return run_codex_mcp(prompt, working_dir, model)
+        return run_codex_mcp(prompt, working_dir, model, reasoning_effort)
     if backend == "auto":
         try:
-            response = run_codex_mcp(prompt, working_dir, model)
+            response = run_codex_mcp(prompt, working_dir, model, reasoning_effort)
             response["_backend_used"] = "mcp"
             return response
         except Exception:
             pass
     if backend == "sdk":
-        return run_sdk_bridge(prompt, sdk_bridge, working_dir)
+        return run_sdk_bridge(prompt, sdk_bridge, working_dir, model, reasoning_effort)
     if backend == "exec":
-        return run_codex_exec(prompt, working_dir, model)
+        return run_codex_exec(prompt, working_dir, model, reasoning_effort)
     try:
-        response = run_sdk_bridge(prompt, sdk_bridge, working_dir)
+        response = run_sdk_bridge(prompt, sdk_bridge, working_dir, model, reasoning_effort)
         response["_backend_used"] = "sdk"
         return response
     except Exception:
-        response = run_codex_exec(prompt, working_dir, model)
+        response = run_codex_exec(prompt, working_dir, model, reasoning_effort)
         response["_backend_used"] = "exec"
         return response
 
@@ -221,7 +242,9 @@ def clean_child_env() -> Dict[str, str]:
     return env
 
 
-def run_codex_exec(prompt: str, working_dir: Path, model: Optional[str]) -> Dict[str, str]:
+def run_codex_exec(
+    prompt: str, working_dir: Path, model: Optional[str], reasoning_effort: str
+) -> Dict[str, str]:
     with tempfile.TemporaryDirectory(prefix="translate-web-") as temp_dir:
         schema_path = Path(temp_dir) / "schema.json"
         output_path = Path(temp_dir) / "final-message.json"
@@ -229,6 +252,8 @@ def run_codex_exec(prompt: str, working_dir: Path, model: Optional[str]) -> Dict
 
         command = [
             "codex",
+            "-c",
+            'model_reasoning_effort="{}"'.format(reasoning_effort),
             "exec",
             "--skip-git-repo-check",
             "--sandbox",
@@ -260,7 +285,13 @@ def run_codex_exec(prompt: str, working_dir: Path, model: Optional[str]) -> Dict
         return json.loads(output_path.read_text(encoding="utf-8"))
 
 
-def run_sdk_bridge(prompt: str, sdk_bridge: Path, working_dir: Path) -> Dict[str, str]:
+def run_sdk_bridge(
+    prompt: str,
+    sdk_bridge: Path,
+    working_dir: Path,
+    model: Optional[str],
+    reasoning_effort: str,
+) -> Dict[str, str]:
     if not sdk_bridge.exists():
         raise FileNotFoundError("SDK bridge not found: {}".format(sdk_bridge))
 
@@ -268,6 +299,8 @@ def run_sdk_bridge(prompt: str, sdk_bridge: Path, working_dir: Path) -> Dict[str
         "prompt": prompt,
         "outputSchema": TRANSLATION_SCHEMA,
         "workingDirectory": str(working_dir),
+        "model": model,
+        "reasoningEffort": reasoning_effort,
     }
     completed = subprocess.run(
         ["node", str(sdk_bridge)],
@@ -287,8 +320,15 @@ def run_sdk_bridge(prompt: str, sdk_bridge: Path, working_dir: Path) -> Dict[str
     return response["finalResponse"]
 
 
-def run_codex_mcp(prompt: str, working_dir: Path, model: Optional[str]) -> Dict[str, str]:
-    return run_translation_via_codex_mcp(prompt, working_dir=working_dir, model=model)
+def run_codex_mcp(
+    prompt: str, working_dir: Path, model: Optional[str], reasoning_effort: str
+) -> Dict[str, str]:
+    return run_translation_via_codex_mcp(
+        prompt,
+        working_dir=working_dir,
+        model=model,
+        reasoning_effort=reasoning_effort,
+    )
 
 
 def mock_translation(page: Dict, raw_html: str) -> Dict[str, str]:

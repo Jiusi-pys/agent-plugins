@@ -10,3 +10,4 @@ Codex plugin for crawling linked documentation pages and generating a Simplified
 
 - Uses the packaged translation workflow under `skills/translate-web-to-chinese/`.
 - The skill remains Codex-oriented and does not require `OPENAI_API_KEY`.
+- The default translation path is Codex MCP with model `gpt-5.4-mini` and `high` reasoning effort.

@@ -19,8 +19,8 @@ Official references:
 ## Practical implication for this skill
 
 - Keep the orchestration layer in Python.
-- Prefer `translate_site.py --backend auto`.
-- `auto` first tries the local `codex mcp-server` path, then `scripts/codex_sdk_bridge.mjs`, then `codex exec`.
+- Prefer `translate_site.py` defaults: `mcp` backend, `gpt-5.4-mini`, `high` reasoning effort.
+- `auto` is the fallback mode when you want the script to recover from MCP failures by trying the SDK bridge and then `codex exec`.
 - Use `codex exec` only as the last fallback, because the MCP path is the primary requirement for this skill.
 
 ## Auth rule

@@ -9,6 +9,10 @@ import threading
 from pathlib import Path
 from typing import Dict, Iterable, Optional
 
+DEFAULT_BACKEND = "mcp"
+DEFAULT_MODEL = "gpt-5.4-mini"
+DEFAULT_MODEL_REASONING_EFFORT = "high"
+
 
 class JsonRpcError(RuntimeError):
     def __init__(self, error: Dict):
@@ -149,7 +153,8 @@ def extract_text_from_tool_result(result: Dict) -> str:
 def run_translation_via_codex_mcp(
     prompt: str,
     working_dir: Path,
-    model: Optional[str] = None,
+    model: Optional[str] = DEFAULT_MODEL,
+    reasoning_effort: str = DEFAULT_MODEL_REASONING_EFFORT,
 ) -> Dict[str, str]:
     command = ["codex", "mcp-server"]
     with CodexMcpClient(command, cwd=working_dir, env=clean_env()) as client:
@@ -170,6 +175,7 @@ def run_translation_via_codex_mcp(
                 "sandbox": "workspace-write",
                 "cwd": str(working_dir),
                 "model": model,
+                "config": {"model_reasoning_effort": reasoning_effort},
             },
         )
         text = extract_text_from_tool_result(tool_result)

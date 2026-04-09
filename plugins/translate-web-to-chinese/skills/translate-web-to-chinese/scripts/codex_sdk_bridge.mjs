@@ -40,6 +40,8 @@ const thread = codex.startThread({
 
 const turn = await thread.run(request.prompt, {
   outputSchema: request.outputSchema,
+  model: request.model,
+  modelReasoningEffort: request.reasoningEffort,
 });
 
 process.stdout.write(
