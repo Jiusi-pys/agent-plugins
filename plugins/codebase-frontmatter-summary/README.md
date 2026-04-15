@@ -66,3 +66,55 @@ bash plugins/codebase-frontmatter-summary/examples/sample-project/verify.sh
 Keep the repo plugin entry in `.agents/plugins/marketplace.json` for development inside this repository.
 
 For a home-local install, sync the plugin to `~/plugins/codebase-frontmatter-summary` and keep the matching entry in `~/.agents/plugins/marketplace.json`.
+
+Codex does not load the plugin directly from `~/plugins/`. It resolves installed plugins from the cache layout under:
+
+```text
+~/.codex/plugins/cache/<marketplace>/<plugin>/<revision>/
+```
+
+For this local marketplace, the effective paths are:
+
+```text
+~/.codex/plugins/cache/jiusi-agent-plugins/codebase-frontmatter-summary/<revision>/
+~/.codex/plugins/cache/jiusi-agent-plugins/translate-web-to-chinese/<revision>/
+~/.codex/plugins/cache/jiusi-agent-plugins/ohos-porting/<revision>/
+```
+
+Reinstall the marketplace and the three local plugins with:
+
+```bash
+rsync -a --delete /home/kaihong/agent-plugins/plugins/ /home/kaihong/plugins/
+rsync -a /home/kaihong/agent-plugins/.agents/plugins/marketplace.json /home/kaihong/.agents/plugins/marketplace.json
+```
+
+Enable the local marketplace plugins in `~/.codex/config.toml`:
+
+```toml
+[plugins."codebase-frontmatter-summary@jiusi-agent-plugins"]
+enabled = true
+
+[plugins."translate-web-to-chinese@jiusi-agent-plugins"]
+enabled = true
+
+[plugins."ohos-porting@jiusi-agent-plugins"]
+enabled = true
+```
+
+Then install each plugin into Codex's cache layout using the current revision:
+
+```bash
+rev="$(git -C /home/kaihong/agent-plugins rev-parse HEAD)"
+base="$HOME/.codex/plugins/cache/jiusi-agent-plugins"
+for plugin in codebase-frontmatter-summary translate-web-to-chinese ohos-porting; do
+  rm -rf "$base/$plugin"
+  mkdir -p "$base/$plugin/$rev"
+  rsync -a --delete "$HOME/plugins/$plugin/" "$base/$plugin/$rev/"
+done
+```
+
+After reinstalling, fully restart Codex CLI before checking the plugin list or invoking:
+
+```text
+$codebase-frontmatter-summary@jiusi-agent-plugins
+```
