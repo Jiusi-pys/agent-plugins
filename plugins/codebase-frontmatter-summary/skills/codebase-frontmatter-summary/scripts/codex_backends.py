@@ -10,9 +10,9 @@ import threading
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
-DEFAULT_BACKEND = "mcp"
+DEFAULT_BACKEND = "sdk"
 DEFAULT_MODEL = "gpt-5.4-mini"
-DEFAULT_MODEL_REASONING_EFFORT = "high"
+DEFAULT_MODEL_REASONING_EFFORT = "xhigh"
 
 
 class JsonRpcError(RuntimeError):

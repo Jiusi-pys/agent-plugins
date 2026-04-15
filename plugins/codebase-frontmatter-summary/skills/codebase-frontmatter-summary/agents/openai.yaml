@@ -1,4 +1,4 @@
 interface:
   display_name: "Codebase Frontmatter Summary"
-  short_description: "Scan a tree, add frontmatter to files, and write a summary for each directory"
-  default_prompt: "Use $codebase-frontmatter-summary to scan this codebase bottom-up, refresh managed file frontmatter, and generate directory summaries."
+  short_description: "Build sidecar metadata, section indexes, directory summaries, and host guides for a repository"
+  default_prompt: "Use $codebase-frontmatter-summary to refresh this repository into .scanmeta sidecars, export AGENTS and CLAUDE guides, and preserve incremental state in SQLite."

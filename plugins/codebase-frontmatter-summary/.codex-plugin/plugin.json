@@ -1,7 +1,7 @@
 {
   "name": "codebase-frontmatter-summary",
   "version": "0.1.0",
-  "description": "Codex plugin for directory-by-directory codebase scanning that adds per-file frontmatter and writes one summary file per directory.",
+  "description": "Codex plugin for incremental repository indexing with sidecar metadata, SQLite state, and dual-host guide export.",
   "author": {
     "name": "Jiusi-pys",
     "url": "https://github.com/Jiusi-pys"
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Codebase Frontmatter Summary",
-    "shortDescription": "Scan a tree, add per-file frontmatter, and write per-directory summaries",
-    "longDescription": "Use the Codebase Frontmatter Summary plugin to walk a repository bottom-up, generate concise summaries for each file, inject managed frontmatter where the file format supports it, and emit one summary document per directory that records direct child files and subdirectories.",
+    "shortDescription": "Scan a tree into sidecar metadata, section indexes, directory summaries, and dual-host guides",
+    "longDescription": "Use the Codebase Frontmatter Summary plugin to build an incremental repository knowledge layer backed by SQLite state, JSON sidecars, generated AGENTS and CLAUDE guides, and a deterministic read planner for progressive file access.",
     "developerName": "Jiusi-pys",
     "category": "Coding",
     "capabilities": [
@@ -29,7 +29,7 @@
     ],
     "websiteURL": "https://github.com/Jiusi-pys/agent-plugins",
     "defaultPrompt": [
-      "Use the codebase-frontmatter-summary plugin to scan this project, refresh managed file frontmatter, and write directory summaries bottom-up."
+      "Use the codebase-frontmatter-summary plugin to refresh this repository into .scanmeta sidecars, export AGENTS and CLAUDE guides, and preserve incremental state in SQLite."
     ],
     "brandColor": "#166534"
   }

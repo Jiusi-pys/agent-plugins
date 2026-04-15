@@ -1,2 +1,0 @@
-This plain text note is included to show that unsupported text files are summarized
-in directory reports without having raw frontmatter injected by default.

@@ -1,54 +1,68 @@
 # Codebase Frontmatter Summary
 
-This plugin scans a codebase bottom-up, adds managed frontmatter to files, and writes one `SUMMARY.md` file per directory.
+This plugin now builds an incremental repository knowledge layer for both Codex and Claude Code.
 
-## What it does
+## What changed
 
-- Walks a directory tree from leaves to root.
-- Generates a concise summary for each file and directory with Codex-backed or local backends.
-- Inserts or refreshes a managed frontmatter block at the top of files when the format supports safe inline comments.
-- Writes a directory summary that records direct child file summaries plus direct child directory summaries.
+- Source, config, test, and script files no longer get inline frontmatter by default.
+- Runtime state moved into SQLite at `.scanmeta/state/index.sqlite`.
+- Agent-readable knowledge moved into sidecars under `.scanmeta/files`, `.scanmeta/sections`, and `.scanmeta/dirs`.
+- Generated host guides and rules now target both `AGENTS.md` and `CLAUDE.md`.
+- The read order is deterministic: guides -> directory summaries -> file sidecars -> section indexes -> relevant sections -> full files.
 
-## Default behavior
-
-- Summary file name: `SUMMARY.md`
-- Default backend: `mcp`
-- Traversal order: bottom-up
-- Safe mode: only injects in-file frontmatter when the file can safely carry comments or metadata
-- Skips symlinks and common generated directories such as `.git`, `node_modules`, `dist`, and `__pycache__`
-- Auth safety: the bundled Codex backends remove `OPENAI_API_KEY` and `CODEX_API_KEY` from child process environments and are intended to use your existing Codex login session instead of direct API-key billing.
-
-## Main entrypoint
-
-Use the bundled script:
+## CLI
 
 ```bash
-python3 scripts/scan_and_summarize.py --root /absolute/path/to/codebase --write --backend mcp
+python3 tools/repo_indexer.py scan --root /absolute/path/to/repo
+python3 tools/repo_indexer.py refresh --root /absolute/path/to/repo
+python3 tools/repo_indexer.py refresh --root /absolute/path/to/repo --path src/
+python3 tools/repo_indexer.py doctor --root /absolute/path/to/repo
+python3 tools/repo_indexer.py export-guides --root /absolute/path/to/repo
 ```
 
-Use the SDK bridge when you want `@openai/codex-sdk` directly:
+The compatibility wrapper still exists at:
 
 ```bash
-cd scripts
-npm install
-python3 scan_and_summarize.py --root /absolute/path/to/codebase --write --backend sdk
+python3 skills/codebase-frontmatter-summary/scripts/scan_and_summarize.py --root /absolute/path/to/repo --write
 ```
 
-Available backends: `mcp`, `sdk`, `exec`, `auto`, `heuristic`.
+## Output layout
 
-Use `--unsafe-force-raw-frontmatter` if you explicitly want raw frontmatter prepended to text files that do not have a safe inline comment syntax.
+```text
+.scanmeta/
+  state/index.sqlite
+  state/pipeline.json
+  runs/*.json
+  files/*.json
+  sections/*.json
+  dirs/*.json
+  generated/AGENTS.generated.md
+  generated/CLAUDE.generated.md
+  generated/repo-map.md
+AGENTS.md
+CLAUDE.md
+.claude/rules/*.md
+.claude/skills/repo-index/SKILL.md
+.claude/skills/repo-read/SKILL.md
+.agents/skills/repo-index/SKILL.md
+.agents/skills/repo-read/SKILL.md
+scan-manifest.json
+```
 
-## Example fixture
+## Backends
 
-A deterministic sample tree is available under `examples/sample-project/`.
-Use `examples/sample-project/input/` as the source fixture, then compare a generated run against `examples/sample-project/expected/` with the commands documented in `examples/sample-project/README.md`.
+- `heuristic`: default, fully local
+- `mcp`, `sdk`, `exec`, `auto`: reuse the existing Codex backend bridge
 
-## Global AGENTS Rule
+## Tests
 
-The global rule file `~/.codex/AGENTS.md` is configured with a frontmatter-first startup gate for this plugin.
+```bash
+python3 -m unittest plugins/codebase-frontmatter-summary/tests/test_repo_indexer.py
+bash plugins/codebase-frontmatter-summary/examples/sample-project/verify.sh
+```
 
-That rule constrains discovery to:
-- directory `SUMMARY.md` files first
-- `codex-file-meta` frontmatter blocks in candidate files
+## Local Codex install
 
-Full file-body reads are deferred until implementation work starts, unless summaries/frontmatter are missing or an ambiguity blocks progress.
+Keep the repo plugin entry in `.agents/plugins/marketplace.json` for development inside this repository.
+
+For a home-local install, sync the plugin to `~/plugins/codebase-frontmatter-summary` and keep the matching entry in `~/.agents/plugins/marketplace.json`.
