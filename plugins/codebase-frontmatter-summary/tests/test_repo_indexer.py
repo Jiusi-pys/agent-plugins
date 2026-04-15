@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import shutil
 import sqlite3
 import sys
@@ -32,7 +34,9 @@ class RepoIndexerTest(unittest.TestCase):
         return run_index(config)
 
     def test_refresh_writes_sidecars_and_guides(self) -> None:
-        summary = self._refresh()
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            summary = self._refresh()
         self.assertTrue((self.root / ".scanmeta" / "files" / "app.py.json").exists())
         self.assertTrue((self.root / ".scanmeta" / "dirs" / "root.json").exists())
         self.assertTrue((self.root / ".scanmeta" / "generated" / "AGENTS.generated.md").exists())
@@ -43,6 +47,8 @@ class RepoIndexerTest(unittest.TestCase):
         root_dir = json.loads((self.root / ".scanmeta" / "dirs" / "root.json").read_text(encoding="utf-8"))
         self.assertIn("frontmatter_summary", root_dir)
         self.assertIn("app.py", root_dir["frontmatter_summary"])
+        self.assertIn("Summarizing files: 0/7", stderr.getvalue())
+        self.assertIn("Summarizing files: 7/7 complete", stderr.getvalue())
 
     def test_incremental_change_and_removed_cleanup(self) -> None:
         self._refresh()

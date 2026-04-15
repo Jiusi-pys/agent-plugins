@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path, PurePosixPath
+import sys
+import threading
 from typing import Any
 
 from .config import IndexerConfig, PIPELINE_VERSION
@@ -291,10 +293,13 @@ def _summarize_files_parallel(entries, *, config: IndexerConfig, provider, all_p
 
     workers = max(1, min(config.file_summary_workers, len(entries)))
     results: dict[str, tuple[dict, dict | None, str]] = {}
+    progress = _ProgressReporter(total=len(entries))
 
     if workers == 1:
         for entry in entries:
             results[entry.rel_path] = _summarize_one_file(entry, config=config, provider=provider, all_paths=all_paths)
+            progress.advance(entry.rel_path)
+        progress.finish()
         return results
 
     with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -311,6 +316,8 @@ def _summarize_files_parallel(entries, *, config: IndexerConfig, provider, all_p
         for future in as_completed(future_map):
             rel_path = future_map[future]
             results[rel_path] = future.result()
+            progress.advance(rel_path)
+    progress.finish()
     return results
 
 
@@ -334,6 +341,26 @@ def _summarize_one_file(entry, *, config: IndexerConfig, provider, all_paths: li
         priority_sections=priority_sections,
     )
     return metadata, section_index, text
+
+
+class _ProgressReporter:
+    def __init__(self, *, total: int) -> None:
+        self.total = total
+        self.current = 0
+        self._lock = threading.Lock()
+        self._emit("Summarizing files: 0/{}".format(total))
+
+    def advance(self, rel_path: str) -> None:
+        with self._lock:
+            self.current += 1
+            self._emit("Summarizing files: {}/{} {}".format(self.current, self.total, rel_path))
+
+    def finish(self) -> None:
+        with self._lock:
+            self._emit("Summarizing files: {}/{} complete".format(self.current, self.total))
+
+    def _emit(self, message: str) -> None:
+        print(message, file=sys.stderr, flush=True)
 
 
 def _build_directory_artifacts(*, config: IndexerConfig, snapshot: TreeSnapshot, diff, previous_dirs, file_metadata, provider, persist: bool, state_db: StateDB):
