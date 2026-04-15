@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+# codex-file-meta: begin
+# relative_path: "skills/translate-web-to-chinese/scripts/crawl_site.py"
+# language: "python"
+# summary: "Python module defining `build_arg_parser`, and `main`."
+# symbols: ["build_arg_parser", "main"]
+# generated_by: "codebase-frontmatter-summary"
+# codex-file-meta: end
+
 from __future__ import annotations
 
 import argparse

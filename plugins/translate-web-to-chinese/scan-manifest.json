@@ -1,0 +1,319 @@
+{
+  "generated_by": "codebase-frontmatter-summary",
+  "root": "/home/kaihong/agent-plugins/plugins/translate-web-to-chinese",
+  "directory_agents_file": "AGENTS.md",
+  "backend": "heuristic",
+  "model": "gpt-5.4-mini",
+  "reasoning_effort": "xhigh",
+  "tree": {
+    "path": ".",
+    "agents_path": "AGENTS.md",
+    "overview": "Contains 1 file(s) and 2 subdirectory(s). Highlights: `README.md`: Markdown document \"Translate Web To Chinese Plugin\". Codex plugin for translating a single URL or a linked documentation tree into Simplified Chinese. `.codex-plugin/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `plugin.json`: JSON object with top-level keys `name`, `version`, `description`, and `author`. `skills/`: Contains 0 file(s) and 2 subdirectory(s). Highlights: `translate-url-to-chinese/`: Contains 1 file(s) and 2 subdirectory(s). Highlights: `SKILL.md`: Markdown document \"Translate URL To Chinese\". Use this skill when the job is a single page, not a whole site. `agents/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `openai.yaml`: YAML file with top-level keys `interface`. `scripts/`: Contains 4 file(s) and 0 subdirectory(s). Highlights: `codex_sdk_bridge.mjs`: Mjs file: import process from \"node:process\";. `package-lock.json`: JSON object with top-level keys `name`, `lockfileVersion`, `requires`, and `packages`. `package.json`: JSON object with top-level keys `name`, `private`, `type`, and `dependencies`. `translate-web-to-chinese/`: Contains 1 file(s) and 4 subdirectory(s). Highlights: `SKILL.md`: Markdown document \"Translate Web To Chinese\". Use this skill for a bounded multi-page site. The page-level translation primitive lives in the sibling skill `../translate-url-to-chinese/`. `agents/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `openai.yaml`: YAML file with top-level keys `interface`. `assets/`: Contains 0 file(s) and 1 subdirectory(s). Highlights: `sample-site/`: Contains 3 file(s) and 1 subdirectory(s). Highlights: `faq.html`: Markup document titled \"FAQ\". `getting-started.html`: Markup document titled \"Getting Started\". `index.html`: Markup document titled \"Sample Docs Home\". `guide/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `intro.html`: Markup document titled \"Guide Intro\".",
+    "files": [
+      {
+        "path": "README.md",
+        "language": "markdown",
+        "summary": "Markdown document \"Translate Web To Chinese Plugin\". Codex plugin for translating a single URL or a linked documentation tree into Simplified Chinese.",
+        "symbols": [
+          "Translate Web To Chinese Plugin"
+        ],
+        "skipped_reason": null
+      }
+    ],
+    "directories": [
+      {
+        "path": ".codex-plugin",
+        "agents_path": ".codex-plugin/AGENTS.md",
+        "overview": "Contains 1 file(s) and 0 subdirectory(s). Highlights: `plugin.json`: JSON object with top-level keys `name`, `version`, `description`, and `author`.",
+        "files": [
+          {
+            "path": ".codex-plugin/plugin.json",
+            "language": "json",
+            "summary": "JSON object with top-level keys `name`, `version`, `description`, and `author`.",
+            "symbols": [
+              "name",
+              "version",
+              "description",
+              "author",
+              "homepage",
+              "repository",
+              "license",
+              "keywords"
+            ],
+            "skipped_reason": "no safe frontmatter style"
+          }
+        ],
+        "directories": []
+      },
+      {
+        "path": "skills",
+        "agents_path": "skills/AGENTS.md",
+        "overview": "Contains 0 file(s) and 2 subdirectory(s). Highlights: `translate-url-to-chinese/`: Contains 1 file(s) and 2 subdirectory(s). Highlights: `SKILL.md`: Markdown document \"Translate URL To Chinese\". Use this skill when the job is a single page, not a whole site. `agents/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `openai.yaml`: YAML file with top-level keys `interface`. `scripts/`: Contains 4 file(s) and 0 subdirectory(s). Highlights: `codex_sdk_bridge.mjs`: Mjs file: import process from \"node:process\";. `package-lock.json`: JSON object with top-level keys `name`, `lockfileVersion`, `requires`, and `packages`. `package.json`: JSON object with top-level keys `name`, `private`, `type`, and `dependencies`. `translate-web-to-chinese/`: Contains 1 file(s) and 4 subdirectory(s). Highlights: `SKILL.md`: Markdown document \"Translate Web To Chinese\". Use this skill for a bounded multi-page site. The page-level translation primitive lives in the sibling skill `../translate-url-to-chinese/`. `agents/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `openai.yaml`: YAML file with top-level keys `interface`. `assets/`: Contains 0 file(s) and 1 subdirectory(s). Highlights: `sample-site/`: Contains 3 file(s) and 1 subdirectory(s). Highlights: `faq.html`: Markup document titled \"FAQ\". `getting-started.html`: Markup document titled \"Getting Started\". `index.html`: Markup document titled \"Sample Docs Home\". `guide/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `intro.html`: Markup document titled \"Guide Intro\".",
+        "files": [],
+        "directories": [
+          {
+            "path": "skills/translate-url-to-chinese",
+            "agents_path": "skills/translate-url-to-chinese/AGENTS.md",
+            "overview": "Contains 1 file(s) and 2 subdirectory(s). Highlights: `SKILL.md`: Markdown document \"Translate URL To Chinese\". Use this skill when the job is a single page, not a whole site. `agents/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `openai.yaml`: YAML file with top-level keys `interface`. `scripts/`: Contains 4 file(s) and 0 subdirectory(s). Highlights: `codex_sdk_bridge.mjs`: Mjs file: import process from \"node:process\";. `package-lock.json`: JSON object with top-level keys `name`, `lockfileVersion`, `requires`, and `packages`. `package.json`: JSON object with top-level keys `name`, `private`, `type`, and `dependencies`.",
+            "files": [
+              {
+                "path": "skills/translate-url-to-chinese/SKILL.md",
+                "language": "markdown",
+                "summary": "Markdown document \"Translate URL To Chinese\". Use this skill when the job is a single page, not a whole site.",
+                "symbols": [
+                  "Translate URL To Chinese"
+                ],
+                "skipped_reason": null
+              }
+            ],
+            "directories": [
+              {
+                "path": "skills/translate-url-to-chinese/agents",
+                "agents_path": "skills/translate-url-to-chinese/agents/AGENTS.md",
+                "overview": "Contains 1 file(s) and 0 subdirectory(s). Highlights: `openai.yaml`: YAML file with top-level keys `interface`.",
+                "files": [
+                  {
+                    "path": "skills/translate-url-to-chinese/agents/openai.yaml",
+                    "language": "yaml",
+                    "summary": "YAML file with top-level keys `interface`.",
+                    "symbols": [
+                      "interface"
+                    ],
+                    "skipped_reason": null
+                  }
+                ],
+                "directories": []
+              },
+              {
+                "path": "skills/translate-url-to-chinese/scripts",
+                "agents_path": "skills/translate-url-to-chinese/scripts/AGENTS.md",
+                "overview": "Contains 4 file(s) and 0 subdirectory(s). Highlights: `codex_sdk_bridge.mjs`: Mjs file: import process from \"node:process\";. `package-lock.json`: JSON object with top-level keys `name`, `lockfileVersion`, `requires`, and `packages`. `package.json`: JSON object with top-level keys `name`, `private`, `type`, and `dependencies`.",
+                "files": [
+                  {
+                    "path": "skills/translate-url-to-chinese/scripts/codex_sdk_bridge.mjs",
+                    "language": "mjs",
+                    "summary": "Mjs file: import process from \"node:process\";.",
+                    "symbols": [],
+                    "skipped_reason": "no safe frontmatter style"
+                  },
+                  {
+                    "path": "skills/translate-url-to-chinese/scripts/package-lock.json",
+                    "language": "json",
+                    "summary": "JSON object with top-level keys `name`, `lockfileVersion`, `requires`, and `packages`.",
+                    "symbols": [
+                      "name",
+                      "lockfileVersion",
+                      "requires",
+                      "packages"
+                    ],
+                    "skipped_reason": "no safe frontmatter style"
+                  },
+                  {
+                    "path": "skills/translate-url-to-chinese/scripts/package.json",
+                    "language": "json",
+                    "summary": "JSON object with top-level keys `name`, `private`, `type`, and `dependencies`.",
+                    "symbols": [
+                      "name",
+                      "private",
+                      "type",
+                      "dependencies"
+                    ],
+                    "skipped_reason": "no safe frontmatter style"
+                  },
+                  {
+                    "path": "skills/translate-url-to-chinese/scripts/translate_url.py",
+                    "language": "python",
+                    "summary": "Python module defining `AssetReference`, `PageParser`, `build_arg_parser`, and `main`.",
+                    "symbols": [
+                      "AssetReference",
+                      "PageParser",
+                      "build_arg_parser",
+                      "main",
+                      "translate_page",
+                      "build_prompt",
+                      "clean_child_env",
+                      "run_sdk_bridge"
+                    ],
+                    "skipped_reason": null
+                  }
+                ],
+                "directories": []
+              }
+            ]
+          },
+          {
+            "path": "skills/translate-web-to-chinese",
+            "agents_path": "skills/translate-web-to-chinese/AGENTS.md",
+            "overview": "Contains 1 file(s) and 4 subdirectory(s). Highlights: `SKILL.md`: Markdown document \"Translate Web To Chinese\". Use this skill for a bounded multi-page site. The page-level translation primitive lives in the sibling skill `../translate-url-to-chinese/`. `agents/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `openai.yaml`: YAML file with top-level keys `interface`. `assets/`: Contains 0 file(s) and 1 subdirectory(s). Highlights: `sample-site/`: Contains 3 file(s) and 1 subdirectory(s). Highlights: `faq.html`: Markup document titled \"FAQ\". `getting-started.html`: Markup document titled \"Getting Started\". `index.html`: Markup document titled \"Sample Docs Home\". `guide/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `intro.html`: Markup document titled \"Guide Intro\".",
+            "files": [
+              {
+                "path": "skills/translate-web-to-chinese/SKILL.md",
+                "language": "markdown",
+                "summary": "Markdown document \"Translate Web To Chinese\". Use this skill for a bounded multi-page site. The page-level translation primitive lives in the sibling skill `../translate-url-to-chinese/`.",
+                "symbols": [
+                  "Translate Web To Chinese"
+                ],
+                "skipped_reason": null
+              }
+            ],
+            "directories": [
+              {
+                "path": "skills/translate-web-to-chinese/agents",
+                "agents_path": "skills/translate-web-to-chinese/agents/AGENTS.md",
+                "overview": "Contains 1 file(s) and 0 subdirectory(s). Highlights: `openai.yaml`: YAML file with top-level keys `interface`.",
+                "files": [
+                  {
+                    "path": "skills/translate-web-to-chinese/agents/openai.yaml",
+                    "language": "yaml",
+                    "summary": "YAML file with top-level keys `interface`.",
+                    "symbols": [
+                      "interface"
+                    ],
+                    "skipped_reason": null
+                  }
+                ],
+                "directories": []
+              },
+              {
+                "path": "skills/translate-web-to-chinese/assets",
+                "agents_path": "skills/translate-web-to-chinese/assets/AGENTS.md",
+                "overview": "Contains 0 file(s) and 1 subdirectory(s). Highlights: `sample-site/`: Contains 3 file(s) and 1 subdirectory(s). Highlights: `faq.html`: Markup document titled \"FAQ\". `getting-started.html`: Markup document titled \"Getting Started\". `index.html`: Markup document titled \"Sample Docs Home\". `guide/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `intro.html`: Markup document titled \"Guide Intro\".",
+                "files": [],
+                "directories": [
+                  {
+                    "path": "skills/translate-web-to-chinese/assets/sample-site",
+                    "agents_path": "skills/translate-web-to-chinese/assets/sample-site/AGENTS.md",
+                    "overview": "Contains 3 file(s) and 1 subdirectory(s). Highlights: `faq.html`: Markup document titled \"FAQ\". `getting-started.html`: Markup document titled \"Getting Started\". `index.html`: Markup document titled \"Sample Docs Home\". `guide/`: Contains 1 file(s) and 0 subdirectory(s). Highlights: `intro.html`: Markup document titled \"Guide Intro\".",
+                    "files": [
+                      {
+                        "path": "skills/translate-web-to-chinese/assets/sample-site/faq.html",
+                        "language": "html",
+                        "summary": "Markup document titled \"FAQ\".",
+                        "symbols": [
+                          "FAQ"
+                        ],
+                        "skipped_reason": null
+                      },
+                      {
+                        "path": "skills/translate-web-to-chinese/assets/sample-site/getting-started.html",
+                        "language": "html",
+                        "summary": "Markup document titled \"Getting Started\".",
+                        "symbols": [
+                          "Getting Started"
+                        ],
+                        "skipped_reason": null
+                      },
+                      {
+                        "path": "skills/translate-web-to-chinese/assets/sample-site/index.html",
+                        "language": "html",
+                        "summary": "Markup document titled \"Sample Docs Home\".",
+                        "symbols": [
+                          "Sample Docs Home"
+                        ],
+                        "skipped_reason": null
+                      }
+                    ],
+                    "directories": [
+                      {
+                        "path": "skills/translate-web-to-chinese/assets/sample-site/guide",
+                        "agents_path": "skills/translate-web-to-chinese/assets/sample-site/guide/AGENTS.md",
+                        "overview": "Contains 1 file(s) and 0 subdirectory(s). Highlights: `intro.html`: Markup document titled \"Guide Intro\".",
+                        "files": [
+                          {
+                            "path": "skills/translate-web-to-chinese/assets/sample-site/guide/intro.html",
+                            "language": "html",
+                            "summary": "Markup document titled \"Guide Intro\".",
+                            "symbols": [
+                              "Guide Intro"
+                            ],
+                            "skipped_reason": null
+                          }
+                        ],
+                        "directories": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "path": "skills/translate-web-to-chinese/references",
+                "agents_path": "skills/translate-web-to-chinese/references/AGENTS.md",
+                "overview": "Contains 1 file(s) and 0 subdirectory(s). Highlights: `codex-runtime.md`: Markdown document \"Codex Runtime Notes\". Use this reference when adjusting the translation backend or auth behavior.",
+                "files": [
+                  {
+                    "path": "skills/translate-web-to-chinese/references/codex-runtime.md",
+                    "language": "markdown",
+                    "summary": "Markdown document \"Codex Runtime Notes\". Use this reference when adjusting the translation backend or auth behavior.",
+                    "symbols": [
+                      "Codex Runtime Notes"
+                    ],
+                    "skipped_reason": null
+                  }
+                ],
+                "directories": []
+              },
+              {
+                "path": "skills/translate-web-to-chinese/scripts",
+                "agents_path": "skills/translate-web-to-chinese/scripts/AGENTS.md",
+                "overview": "Contains 4 file(s) and 0 subdirectory(s). Highlights: `crawl_site.py`: Python module defining `build_arg_parser`, and `main`. `render_relations.py`: Python module defining `build_arg_parser`, and `main`. `site_common.py`: Python module defining `normalize_url`, `scope_prefix`, `in_scope`, and `short_id`.",
+                "files": [
+                  {
+                    "path": "skills/translate-web-to-chinese/scripts/crawl_site.py",
+                    "language": "python",
+                    "summary": "Python module defining `build_arg_parser`, and `main`.",
+                    "symbols": [
+                      "build_arg_parser",
+                      "main"
+                    ],
+                    "skipped_reason": null
+                  },
+                  {
+                    "path": "skills/translate-web-to-chinese/scripts/render_relations.py",
+                    "language": "python",
+                    "summary": "Python module defining `build_arg_parser`, and `main`.",
+                    "symbols": [
+                      "build_arg_parser",
+                      "main"
+                    ],
+                    "skipped_reason": null
+                  },
+                  {
+                    "path": "skills/translate-web-to-chinese/scripts/site_common.py",
+                    "language": "python",
+                    "summary": "Python module defining `normalize_url`, `scope_prefix`, `in_scope`, and `short_id`.",
+                    "symbols": [
+                      "normalize_url",
+                      "scope_prefix",
+                      "in_scope",
+                      "short_id",
+                      "slug_from_url",
+                      "ensure_directory",
+                      "save_json",
+                      "load_json"
+                    ],
+                    "skipped_reason": null
+                  },
+                  {
+                    "path": "skills/translate-web-to-chinese/scripts/translate_site.py",
+                    "language": "python",
+                    "summary": "Python module defining `build_arg_parser`, `main`, `translated_outputs_exist`, and `run_single_page_translation`.",
+                    "symbols": [
+                      "build_arg_parser",
+                      "main",
+                      "translated_outputs_exist",
+                      "run_single_page_translation",
+                      "build_replacements",
+                      "to_root_relative"
+                    ],
+                    "skipped_reason": null
+                  }
+                ],
+                "directories": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

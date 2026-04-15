@@ -9,7 +9,7 @@ try {
     [
       "Unable to load @openai/codex-sdk.",
       "Install it under this skill before using the SDK bridge:",
-      "  npm install @openai/codex-sdk",
+      "  npm install",
       "",
       `Original error: ${error.message}`,
     ].join("\n"),

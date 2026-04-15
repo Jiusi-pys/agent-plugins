@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+# codex-file-meta: begin
+# relative_path: "skills/translate-web-to-chinese/scripts/site_common.py"
+# language: "python"
+# summary: "Python module defining `normalize_url`, `scope_prefix`, `in_scope`, and `short_id`."
+# symbols: ["normalize_url", "scope_prefix", "in_scope", "short_id", "slug_from_url", "ensure_directory", "save_json", "load_json"]
+# generated_by: "codebase-frontmatter-summary"
+# codex-file-meta: end
+
 from __future__ import annotations
 
 import hashlib

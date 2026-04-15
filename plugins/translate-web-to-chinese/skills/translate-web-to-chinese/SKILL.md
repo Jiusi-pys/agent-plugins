@@ -1,44 +1,37 @@
 ---
 name: translate-web-to-chinese
-description: Crawl an English documentation site or linked web page tree, follow sublinks recursively, translate each page into Simplified Chinese, and preserve the source-to-Chinese relation graph in both Markdown and HTML. Use when Codex needs to mirror a documentation set or a small website into Chinese with local Codex CLI or MCP auth, and the workflow must avoid using OPENAI_API_KEY.
+description: Crawl an English documentation site or linked web page tree, then call the single-page Chinese translator iteratively to build a Simplified Chinese mirror while preserving the page graph. Use when Codex needs multi-page site translation, not just one URL.
 ---
+<!-- codex-file-meta: begin
+relative_path: "skills/translate-web-to-chinese/SKILL.md"
+language: "markdown"
+summary: "Markdown document \"Translate Web To Chinese\". Use this skill for a bounded multi-page site. The page-level translation primitive lives in the sibling skill `../translate-url-to-chinese/`."
+symbols: ["Translate Web To Chinese"]
+generated_by: "codebase-frontmatter-summary"
+codex-file-meta: end -->
 
 # Translate Web To Chinese
 
-Use this skill to build a Chinese mirror of a linked English site while keeping page-level relations intact.
+Use this skill for a bounded multi-page site. The page-level translation primitive lives in the sibling skill `../translate-url-to-chinese/`.
 
 ## Workflow
 
-1. Confirm the crawl boundary before doing any fetches.
-   Default to the entrypoint path prefix. Only widen to the full origin when the user asks for it or the site structure makes the prefix too narrow.
+1. Confirm the crawl boundary before any fetches.
+   Default to the entrypoint path prefix. Only widen to the full origin when the user asks for it or the site structure demands it.
 2. Crawl and record the source graph.
    Use `scripts/crawl_site.py` to fetch pages, save raw HTML, and write `manifest.json`, `relations.md`, and `relations.html`.
-3. Expose Codex as MCP only when another local process needs it.
-   Use `scripts/start_codex_mcp.py --print-config` to emit a config snippet or `--foreground` to run `codex mcp-server`.
-4. Translate pages iteratively.
-   Use `scripts/translate_site.py` with its defaults unless the user explicitly wants a different backend, model, or reasoning effort.
-5. Re-render relation reports after any manifest edits.
+3. Translate the site iteratively.
+   Use `scripts/translate_site.py`. It reads the crawl manifest and calls `../translate-url-to-chinese/scripts/translate_url.py` page by page.
+4. Re-render relation reports after any manifest edits.
    Use `scripts/render_relations.py`.
 
-## Auth Rules
+## Auth And Runtime
 
+- Use the Codex SDK path through the sibling single-page translator.
 - Never pass `OPENAI_API_KEY`.
 - Never pass `CODEX_API_KEY`.
 - Require a prior `codex login` session instead.
-- Stop and ask the user to run `codex login` if the local session is missing.
-- Read `references/codex-runtime.md` before changing backend selection or auth behavior.
-
-## Backend Choice
-
-- `mcp`: Default. Use the local Codex MCP server path.
-- `auto`: Try local Codex MCP first, then the SDK bridge, then `codex exec`.
-- `sdk`: Force `scripts/codex_sdk_bridge.mjs`. Use this only after `npm install @openai/codex-sdk` in `scripts/`.
-- `exec`: Use the installed Codex CLI with `--output-schema` for structured page translations.
-- `mock`: Use for local smoke tests when no live Codex call should be made.
-
-Default Codex settings for this skill are `mcp` backend, `gpt-5.4-mini`, and `high` reasoning effort.
-
-The current official Codex SDK is TypeScript-based, so this skill keeps orchestration in Python and uses the Node bridge only as an optional backend.
+- Read `references/codex-runtime.md` before changing SDK behavior or auth handling.
 
 ## Quick Start
 
@@ -50,7 +43,7 @@ python3 scripts/crawl_site.py \
 python3 scripts/translate_site.py \
   --manifest /tmp/example-site/crawl/manifest.json \
   --output-dir /tmp/example-site/zh \
-  --backend auto
+  --backend sdk
 
 python3 scripts/render_relations.py \
   --manifest /tmp/example-site/zh/manifest.json \
@@ -62,7 +55,7 @@ python3 scripts/render_relations.py \
 - Crawl output:
   `manifest.json`, `relations.md`, `relations.html`, and `raw/*.html`
 - Chinese output:
-  `manifest.json`, `relations.md`, `relations.html`, and `pages/*.md` plus `pages/*.html`
+  `manifest.json`, `relations.md`, `relations.html`, and `pages/<slug>/index.md`, `pages/<slug>/index.html`, plus `pages/<slug>/assets/*`
 
 Keep the crawl manifest and the translated manifest separate so the source graph remains recoverable.
 
@@ -75,14 +68,15 @@ python3 scripts/crawl_site.py \
   --url file:///absolute/path/to/plugins/translate-web-to-chinese/skills/translate-web-to-chinese/assets/sample-site/index.html \
   --output-dir /tmp/sample-crawl
 
-python3 scripts/translate_site.py --manifest /tmp/sample-crawl/manifest.json --output-dir /tmp/sample-zh --backend mock
+python3 scripts/translate_site.py \
+  --manifest /tmp/sample-crawl/manifest.json \
+  --output-dir /tmp/sample-zh \
+  --backend mock
 ```
 
 ## Files
 
 - `scripts/crawl_site.py`: Crawl pages recursively and write the source graph.
-- `scripts/codex_mcp_client.py`: Launch and talk to the local Codex MCP server.
-- `scripts/translate_site.py`: Translate page-by-page and rewrite internal links to Chinese outputs.
+- `scripts/translate_site.py`: Call the single-page translator iteratively and then rewrite internal links to Chinese outputs.
 - `scripts/render_relations.py`: Rebuild Markdown and HTML relation reports from a manifest.
-- `scripts/start_codex_mcp.py`: Launch or describe a local `codex mcp-server`.
-- `references/codex-runtime.md`: Official-doc-driven notes for backend and auth decisions.
+- `references/codex-runtime.md`: SDK and auth notes for this plugin.

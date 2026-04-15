@@ -1,0 +1,12 @@
+# codex-file-meta: begin
+# relative_path: "skills/translate-url-to-chinese/agents/openai.yaml"
+# language: "yaml"
+# summary: "YAML file with top-level keys `interface`."
+# symbols: ["interface"]
+# generated_by: "codebase-frontmatter-summary"
+# codex-file-meta: end
+
+interface:
+  display_name: "Translate URL To Chinese"
+  short_description: "Translate one URL into Chinese Markdown or a localized web bundle"
+  default_prompt: "Use $translate-url-to-chinese to translate this single English URL into Simplified Chinese and save either Markdown or a localized HTML/CSS/JS output."

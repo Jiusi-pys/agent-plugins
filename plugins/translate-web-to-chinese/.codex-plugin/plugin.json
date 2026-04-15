@@ -1,7 +1,7 @@
 {
   "name": "translate-web-to-chinese",
   "version": "0.1.0",
-  "description": "Codex plugin for crawling linked documentation pages and generating a Simplified Chinese mirror without requiring an API key.",
+  "description": "Codex plugin for translating one URL or a linked documentation tree into Simplified Chinese without requiring an API key.",
   "author": {
     "name": "Jiusi-pys",
     "url": "https://github.com/Jiusi-pys"
@@ -18,8 +18,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Translate Web To Chinese",
-    "shortDescription": "Crawl and translate linked documentation into Simplified Chinese",
-    "longDescription": "Use the Translate Web To Chinese plugin to crawl a bounded documentation tree, preserve page relations, and produce a Chinese Markdown and HTML mirror using Codex-backed translation flows.",
+    "shortDescription": "Translate one URL or a linked docs tree into Simplified Chinese",
+    "longDescription": "Use the Translate Web To Chinese plugin for either page-level translation or bounded site mirroring. The plugin includes a single-URL Codex SDK translator and a higher-level crawler that iterates that translator across a linked documentation graph.",
     "developerName": "Jiusi-pys",
     "category": "Coding",
     "capabilities": [
@@ -28,7 +28,7 @@
     ],
     "websiteURL": "https://github.com/Jiusi-pys/agent-plugins",
     "defaultPrompt": [
-      "Use the translation plugin to crawl this docs site, preserve the page graph, and build a Simplified Chinese mirror."
+      "Use the translation plugin to translate this page or crawl this docs site, preserve the page graph, and build a Simplified Chinese mirror."
     ],
     "brandColor": "#1D4ED8"
   }

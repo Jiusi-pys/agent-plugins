@@ -1,4 +1,12 @@
+# codex-file-meta: begin
+# relative_path: "skills/translate-web-to-chinese/agents/openai.yaml"
+# language: "yaml"
+# summary: "YAML file with top-level keys `interface`."
+# symbols: ["interface"]
+# generated_by: "codebase-frontmatter-summary"
+# codex-file-meta: end
+
 interface:
   display_name: "Translate Web To Chinese"
-  short_description: "Crawl and translate linked web pages to Chinese"
-  default_prompt: "Use $translate-web-to-chinese to crawl this English site, translate linked pages into Simplified Chinese, and save the Chinese mirror plus the page graph."
+  short_description: "Crawl a linked site and translate it into Chinese page by page"
+  default_prompt: "Use $translate-web-to-chinese to crawl this English site, then translate the linked pages into Simplified Chinese one page at a time and save the Chinese mirror plus the page graph."

@@ -1,3 +1,11 @@
+<!-- codex-file-meta: begin
+relative_path: "skills/translate-web-to-chinese/references/codex-runtime.md"
+language: "markdown"
+summary: "Markdown document \"Codex Runtime Notes\". Use this reference when adjusting the translation backend or auth behavior."
+symbols: ["Codex Runtime Notes"]
+generated_by: "codebase-frontmatter-summary"
+codex-file-meta: end -->
+
 # Codex Runtime Notes
 
 Use this reference when adjusting the translation backend or auth behavior.
@@ -5,8 +13,8 @@ Use this reference when adjusting the translation backend or auth behavior.
 ## What the current OpenAI docs show
 
 - The official Codex SDK page documents a TypeScript package: `@openai/codex-sdk`.
-- The local Codex CLI supports `codex exec` for non-interactive runs and `codex mcp-server` for exposing Codex as an MCP server over stdio.
-- The non-interactive CLI supports `--output-schema`, which is the most reliable local way to force structured JSON for page-by-page translation.
+- The SDK can be used from local tooling through a small Node bridge while still relying on the user's `codex login` session.
+- The local Codex CLI also supports `codex exec` and `codex mcp-server`, but this plugin now uses the SDK bridge as its primary path.
 
 Official references:
 
@@ -19,20 +27,14 @@ Official references:
 ## Practical implication for this skill
 
 - Keep the orchestration layer in Python.
-- Prefer `translate_site.py` defaults: `mcp` backend, `gpt-5.4-mini`, `high` reasoning effort.
-- `auto` is the fallback mode when you want the script to recover from MCP failures by trying the SDK bridge and then `codex exec`.
-- Use `codex exec` only as the last fallback, because the MCP path is the primary requirement for this skill.
+- Prefer SDK-backed defaults: `gpt-5.4-mini` and `high` reasoning effort.
+- Use `skills/translate-url-to-chinese/scripts/translate_url.py` as the page-level primitive.
+- Use `skills/translate-web-to-chinese/scripts/translate_site.py` only as the site iterator that repeatedly invokes the single-page translator.
 
 ## Auth rule
 
 - Do not pass `OPENAI_API_KEY`.
 - Do not pass `CODEX_API_KEY`.
 - Use the user's existing `codex login` session instead.
-- The helper scripts strip both env vars before they launch Codex child processes.
+- The helper scripts strip both env vars before they launch Codex child processes or the SDK bridge.
 - If the user is not logged in, stop and ask them to run `codex login`.
-
-## MCP export
-
-Use `scripts/codex_mcp_client.py` when the translation run needs to talk to the live Codex MCP server.
-Use `scripts/start_codex_mcp.py --print-config` to print a local MCP config snippet.
-Use `scripts/start_codex_mcp.py --foreground` to run `codex mcp-server` directly without exposing API-key env vars.
