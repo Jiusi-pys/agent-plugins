@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+import json
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 TOOLS_DIR = PLUGIN_ROOT / "tools"
@@ -39,6 +40,9 @@ class RepoIndexerTest(unittest.TestCase):
         self.assertTrue((self.root / "CLAUDE.md").exists())
         self.assertTrue((self.root / ".claude" / "rules" / "reading-policy.md").exists())
         self.assertIn("scan-manifest.json", summary["manifest_path"])
+        root_dir = json.loads((self.root / ".scanmeta" / "dirs" / "root.json").read_text(encoding="utf-8"))
+        self.assertIn("frontmatter_summary", root_dir)
+        self.assertIn("app.py", root_dir["frontmatter_summary"])
 
     def test_incremental_change_and_removed_cleanup(self) -> None:
         self._refresh()

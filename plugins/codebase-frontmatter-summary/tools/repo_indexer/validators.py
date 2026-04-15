@@ -28,6 +28,7 @@ SECTION_INDEX_FIELDS = ["path", "sections"]
 DIRECTORY_METADATA_FIELDS = [
     "path",
     "role",
+    "frontmatter_summary",
     "key_files",
     "entrypoints",
     "core_files",
@@ -107,6 +108,7 @@ def normalize_directory_metadata(raw: dict[str, Any]) -> dict[str, Any]:
         [
             ("path", _require_string(raw, "path")),
             ("role", _clean_string(raw.get("role")) or "directory"),
+            ("frontmatter_summary", _clean_summary(raw.get("frontmatter_summary")) or "No file frontmatter in this directory yet."),
             ("key_files", _clean_list(raw.get("key_files"), limit=12)),
             ("entrypoints", _clean_list(raw.get("entrypoints"), limit=12)),
             ("core_files", _clean_list(raw.get("core_files"), limit=12)),

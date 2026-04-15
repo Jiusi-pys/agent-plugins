@@ -262,6 +262,7 @@ def build_directory_candidate(dir_path: str, child_files: list[dict], child_dirs
         [
             ("path", dir_path),
             ("role", role),
+            ("frontmatter_summary", summarize_directory_frontmatter(child_files)),
             ("key_files", key_files),
             ("entrypoints", entrypoints),
             ("core_files", core_files),
@@ -273,6 +274,20 @@ def build_directory_candidate(dir_path: str, child_files: list[dict], child_dirs
             ("confidence", "medium"),
         ]
     )
+
+
+def summarize_directory_frontmatter(child_files: list[dict]) -> str:
+    if not child_files:
+        return "No file frontmatter in this directory yet."
+    snippets: list[str] = []
+    for child in child_files[:6]:
+        path = PurePosixPath(child["path"]).name
+        summary = clean_sentence(child.get("summary", ""))
+        if summary:
+            snippets.append(f"`{path}`: {summary}")
+        else:
+            snippets.append(f"`{path}`")
+    return " ".join(snippets)
 
 
 def first_heading(text: str) -> str:

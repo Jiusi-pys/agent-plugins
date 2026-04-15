@@ -52,6 +52,7 @@ def build_directory_summary_prompt(*, dir_path: str, child_files: list[dict], ch
     return f"""[system]
 You are a directory summarization worker.
 Produce strict JSON only.
+Include a concise `frontmatter_summary` that rolls up the child file frontmatter in this directory.
 
 [user]
 Directory: {dir_path}

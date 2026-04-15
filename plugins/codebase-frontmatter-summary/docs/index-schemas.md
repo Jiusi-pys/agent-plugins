@@ -54,6 +54,7 @@ Stored in `.scanmeta/dirs/*.json`.
 {
   "path": "src/runtime",
   "role": "implementation directory",
+  "frontmatter_summary": "`runtime.c`: Implements runtime scheduler state and wakeup logic.",
   "key_files": ["src/runtime/runtime.c", "src/runtime/runtime.h"],
   "entrypoints": [],
   "core_files": ["src/runtime/runtime.c"],

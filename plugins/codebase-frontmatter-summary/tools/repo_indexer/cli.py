@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -221,70 +222,118 @@ def _build_file_artifacts(*, config: IndexerConfig, snapshot: TreeSnapshot, diff
     file_metadata: dict[str, dict] = {}
     section_indexes: dict[str, dict] = {}
     all_paths = [entry.rel_path for entry in snapshot.files]
+    rebuild_entries: list[TreeSnapshot] = []
 
     for entry in snapshot.files:
         artifact_path = file_artifact_path(config.files_dir, entry.rel_path)
         section_path = file_artifact_path(config.sections_dir, entry.rel_path)
         needs_rebuild = entry.rel_path in diff.new_files or entry.rel_path in diff.changed_files or not artifact_path.exists()
-        section_needed = should_index_sections(entry, config)
         if needs_rebuild:
-            raw = entry.abs_path.read_bytes()
-            text = "" if entry.is_binary else raw.decode("utf-8", errors="replace")
-            section_index = None
-            priority_sections: list[dict[str, str]] = []
-            if section_needed:
-                section_index = build_section_index(entry, text, provider)
-                section_indexes[entry.rel_path] = section_index
-                priority_sections = [
-                    {"id": section["id"], "reason": section["summary"]}
-                    for section in section_index["sections"][:3]
-                ]
-            metadata = build_file_metadata(
-                entry,
-                text,
-                config=config,
-                provider=provider,
-                all_paths=all_paths,
-                priority_sections=priority_sections,
-            )
-            file_metadata[entry.rel_path] = metadata
-            if persist:
-                write_json_if_changed(artifact_path, metadata)
-                if section_index:
-                    write_json_if_changed(section_path, section_index)
-                elif section_path.exists():
-                    section_path.unlink()
-                if config.inline_markdown_frontmatter and metadata["language"] == "markdown":
-                    write_text_if_changed(entry.abs_path, render_inline_markdown_frontmatter(metadata, text))
-                state_db.upsert_file(
-                    path=entry.rel_path,
-                    kind=entry.kind,
-                    size=entry.size,
-                    mtime_ns=entry.mtime_ns,
-                    content_hash=entry.content_hash,
-                    status="indexed",
-                    artifact_path=str(artifact_path),
-                    section_artifact_path=str(section_path) if section_index else None,
-                    token_estimate=entry.token_estimate,
-                )
-                state_db.record_artifact(
-                    target_path=entry.rel_path,
-                    artifact_type="file_metadata",
-                    artifact_path=str(artifact_path),
-                    sha256=sha256_bytes(json_dumps(metadata).encode("utf-8")),
-                )
-                if section_index:
-                    state_db.record_artifact(
-                        target_path=entry.rel_path,
-                        artifact_type="section_index",
-                        artifact_path=str(section_path),
-                        sha256=sha256_bytes(json_dumps(section_index).encode("utf-8")),
-                    )
+            rebuild_entries.append(entry)
         else:
             file_metadata[entry.rel_path] = normalize_file_metadata(read_json(artifact_path))
             if section_path.exists():
                 section_indexes[entry.rel_path] = normalize_section_index(read_json(section_path))
+
+    rebuilt = _summarize_files_parallel(
+        rebuild_entries,
+        config=config,
+        provider=provider,
+        all_paths=all_paths,
+    )
+    for entry in snapshot.files:
+        if entry.rel_path not in rebuilt:
+            continue
+        metadata, section_index, text = rebuilt[entry.rel_path]
+        artifact_path = file_artifact_path(config.files_dir, entry.rel_path)
+        section_path = file_artifact_path(config.sections_dir, entry.rel_path)
+        file_metadata[entry.rel_path] = metadata
+        if section_index:
+            section_indexes[entry.rel_path] = section_index
+        if persist:
+            write_json_if_changed(artifact_path, metadata)
+            if section_index:
+                write_json_if_changed(section_path, section_index)
+            elif section_path.exists():
+                section_path.unlink()
+            if config.inline_markdown_frontmatter and metadata["language"] == "markdown":
+                write_text_if_changed(entry.abs_path, render_inline_markdown_frontmatter(metadata, text))
+            state_db.upsert_file(
+                path=entry.rel_path,
+                kind=entry.kind,
+                size=entry.size,
+                mtime_ns=entry.mtime_ns,
+                content_hash=entry.content_hash,
+                status="indexed",
+                artifact_path=str(artifact_path),
+                section_artifact_path=str(section_path) if section_index else None,
+                token_estimate=entry.token_estimate,
+            )
+            state_db.record_artifact(
+                target_path=entry.rel_path,
+                artifact_type="file_metadata",
+                artifact_path=str(artifact_path),
+                sha256=sha256_bytes(json_dumps(metadata).encode("utf-8")),
+            )
+            if section_index:
+                state_db.record_artifact(
+                    target_path=entry.rel_path,
+                    artifact_type="section_index",
+                    artifact_path=str(section_path),
+                    sha256=sha256_bytes(json_dumps(section_index).encode("utf-8")),
+                )
     return file_metadata, section_indexes
+
+
+def _summarize_files_parallel(entries, *, config: IndexerConfig, provider, all_paths: list[str]) -> dict[str, tuple[dict, dict | None, str]]:
+    if not entries:
+        return {}
+
+    workers = max(1, min(config.file_summary_workers, len(entries)))
+    results: dict[str, tuple[dict, dict | None, str]] = {}
+
+    if workers == 1:
+        for entry in entries:
+            results[entry.rel_path] = _summarize_one_file(entry, config=config, provider=provider, all_paths=all_paths)
+        return results
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        future_map = {
+            executor.submit(
+                _summarize_one_file,
+                entry,
+                config=config,
+                provider=provider,
+                all_paths=all_paths,
+            ): entry.rel_path
+            for entry in entries
+        }
+        for future in as_completed(future_map):
+            rel_path = future_map[future]
+            results[rel_path] = future.result()
+    return results
+
+
+def _summarize_one_file(entry, *, config: IndexerConfig, provider, all_paths: list[str]) -> tuple[dict, dict | None, str]:
+    raw = entry.abs_path.read_bytes()
+    text = "" if entry.is_binary else raw.decode("utf-8", errors="replace")
+    section_index = None
+    priority_sections: list[dict[str, str]] = []
+    if should_index_sections(entry, config):
+        section_index = build_section_index(entry, text, provider)
+        priority_sections = [
+            {"id": section["id"], "reason": section["summary"]}
+            for section in section_index["sections"][:3]
+        ]
+    metadata = build_file_metadata(
+        entry,
+        text,
+        config=config,
+        provider=provider,
+        all_paths=all_paths,
+        priority_sections=priority_sections,
+    )
+    return metadata, section_index, text
 
 
 def _build_directory_artifacts(*, config: IndexerConfig, snapshot: TreeSnapshot, diff, previous_dirs, file_metadata, provider, persist: bool, state_db: StateDB):

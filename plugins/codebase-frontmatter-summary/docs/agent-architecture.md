@@ -10,8 +10,9 @@ This plugin now treats repository summarization as an incremental knowledge comp
    - `state_db.py` persists file, directory, run, and artifact records.
 2. Knowledge layer
    - `file_worker.py` writes file sidecars into `.scanmeta/files/`.
+   - `cli.py` parallelizes file-level summarization so more files can be sent to Codex concurrently during a refresh.
    - `section_worker.py` writes large-file section indexes into `.scanmeta/sections/`.
-   - `dir_worker.py` writes directory summaries into `.scanmeta/dirs/`.
+   - `dir_worker.py` writes directory summaries into `.scanmeta/dirs/`, including a final `frontmatter_summary` roll-up for all file metadata in the same directory.
    - `guide_builder.py` writes generated guides into `.scanmeta/generated/` and exports root host files.
 3. Behavior layer
    - `read_planner.py` enforces the read order:

@@ -17,6 +17,7 @@ LARGE_FILE_TOKEN_THRESHOLD = 2200
 LARGE_FILE_LINE_THRESHOLD = 180
 DEFAULT_FILE_MAX_CHARS = 12000
 DEFAULT_DIRECTORY_MAX_CHARS = 12000
+DEFAULT_FILE_SUMMARY_WORKERS = 4
 
 DEFAULT_EXCLUDED_DIRS = {
     ".git",
@@ -56,6 +57,7 @@ class IndexerConfig:
     path_filter: str | None = None
     file_max_chars: int = DEFAULT_FILE_MAX_CHARS
     directory_max_chars: int = DEFAULT_DIRECTORY_MAX_CHARS
+    file_summary_workers: int = DEFAULT_FILE_SUMMARY_WORKERS
     large_file_token_threshold: int = LARGE_FILE_TOKEN_THRESHOLD
     large_file_line_threshold: int = LARGE_FILE_LINE_THRESHOLD
 
