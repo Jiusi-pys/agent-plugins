@@ -1,0 +1,11 @@
+{
+  "name": "multi-review",
+  "description": "异质多感知代码审查流水线：确定性 preflight → 风险路由 → 并行只读 sensor → 独立反证 → 统一裁决。不做多数投票，只有已验证的问题才阻断，绝不自动改码或合并。",
+  "version": "1.0.0",
+  "author": {
+    "name": "九思"
+  },
+  "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/multi-review",
+  "license": "MIT",
+  "keywords": ["code-review", "review", "subagents", "workflow", "verification", "security", "preflight"]
+}
