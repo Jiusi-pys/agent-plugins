@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agentic Review"
+  short_description: "Risk-tiered review for local code and designs"
+  default_prompt: "Use $agentic-review to review this local change or design document."

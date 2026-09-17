@@ -1,0 +1,23 @@
+{
+  "name": "agentic-review",
+  "version": "0.1.0",
+  "description": "Risk-tiered, evidence-first review for local code changes and software design documents.",
+  "author": {
+    "name": "Local Codex user"
+  },
+  "license": "MIT",
+  "keywords": ["review", "code-review", "design-review", "risk", "verification"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agentic Review",
+    "shortDescription": "Evidence-first review for code and designs",
+    "longDescription": "Triage local code changes and software design documents by blast radius, run appropriate verification, surface high-confidence findings, and reserve consequential decisions for a human owner.",
+    "developerName": "Local Codex user",
+    "category": "Productivity",
+    "capabilities": ["Read", "Analyze"],
+    "defaultPrompt": [
+      "Review my local code changes by risk and evidence.",
+      "Review this design document and identify decision gaps."
+    ]
+  }
+}

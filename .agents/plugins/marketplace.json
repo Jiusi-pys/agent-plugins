@@ -39,6 +39,30 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Coding"
+    },
+    {
+      "name": "agentic-review",
+      "source": {
+        "source": "local",
+        "path": "./plugins/agentic-review"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "epub-editor",
+      "source": {
+        "source": "local",
+        "path": "./plugins/epub-editor"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
     }
   ]
 }
