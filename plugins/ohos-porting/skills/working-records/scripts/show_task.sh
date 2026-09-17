@@ -3,7 +3,7 @@
 # 用法: ./show_task.sh <task_id>
 
 TASK_ID="${1:?Error: task_id required}"
-RECORDS_DIR="${HOME}/.claude/working-records"
+RECORDS_DIR="${CODEX_HOME:-$HOME/.codex}/working-records"
 TASK_FILE="$RECORDS_DIR/${TASK_ID}.yaml"
 
 if [ ! -f "$TASK_FILE" ]; then

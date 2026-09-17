@@ -1,0 +1,4 @@
+interface:
+  display_name: "Runtime Debug"
+  short_description: "Debug runtime failures on OHOS devices"
+  default_prompt: "Use $runtime-debug to inspect logs, crashes, permissions, and dynamic library issues on the target device."

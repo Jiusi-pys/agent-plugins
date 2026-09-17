@@ -1,0 +1,4 @@
+interface:
+  display_name: "OHOS Cross Compile"
+  short_description: "Set up Linux cross-compilation with OpenHarmony tools"
+  default_prompt: "Use $ohos-cross-compile to configure command-line-tools and openharmony_prebuilts for this build."

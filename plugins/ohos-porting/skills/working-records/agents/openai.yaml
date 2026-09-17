@@ -1,0 +1,4 @@
+interface:
+  display_name: "Working Records"
+  short_description: "Track long-running OHOS porting state"
+  default_prompt: "Use $working-records to capture checkpoints, blockers, outputs, and resumption notes for this porting effort."

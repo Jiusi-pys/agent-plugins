@@ -1,53 +1,62 @@
 {
   "$schema": "./ohos_toolchain_config.schema.json",
-  "_comment": "OpenHarmony Cross-Compilation Toolchain Configuration",
-  "ohos_sdk_root": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native",
-  "toolchain": {
-    "cc": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/aarch64-unknown-linux-ohos-clang",
-    "cxx": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/aarch64-unknown-linux-ohos-clang++",
-    "ar": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-ar",
-    "ranlib": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-ranlib",
-    "strip": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-strip",
-    "objdump": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-objdump",
-    "readelf": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-readelf",
-    "nm": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/bin/llvm-nm"
-  },
-  "sysroot": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/sysroot",
-  "cxx_runtime": {
-    "shared": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/lib/aarch64-linux-ohos/libc++_shared.so",
-    "static": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/lib/aarch64-linux-ohos/libc++_static.a",
-    "abi": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/llvm/lib/aarch64-linux-ohos/libc++abi.a"
+  "_comment": "OpenHarmony Linux cross-compilation toolchain configuration",
+  "command_line_tools_root": "/opt/command-line-tools",
+  "openharmony_prebuilts_root": "/opt/openharmony_prebuilts",
+  "llvm_root": "/opt/command-line-tools/sdk/native/llvm",
+  "sysroot": "/opt/command-line-tools/sdk/native/sysroot",
+  "clang": {
+    "cc": "/opt/command-line-tools/sdk/native/llvm/bin/aarch64-unknown-linux-ohos-clang",
+    "cxx": "/opt/command-line-tools/sdk/native/llvm/bin/aarch64-unknown-linux-ohos-clang++",
+    "ar": "/opt/command-line-tools/sdk/native/llvm/bin/llvm-ar",
+    "ranlib": "/opt/command-line-tools/sdk/native/llvm/bin/llvm-ranlib",
+    "strip": "/opt/command-line-tools/sdk/native/llvm/bin/llvm-strip",
+    "nm": "/opt/command-line-tools/sdk/native/llvm/bin/llvm-nm",
+    "objdump": "/opt/command-line-tools/sdk/native/llvm/bin/llvm-objdump",
+    "readelf": "/opt/command-line-tools/sdk/native/llvm/bin/llvm-readelf"
   },
   "build_tools": {
-    "gn": "/home/jiusi/M-DDS/OpenHarmony/third_party/skia/bin/gn",
-    "ninja": "/home/jiusi/M-DDS/OpenHarmony/prebuilts/ohos-sdk/linux/11/native/build-tools/cmake/bin/ninja"
+    "cmake": "/opt/command-line-tools/sdk/native/build-tools/cmake/bin/cmake",
+    "ninja": "/opt/command-line-tools/sdk/native/build-tools/cmake/bin/ninja",
+    "gn": "/opt/openharmony_prebuilts/build-tools/linux-x86/bin/gn"
   },
   "target": {
-    "triple": "aarch64-linux-ohos",
+    "triple": "aarch64-unknown-linux-ohos",
     "arch": "aarch64",
     "cpu": "arm64",
     "os": "ohos"
   },
+  "runtime": {
+    "cxx_shared": "/opt/command-line-tools/sdk/native/llvm/lib/aarch64-linux-ohos/libc++_shared.so",
+    "cxx_static": "/opt/command-line-tools/sdk/native/llvm/lib/aarch64-linux-ohos/libc++_static.a"
+  },
   "default_flags": {
     "cflags": [
+      "--target=aarch64-unknown-linux-ohos",
+      "--sysroot=/opt/command-line-tools/sdk/native/sysroot",
       "-D__MUSL__"
     ],
     "cxxflags": [
+      "--target=aarch64-unknown-linux-ohos",
+      "--sysroot=/opt/command-line-tools/sdk/native/sysroot",
+      "-D__MUSL__",
       "-std=c++17",
-      "-D__MUSL__"
+      "-fPIC"
     ],
     "ldflags": [
+      "--target=aarch64-unknown-linux-ohos",
+      "--sysroot=/opt/command-line-tools/sdk/native/sysroot",
       "-fuse-ld=lld"
-    ],
-    "rpath": [
-      "/data",
-      "/system/lib64"
     ]
   },
   "deploy": {
-    "dev_path": "/data",
-    "system_path": "/system/lib64",
-    "project_path": "/data/myproject/lib"
+    "temp_root": "/data/local/tmp",
+    "lib_dir": "/data/local/tmp/lib",
+    "bin_dir": "/data/local/tmp/bin"
+  },
+  "host": {
+    "os": "linux",
+    "shell": "bash"
   },
   "device": {
     "connection": "hdc",

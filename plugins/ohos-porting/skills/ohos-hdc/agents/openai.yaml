@@ -1,0 +1,4 @@
+interface:
+  display_name: "OHOS HDC"
+  short_description: "Operate OpenHarmony devices with HDC"
+  default_prompt: "Use $ohos-hdc to inspect this device, run commands, transfer files, or collect logs over HDC."

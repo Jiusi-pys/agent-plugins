@@ -118,4 +118,4 @@ echo "请编辑报告，填写详细内容："
 echo "  \${EDITOR:-vi} $REPORT_FILE"
 echo
 echo "编辑完成后执行 commit："
-echo "  ./scripts/git-workflow/commit_phase.sh $TRACK $STAGE $PHASE '<message>' <type>"
+echo "  ./scripts/commit_phase.sh $TRACK $STAGE $PHASE '<message>' <type>"

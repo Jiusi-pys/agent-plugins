@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/bash \"$(git rev-parse --show-toplevel)/.codex/hooks/ohos_pre_tool_use.sh\"",
+            "statusMessage": "Checking OHOS command guardrails"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/bash \"$(git rev-parse --show-toplevel)/.codex/hooks/ohos_post_tool_use.sh\"",
+            "statusMessage": "Reviewing OHOS command results"
+          }
+        ]
+      }
+    ]
+  }
+}

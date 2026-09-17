@@ -1,86 +1,25 @@
-# OHOS Porting Plugin Marketplace
+# Codex plugins repository (`openai` branch)
 
-Claude Code plugin for OpenHarmony/KaihongOS software porting workflow.
+This branch packages Codex-ready plugins from this repository under `plugins/`.
 
-## Installation
+## Branch split
 
-```bash
-# Add this marketplace
-/plugin marketplace add Jiusi-pys/agent-plugins
+- `main`: Claude-oriented source material and original plugin content
+- `openai`: Codex-native plugin packaging, hooks, and skill rewrites
 
-# Install the plugin
-/plugin install ohos-porting@ohos-porting-marketplace
-```
+## Available plugins
 
-## Plugin: ohos-porting
+- `plugins/ohos-porting`
+- `plugins/translate-web-to-chinese`
+- `plugins/codebase-frontmatter-summary`
 
-**Purpose**: Complete software porting workflow from Linux to OpenHarmony/KaihongOS.
+## Repo-local Codex surfaces
 
-### Features
+- `/.agents/plugins/marketplace.json`
+- `/.codex/hooks.json`
 
-- **8-phase porting workflow**: From requirements to final submission
-- **6 specialized agents**: source-explorer, porting-analyzer, porting-architect, compile-debugger, runtime-debugger, remote-commander
-- **14 skills**: Including cross-compilation, API mapping, error analysis, device control
-- **Auto error diagnosis**: Hooks detect and diagnose compilation/runtime errors
-- **Working state persistence**: Track progress across sessions
+## Notes
 
-### Commands
-
-| Command | Description |
-|---------|-------------|
-| `/ohos-port <library>` | Analyze porting feasibility for a library |
-| `/ohos-port-dev <library>` | Full porting workflow with state tracking |
-| `/ohos-build` | Build OHOS project with error diagnosis |
-| `/ohos-deploy` | Deploy to OHOS device |
-
-### Example Usage
-
-```bash
-# Analyze libcurl porting feasibility
-/ohos-port libcurl
-
-# Start full porting workflow
-/ohos-port-dev libcurl
-```
-
-### Directory Structure
-
-```
-plugins/ohos-porting/
-├── .claude-plugin/
-│   └── plugin.json
-├── agents/               # 7 specialized agents
-├── commands/             # 4 CLI commands
-├── hooks/                # Event hooks for error detection
-├── skills/               # 14 reusable skills
-└── install.sh
-```
-
-## Plugin: auto-clean
-
-**Purpose**: Automated privacy cleanup for Claude Code.
-
-### Features
-
-- **5 cleanup levels**: From device identifiers to full reset
-- **Automatic cleanup**: Runs on each response turn
-- **Manual commands**: `/init` for full reset, `/clean-history` for session cleanup
-
-### Commands
-
-| Command | Description |
-|---------|-------------|
-| `/init` | Full reset (Level 5) with backup and restore |
-| `/clean-history` | Clear session history (Level 3) |
-
-### Cleanup Levels
-
-- **Level 1**: Reset device identifiers
-- **Level 2**: Clear telemetry and analytics
-- **Level 3**: Clear session history
-- **Level 4**: Clear OAuth and keychain
-- **Level 5**: Full reset
-
-## License
-
-MIT
+- `ohos-porting` is Linux-only and uses direct `hdc_std` or `hdc`.
+- OHOS build guidance is standardized on `command-line-tools` and `openharmony_prebuilts`.
+- `codebase-frontmatter-summary` scans a tree bottom-up, adds managed file frontmatter, and writes one summary file per directory.

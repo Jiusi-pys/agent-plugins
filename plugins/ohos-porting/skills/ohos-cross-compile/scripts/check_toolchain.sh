@@ -1,13 +1,13 @@
 #!/bin/bash
 # OpenHarmony Toolchain Verification Script
-# Run on HOST machine to verify SDK installation
+# Run on the Linux host to verify the command-line-tools and prebuilts layout.
 #
 # Usage:
-#   ./check_toolchain.sh                    # Auto-detect from config
-#   ./check_toolchain.sh /path/to/sdk       # Explicit path
-#   OHOS_SDK_ROOT=/path/to/sdk ./check_toolchain.sh
+#   ./check_toolchain.sh                               # Auto-detect from config
+#   ./check_toolchain.sh /path/to/command-line-tools   # Explicit command-line-tools root
+#   OHOS_COMMAND_LINE_TOOLS=/path/to/command-line-tools ./check_toolchain.sh
 
-set -e
+set -euo pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -21,64 +21,134 @@ info() { echo -e "      $1"; }
 
 ERRORS=0
 
-# Determine SDK root
-if [ -n "$1" ]; then
-    OHOS_SDK_ROOT="$1"
-elif [ -z "$OHOS_SDK_ROOT" ]; then
-    # Try to load from config
-    CONFIG_PATHS=(
+CONFIG_FILE=""
+COMMAND_LINE_TOOLS_ROOT="${OHOS_COMMAND_LINE_TOOLS:-}"
+PREBUILTS_ROOT="${OPENHARMONY_PREBUILTS_ROOT:-}"
+OHOS_NATIVE_ROOT=""
+LLVM_ROOT="${OHOS_LLVM_ROOT:-}"
+SYSROOT="${OHOS_SYSROOT:-}"
+GN_PATH="${OHOS_GN:-}"
+NINJA_PATH="${OHOS_NINJA:-}"
+
+find_config() {
+    local cfg
+    local candidates=(
         "./ohos_toolchain_config.json"
         "../ohos_toolchain_config.json"
         "$(dirname "$0")/../ohos_toolchain_config.json"
     )
-    
-    for cfg in "${CONFIG_PATHS[@]}"; do
-        if [ -f "$cfg" ]; then
-            OHOS_SDK_ROOT=$(python3 -c "import json; print(json.load(open('$cfg'))['ohos_sdk_root'])" 2>/dev/null)
-            if [ -n "$OHOS_SDK_ROOT" ]; then
-                info "Loaded SDK root from: $cfg"
-                break
-            fi
+
+    for cfg in "${candidates[@]}"; do
+        if [[ -f "$cfg" ]]; then
+            echo "$cfg"
+            return 0
         fi
     done
+
+    return 1
+}
+
+load_config() {
+    local cfg="$1"
+    local key="$2"
+    python3 - "$cfg" "$key" <<'PY'
+import json
+import sys
+
+cfg_path, key = sys.argv[1], sys.argv[2]
+with open(cfg_path, "r", encoding="utf-8") as handle:
+    data = json.load(handle)
+
+value = data
+for part in key.split("."):
+    if not isinstance(value, dict) or part not in value:
+        sys.exit(1)
+    value = value[part]
+
+if isinstance(value, str):
+    print(value)
+else:
+    sys.exit(1)
+PY
+}
+
+if [[ $# -gt 0 ]]; then
+    COMMAND_LINE_TOOLS_ROOT="$1"
 fi
 
-if [ -z "$OHOS_SDK_ROOT" ]; then
-    echo "ERROR: Cannot determine OHOS SDK root"
-    echo "Usage: $0 /path/to/ohos-sdk/native"
-    echo "   or: OHOS_SDK_ROOT=/path/to/sdk $0"
-    echo "   or: Create ohos_toolchain_config.json"
+if [[ -z "$COMMAND_LINE_TOOLS_ROOT" ]] || [[ -z "$PREBUILTS_ROOT" ]] || [[ -z "$LLVM_ROOT" ]] || [[ -z "$SYSROOT" ]]; then
+    if CONFIG_FILE="$(find_config)"; then
+        [[ -z "$COMMAND_LINE_TOOLS_ROOT" ]] && COMMAND_LINE_TOOLS_ROOT="$(load_config "$CONFIG_FILE" "command_line_tools_root" 2>/dev/null || true)"
+        [[ -z "$PREBUILTS_ROOT" ]] && PREBUILTS_ROOT="$(load_config "$CONFIG_FILE" "openharmony_prebuilts_root" 2>/dev/null || true)"
+        [[ -z "$LLVM_ROOT" ]] && LLVM_ROOT="$(load_config "$CONFIG_FILE" "llvm_root" 2>/dev/null || true)"
+        [[ -z "$SYSROOT" ]] && SYSROOT="$(load_config "$CONFIG_FILE" "sysroot" 2>/dev/null || true)"
+        [[ -z "$GN_PATH" ]] && GN_PATH="$(load_config "$CONFIG_FILE" "build_tools.gn" 2>/dev/null || true)"
+        [[ -z "$NINJA_PATH" ]] && NINJA_PATH="$(load_config "$CONFIG_FILE" "build_tools.ninja" 2>/dev/null || true)"
+        info "Loaded toolchain contract from: $CONFIG_FILE"
+    fi
+fi
+
+# Backward-compatible fallback for environments that still export OHOS_SDK_ROOT.
+if [[ -z "$COMMAND_LINE_TOOLS_ROOT" ]] && [[ -n "${OHOS_SDK_ROOT:-}" ]]; then
+    COMMAND_LINE_TOOLS_ROOT="$(cd "${OHOS_SDK_ROOT}/../.." 2>/dev/null && pwd)"
+    warn "Derived command_line_tools_root from OHOS_SDK_ROOT for compatibility."
+fi
+
+if [[ -z "$COMMAND_LINE_TOOLS_ROOT" ]]; then
+    echo "ERROR: Cannot determine command-line-tools root"
+    echo "Usage: $0 /path/to/command-line-tools"
+    echo "   or: OHOS_COMMAND_LINE_TOOLS=/path/to/command-line-tools $0"
+    echo "   or: populate command_line_tools_root in ohos_toolchain_config.json"
     exit 1
 fi
+
+if [[ -z "$PREBUILTS_ROOT" ]]; then
+    echo "ERROR: Cannot determine openharmony_prebuilts root"
+    echo "Set OPENHARMONY_PREBUILTS_ROOT or populate openharmony_prebuilts_root in ohos_toolchain_config.json"
+    exit 1
+fi
+
+OHOS_NATIVE_ROOT="${COMMAND_LINE_TOOLS_ROOT}/sdk/native"
+[[ -n "$LLVM_ROOT" ]] || LLVM_ROOT="${OHOS_NATIVE_ROOT}/llvm"
+[[ -n "$SYSROOT" ]] || SYSROOT="${OHOS_NATIVE_ROOT}/sysroot"
+[[ -n "$NINJA_PATH" ]] || NINJA_PATH="${OHOS_NATIVE_ROOT}/build-tools/cmake/bin/ninja"
 
 echo "========================================"
 echo "OpenHarmony Toolchain Verification"
 echo "========================================"
 echo ""
-echo "SDK Root: $OHOS_SDK_ROOT"
+echo "command-line-tools root: $COMMAND_LINE_TOOLS_ROOT"
+echo "openharmony_prebuilts root: $PREBUILTS_ROOT"
+echo "native tool root: $OHOS_NATIVE_ROOT"
 echo ""
 
 # 1. Directory Structure
 echo "--- Directory Structure ---"
-if [ -d "$OHOS_SDK_ROOT" ]; then
-    pass "SDK root exists"
+if [ -d "$COMMAND_LINE_TOOLS_ROOT" ]; then
+    pass "command-line-tools root exists"
 else
-    fail "SDK root not found: $OHOS_SDK_ROOT"
+    fail "command-line-tools root not found: $COMMAND_LINE_TOOLS_ROOT"
     exit 1
 fi
 
-for dir in llvm llvm/bin llvm/lib sysroot sysroot/usr/include sysroot/usr/lib; do
-    if [ -d "$OHOS_SDK_ROOT/$dir" ]; then
-        pass "$dir/"
+if [ -d "$PREBUILTS_ROOT" ]; then
+    pass "openharmony_prebuilts root exists"
+else
+    fail "openharmony_prebuilts root not found: $PREBUILTS_ROOT"
+fi
+
+for dir in "$OHOS_NATIVE_ROOT" "$LLVM_ROOT" "$LLVM_ROOT/bin" "$LLVM_ROOT/lib" "$SYSROOT" "$SYSROOT/usr/include" "$SYSROOT/usr/lib"; do
+    if [ -d "$dir" ]; then
+        pass "${dir#$COMMAND_LINE_TOOLS_ROOT/}"
     else
-        fail "$dir/ missing"
+        fail "${dir#$COMMAND_LINE_TOOLS_ROOT/} missing"
     fi
 done
 echo ""
 
 # 2. Compiler Binaries
 echo "--- Compiler Binaries ---"
-LLVM_BIN="$OHOS_SDK_ROOT/llvm/bin"
+LLVM_BIN="$LLVM_ROOT/bin"
 
 REQUIRED_BINS=(
     "clang:C compiler"
@@ -112,7 +182,6 @@ echo ""
 
 # 3. Sysroot Contents
 echo "--- Sysroot Contents ---"
-SYSROOT="$OHOS_SDK_ROOT/sysroot"
 
 REQUIRED_HEADERS=(
     "usr/include/stdio.h:C stdio"
@@ -175,7 +244,7 @@ echo ""
 
 # 5. C++ Runtime
 echo "--- C++ Runtime ---"
-CXX_LIB="$OHOS_SDK_ROOT/llvm/lib/aarch64-linux-ohos"
+CXX_LIB="$LLVM_ROOT/lib/aarch64-linux-ohos"
 
 if [ -f "$CXX_LIB/libc++_shared.so" ]; then
     SIZE=$(ls -lh "$CXX_LIB/libc++_shared.so" | awk '{print $5}')
@@ -195,6 +264,25 @@ if [ -f "$CXX_LIB/libc++abi.a" ]; then
     pass "libc++abi.a"
 else
     warn "libc++abi.a missing"
+fi
+echo ""
+
+# 5b. Build Tools
+echo "--- Build Tools ---"
+if [[ -n "$GN_PATH" ]]; then
+    if [[ -x "$GN_PATH" ]]; then
+        pass "gn"
+    else
+        fail "Configured gn missing: $GN_PATH"
+    fi
+else
+    warn "gn path not configured"
+fi
+
+if [[ -x "$NINJA_PATH" ]]; then
+    pass "ninja"
+else
+    fail "Configured ninja missing: $NINJA_PATH"
 fi
 echo ""
 
@@ -230,7 +318,7 @@ EOF
 CXX="$LLVM_BIN/aarch64-unknown-linux-ohos-clang++"
 if [ ! -x "$CXX" ]; then
     CXX="$LLVM_BIN/clang++"
-    CXX_FLAGS="--target=aarch64-linux-ohos --sysroot=$SYSROOT -D__MUSL__"
+    CXX_FLAGS="--target=aarch64-unknown-linux-ohos --sysroot=$SYSROOT -D__MUSL__"
 else
     CXX_FLAGS=""
 fi

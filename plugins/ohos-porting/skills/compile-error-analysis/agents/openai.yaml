@@ -1,0 +1,4 @@
+interface:
+  display_name: "Compile Error Analysis"
+  short_description: "Diagnose OHOS compile and link failures"
+  default_prompt: "Use $compile-error-analysis to categorize this OHOS build failure and suggest the most direct fix path."

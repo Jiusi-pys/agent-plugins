@@ -6,7 +6,7 @@ LIBRARY="${1:?Error: library name required}"
 VERSION="${2:?Error: version required}"
 SOURCE_URL="${3:-}"
 
-RECORDS_DIR="${HOME}/.claude/working-records"
+RECORDS_DIR="${CODEX_HOME:-$HOME/.codex}/working-records"
 mkdir -p "$RECORDS_DIR"
 
 # 生成任务 ID

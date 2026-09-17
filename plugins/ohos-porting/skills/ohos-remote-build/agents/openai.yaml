@@ -1,0 +1,4 @@
+interface:
+  display_name: "OHOS Remote Build"
+  short_description: "Coordinate Linux-to-Linux remote OpenHarmony image builds"
+  default_prompt: "Use $ohos-remote-build to sync files to the remote Linux build host and run the OpenHarmony image build there."
