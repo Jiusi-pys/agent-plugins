@@ -5,8 +5,8 @@ OpenHarmony/KaihongOS 软件移植工作流插件。将 Linux 库/软件移植�
 ## 功能特性
 
 - **8 阶段工作流**: 需求澄清 → 源码探索 → 可行性诊断 → 架构设计 → 代码实现 → 编译验证 → 部署测试 → 收尾提交
-- **6 个专用 Agent**: source-explorer, porting-analyzer, porting-architect, compile-debugger, runtime-debugger, remote-commander
-- **6 个 Skill**: porting-diagnostics, api-mapping, compile-error-analysis, runtime-debug, working-records, remote-server-ssh-control
+- **7 个专用 Agent**: ohos-dispatcher, source-explorer, porting-analyzer, porting-architect, compile-debugger, runtime-debugger, remote-commander
+- **14 个 Skill**: agent-routing, api-mapping, compile-error-analysis, git-cicd-workflow, hdc-kaihongOS, main-orchestrator, ohos-cpp-style, ohos-cross-compile, ohos-permission, porting-diagnostics, remote-server-ssh-control, runtime-debug, stub-interposition, working-records
 - **自动错误诊断**: 编译失败时自动触发诊断
 - **状态持久化**: 防止 context 丢失，支持任务恢复
 
@@ -15,22 +15,20 @@ OpenHarmony/KaihongOS 软件移植工作流插件。将 Linux 库/软件移植�
 ### 方式一: 从 marketplace 安装 (推荐)
 ```bash
 # 在 Claude Code 中执行
-/plugin install ohos-porting@your-marketplace
+/plugin marketplace add Jiusi-pys/agent-plugins
+/plugin install ohos-porting@jiusi-agent-plugins
 ```
 
 ### 方式二: 本地安装
 ```bash
 # 克隆到本地
-git clone https://github.com/user/ohos-porting-plugin.git
+git clone https://github.com/Jiusi-pys/agent-plugins.git
 
 # 使用 --plugin-dir 加载
-claude --plugin-dir ./ohos-porting-plugin
+claude --plugin-dir ./agent-plugins/plugins/ohos-porting
 ```
 
-### 方式三: 复制到用户目录
-```bash
-./install.sh
-```
+`install.sh` 是旧版文件复制工具，不会注册 marketplace 或自动合并 hooks 配置；推荐使用上面的插件安装方式。Shell 脚本需要 Bash 环境（Windows 可使用 Git Bash 或 WSL）。
 
 ## 使用
 
@@ -55,31 +53,14 @@ claude --plugin-dir ./ohos-porting-plugin
 
 ## 目录结构
 
-```
-ohos-porting-plugin/
-├── .claude-plugin/
-│   └── plugin.json              # 插件清单
-├── agents/
-│   ├── source-explorer.md       # 源码探索
-│   ├── porting-analyzer.md      # 可行性分析
-│   ├── porting-architect.md     # 架构设计
-│   ├── compile-debugger.md      # 编译调试
-│   ├── runtime-debugger.md      # 运行时调试
-│   └── remote-commander.md      # 远程服务器
-├── commands/
-│   ├── ohos-port-dev.md         # 主工作流
-│   ├── ohos-port.md             # 移植分析
-│   ├── ohos-build.md            # 编译命令
-│   └── ohos-deploy.md           # 部署命令
-├── skills/
-│   ├── porting-diagnostics/     # 移植诊断
-│   ├── api-mapping/             # API 映射
-│   ├── compile-error-analysis/  # 编译错误分析
-│   ├── runtime-debug/           # 运行时调试
-│   ├── working-records/         # 工作记录
-│   └── remote-server-ssh-control/ # 远程控制
-├── hooks/
-│   └── hooks.json               # 事件钩子
+```text
+plugins/ohos-porting/
+├── .claude-plugin/plugin.json
+├── agents/                     # 7 个 Agent，包含 ohos-dispatcher
+├── commands/                   # 4 个命令
+├── skills/                     # 14 个 Skill
+├── hooks/                      # hooks.json 与脚本
+├── install.sh                  # 旧版文件复制工具
 └── README.md
 ```
 
@@ -158,7 +139,7 @@ ohos-porting-plugin/
 
 ## 整合已有 skills
 
-本插件设计为与你已有的 skills 配合使用：
+本插件已包含以下 skills，并在相应阶段使用：
 
 - `hdc-kaihongOS` → 集成到 runtime-debugger 和 deploy 命令
 - `ohos-cpp-style` → 集成到 porting-architect

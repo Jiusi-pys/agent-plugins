@@ -22,14 +22,14 @@ pipeline **never edits code and never merges**.
 ## Use
 
 ```
-/multi-review                       # review the working tree (uncommitted + untracked)
-/multi-review <sha>                 # review exactly one commit
-/multi-review HEAD                  # review the latest commit
-/multi-review staged                # review only staged changes
-/multi-review origin/main           # this branch vs a ref (ref...HEAD)
-/multi-review abc123..def456        # an explicit commit range
-/multi-review <sha> deep            # deep mode (more sensors, verify everything)
-/multi-review HEAD --intent .review/intent.md
+/multi-review:multi-review                       # review the working tree (uncommitted + untracked)
+/multi-review:multi-review <sha>                 # review exactly one commit
+/multi-review:multi-review HEAD                  # review the latest commit
+/multi-review:multi-review staged                # review only staged changes
+/multi-review:multi-review origin/main           # this branch vs a ref (ref...HEAD)
+/multi-review:multi-review abc123..def456        # an explicit commit range
+/multi-review:multi-review <sha> deep            # deep mode (more sensors, verify everything)
+/multi-review:multi-review HEAD --intent .review/intent.md
 ```
 
 Selection precedence: a single `commit` > `staged` > `target` (ref/range) >
@@ -93,7 +93,7 @@ Env toggles: `REVIEW_RUN_GATES` (lint/typecheck, default 1) · `REVIEW_RUN_TESTS
 ```
 R0: preflight (+ optional /code-review low)
 R1: /multi-review
-R2: /multi-review + /code-review ultra + a human owner
+R2: /multi-review:multi-review + /code-review ultra + a human owner
 R3: split / supply evidence, then re-run
 ```
 

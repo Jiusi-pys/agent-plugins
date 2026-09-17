@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Claude Code plugin marketplace containing two plugins:
 
 1. **ohos-porting** — OpenHarmony/KaihongOS software porting workflow with 8 phases, 7 agents, and 14 skills
-2. **auto-clean** — Privacy cleanup tool that clears Claude Code tracking data and telemetry
+2. **multi-review** — Evidence-gated code review with 9 agents, 1 command, 1 skill, deterministic preflight and a dynamic workflow
 
 ## Repository Structure
 
@@ -26,12 +26,14 @@ agent-plugins/
 │   │   ├── hooks/                # Event hooks (hooks.json + scripts/)
 │   │   ├── skills/               # Reusable skills
 │   │   └── install.sh            # Copies plugin files to ~/.claude/ or ./.claude/
-│   └── auto-clean/               # Privacy cleanup plugin
-│       ├── .claude-plugin/
-│       │   └── plugin.json
-│       ├── commands/             # /init, /clean-history
-│       ├── hooks/                # Auto-cleanup on Stop event
-│       ├── scripts/              # Shell scripts for cleaning
+│   └── multi-review/             # Evidence-gated review plugin
+│       ├── .claude-plugin/plugin.json
+│       ├── agents/               # Router, 6 sensors, verifier, judge
+│       ├── commands/             # multi-review command
+│       ├── skills/               # review-contract
+│       ├── scripts/              # Deterministic preflight
+│       ├── templates/            # Intent and report templates
+│       ├── workflows/            # Dynamic review workflow
 │       └── README.md
 ├── README.md
 └── CLAUDE.md
@@ -89,19 +91,15 @@ Script paths use `${CLAUDE_PLUGIN_ROOT}` variable for portability.
 ## Development Commands
 
 ```bash
-# Validate marketplace.json (metadata.version, not top-level version)
-jq . .claude-plugin/marketplace.json
-
-# Validate plugin structure (requires claude CLI)
-cd plugins/ohos-porting && claude plugin validate . 2>/dev/null || echo "Validation requires claude CLI"
-
-# Install plugins locally for testing
-./plugins/ohos-porting/install.sh --user    # copies to ~/.claude/
-./plugins/ohos-porting/install.sh --project # copies to ./.claude/
-./plugins/auto-clean/install.sh --user
+claude plugin validate .
+claude plugin validate ./plugins/ohos-porting
+claude plugin validate ./plugins/multi-review
+claude --plugin-dir ./plugins/ohos-porting
 ```
 
-There are no traditional unit tests. Validation is performed by the GitHub Actions workflow (`validate-plugins.yml`), which checks that JSON files are valid and expected directories exist.
+CI uses Claude Code 2.1.270 to validate the marketplace and each plugin, including skill frontmatter. Validation failures must fail CI. These checks do not test runtime behavior.
+
+Use `/plugin marketplace add Jiusi-pys/agent-plugins` and install with `@jiusi-agent-plugins`. The legacy `install.sh` copies files but does not register the marketplace or merge hook settings.
 
 ## Plugin: ohos-porting
 
@@ -129,10 +127,10 @@ There are no traditional unit tests. Validation is performed by the GitHub Actio
 ### CLI Commands
 | Command | Description |
 |---------|-------------|
-| `/ohos-port <library>` | Analyze porting feasibility for a library |
-| `/ohos-port-dev <library>` | Full 8-phase porting workflow with state tracking |
-| `/ohos-build` | Build OHOS project with error diagnosis |
-| `/ohos-deploy` | Deploy to OHOS device |
+| `/ohos-porting:ohos-port <library>` | Analyze porting feasibility for a library |
+| `/ohos-porting:ohos-port-dev <library>` | Full 8-phase porting workflow with state tracking |
+| `/ohos-porting:ohos-build` | Build OHOS project with error diagnosis |
+| `/ohos-porting:ohos-deploy` | Deploy to OHOS device |
 
 ### Skills
 | Skill | Purpose |
@@ -155,43 +153,17 @@ There are no traditional unit tests. Validation is performed by the GitHub Actio
 ### State Persistence (`working-records`)
 The `working-records` skill persists multi-session porting progress in `~/.claude/working-records/` as YAML files. Agents read these records at phase start and write updates at phase completion. The `on_session_end.sh` hook ensures state is flushed when a session ends.
 
-## Plugin: auto-clean
+## Plugin: multi-review
 
-A privacy-focused utility plugin that clears Claude Code tracking data.
-
-### Commands
-| Command | Description |
-|---------|-------------|
-| `/init` | Full reset (Level 5), backs up config, restores plugins, sets CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC |
-| `/clean-history` | Clear conversation history and session data (Level 3) |
-
-### Cleanup Levels
-- **Level 1** — Reset device identifiers (`userID`, `anonymousId`, etc.)
-- **Level 2** — Clear telemetry and analytics data
-- **Level 3** — Clear sessions, history, `session-env`, and `session-history`
-- **Level 4** — Clear OAuth account linkage and keychain credentials
-- **Level 5** — Full reset of `~/.claude/` and `~/.claude.json`
-
-### Hooks
-Hooks run on the `Stop` event (after Claude completes a response):
-- **`clean.sh`** — Runs Level 1 + Level 2
-- **`clear.sh`** — Runs Level 2
+The `/multi-review:multi-review` command launches a Workflow pipeline: preflight, risk routing, parallel read-only sensors, independent verification, and a unified judge. It does not edit code or merge changes. See [the plugin guide](plugins/multi-review/README.md) for target selection, requirements and verdicts.
 
 ## Marketplace Updates
 
-When updating any plugin:
-1. Update `version` in the plugin's `.claude-plugin/plugin.json`
-2. Update `metadata.version` in root `.claude-plugin/marketplace.json` (keep in sync)
-3. Push to main branch — GitHub Actions validates automatically
+1. Keep the stable marketplace name `jiusi-agent-plugins` and repository-relative `./plugins/<name>` sources.
+2. Maintain plugin versions only in each `.claude-plugin/plugin.json`; bump the affected plugin for every release. Do not duplicate versions in marketplace entries.
+3. Increment the catalog's top-level `version` independently for marketplace changes.
+4. Preserve `renames` history. `auto-clean` maps to `null` because it was removed; automatic migration requires Claude Code 2.1.193+.
+5. Update installation examples and component counts when contents change.
+6. Run all validation commands above before pushing. GitHub Actions repeats them on pushes and pull requests to main.
 
-## Claude Code Privacy Settings
-
-For users concerned about data privacy, Claude Code supports official environment variables (set via `settings.json`):
-
-- `DISABLE_TELEMETRY` — Disable telemetry collection
-- `DISABLE_ERROR_REPORTING` — Disable error reporting
-- `DISABLE_FEEDBACK_COMMAND` — Disable feedback command
-- `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY` — Disable feedback surveys
-- `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` — Disable non-essential network traffic
-
-See [Claude Code Data Usage documentation](https://code.claude.com/docs/en/data-usage) for details.
+Follow the [official marketplace documentation](https://code.claude.com/docs/en/plugin-marketplaces).

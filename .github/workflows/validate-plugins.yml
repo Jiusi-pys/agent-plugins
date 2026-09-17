@@ -6,19 +6,24 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate marketplace.json
-        run: jq . .claude-plugin/marketplace.json > /dev/null && echo "✓ Valid JSON"
-      - name: Check plugin structure
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Claude Code validator
+        run: npm install --global @anthropic-ai/claude-code@2.1.270
+      - name: Validate marketplace and plugins
+        shell: bash
         run: |
+          set -euo pipefail
+          claude plugin validate .
           for dir in plugins/*/; do
-            echo "Checking $(basename $dir)"
-            [ -f "$dir/.claude-plugin/plugin.json" ] && echo "  ✓ plugin.json"
-            [ -d "$dir/agents" ] && echo "  ✓ agents/"
-            [ -d "$dir/commands" ] && echo "  ✓ commands/"
-            [ -d "$dir/skills" ] && echo "  ✓ skills/"
+            claude plugin validate "$dir"
           done

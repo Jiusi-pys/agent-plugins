@@ -1,6 +1,7 @@
 ---
 name: hdc-kaihongos
-description: HDC (HarmonyOS Device Connector) operations for RK3588S KaihongOS development boards. Auto-detects platform (Linux/Windows/WSL) and uses correct HDC command. Use when: (1) Executing shell commands on KaihongOS device, (2) Transferring files between host and device, (3) Managing device connections and ports, (4) Installing/uninstalling OpenHarmony applications (.hap/.hsp), (5) Debugging device logs and processes, (6) Port forwarding for remote debugging. Supports: Native Linux (hdc_std), Windows (hdc), WSL (powershell.exe wrapper). CRITICAL: Multi-device scenarios require -t parameter for device selection.
+description: >-
+  HDC (HarmonyOS Device Connector) operations for RK3588S KaihongOS development boards. Auto-detects platform (Linux/Windows/WSL) and uses correct HDC command. Use when: (1) Executing shell commands on KaihongOS device, (2) Transferring files between host and device, (3) Managing device connections and ports, (4) Installing/uninstalling OpenHarmony applications (.hap/.hsp), (5) Debugging device logs and processes, (6) Port forwarding for remote debugging. Supports: Native Linux (hdc_std), Windows (hdc), WSL (powershell.exe wrapper). CRITICAL: Multi-device scenarios require -t parameter for device selection.
 ---
 
 # HDC KaihongOS Operations
