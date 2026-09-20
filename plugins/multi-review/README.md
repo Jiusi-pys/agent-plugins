@@ -103,6 +103,17 @@ responsibility.
 
 ## Notes
 
+- Version 1.0.2 pins the workflow and preflight scripts to LF on Git checkout,
+  including Windows with `core.autocrlf=true`. CRLF in a saved workflow can cause
+  `script contains control characters that would be hidden in the approval dialog`
+  before the workflow starts (including an `updatedInput` validation error).
+  Update the `jiusi-agent-plugins` marketplace and the installed `multi-review`
+  plugin, then restart Claude Code. If an existing cached installation still has
+  CRLF files, reinstall the plugin from the updated marketplace. Changing Git
+  attributes does not rewrite files already present in an old plugin cache.
+  Run `node --test tests/workflow-line-endings.test.cjs` from the repository root
+  to check both the bundled files and a fresh Windows-style Git checkout.
+
 - Sensors are **read-only**: their `tools` exclude Edit/Write, and the static ones
   run in `permissionMode: plan`. `review-runtime` and `review-verifier` may execute
   the narrowest safe commands (`permissionMode: default`) to observe behavior.

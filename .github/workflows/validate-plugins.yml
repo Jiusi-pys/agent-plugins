@@ -19,6 +19,9 @@ jobs:
           node-version: '22'
       - name: Install Claude Code validator
         run: npm install --global @anthropic-ai/claude-code@2.1.270
+      - name: Test workflow line endings
+        # Regression includes a fresh Git checkout with core.autocrlf=true.
+        run: node --test tests/workflow-line-endings.test.cjs
       - name: Validate marketplace and plugins
         shell: bash
         run: |

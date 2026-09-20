@@ -1,0 +1,4 @@
+# Workflow approval validates the loaded script; CRLF introduces rejected CRs.
+plugins/multi-review/workflows/*.js text eol=lf
+# Bash also requires LF when these scripts are checked out on Windows.
+plugins/multi-review/scripts/*.sh text eol=lf
