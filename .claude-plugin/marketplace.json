@@ -58,9 +58,27 @@
         "export"
       ],
       "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/weread-exporter"
+    },
+    {
+      "name": "epub-editor",
+      "description": "编辑 EPUB 元数据、统计字数、修复目录与注释，并可替换用户提供的封面。",
+      "author": {
+        "name": "OpenAI"
+      },
+      "source": "./plugins/epub-editor",
+      "category": "productivity",
+      "tags": [
+        "epub",
+        "ebook",
+        "metadata",
+        "toc",
+        "annotations"
+      ],
+      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/epub-editor",
+      "license": "MIT"
     }
   ],
-  "description": "OpenHarmony/KaihongOS porting, evidence-gated code review, and personal knowledge export plugins.",
+  "description": "OpenHarmony/KaihongOS porting, evidence-gated code review, personal knowledge export, and EPUB editing plugins.",
   "version": "1.4.0",
   "renames": {
     "auto-clean": null

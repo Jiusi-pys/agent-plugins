@@ -1,0 +1,9 @@
+{
+  "name": "epub-editor",
+  "description": "编辑 EPUB 元数据、统计字数、修复目录与注释，并可替换用户提供的封面。",
+  "version": "0.1.0",
+  "author": {
+    "name": "OpenAI"
+  },
+  "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/epub-editor"
+}

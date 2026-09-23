@@ -1,6 +1,6 @@
 # Jiusi Agent Plugins
 
-Claude Code marketplace for OpenHarmony/KaihongOS software porting, evidence-gated code review, and personal knowledge export.
+Claude Code marketplace for OpenHarmony/KaihongOS software porting, evidence-gated code review, personal knowledge export, and EPUB editing.
 
 ## Available plugins
 
@@ -9,6 +9,7 @@ Claude Code marketplace for OpenHarmony/KaihongOS software porting, evidence-gat
 | `ohos-porting` | 8-phase porting workflow, 7 agents, 14 skills, 4 commands and diagnostic hooks | [OHOS guide](plugins/ohos-porting/README.md) |
 | `multi-review` | Risk routing, 6 review sensors, independent verification and a unified judge; 9 agents total | [Review guide](plugins/multi-review/README.md) |
 | `weread-exporter` | Exports personally authorized WeRead books to Markdown with inline illustrations | [WeRead guide](plugins/weread-exporter/README.md) |
+| `epub-editor` | Edit EPUB metadata, recount words, repair navigation and notes, and replace a user-provided cover | [EPUB guide](plugins/epub-editor/README.md) |
 
 ## Installation
 
@@ -19,6 +20,7 @@ Run in Claude Code, installing whichever plugins you need:
 /plugin install ohos-porting@jiusi-agent-plugins
 /plugin install multi-review@jiusi-agent-plugins
 /plugin install weread-exporter@jiusi-agent-plugins
+/plugin install epub-editor@jiusi-agent-plugins
 ```
 
 The marketplace identifier is `jiusi-agent-plugins`. Add the GitHub repository or a local checkout: relative plugin sources do not work with a raw marketplace JSON URL.
@@ -44,6 +46,8 @@ codex plugin add weread-exporter@jiusi-agent-plugins
 
 `weread-exporter` packages the upstream Playwright exporter for personal study or backup of WeRead books that the user is authorized to read. It opens an interactive browser for the user's own login and does not bypass access restrictions.
 
+After installing `epub-editor`, provide an EPUB file path and the changes you need, for example: “修改作者并统计字数，保留其他元数据。” The plugin creates a new EPUB and never overwrites the original.
+
 OHOS builds require the appropriate SDK/toolchain and HDC for deployment; SSH supports remote builds. Bundled shell scripts require Bash (Git Bash or WSL on Windows). Multi-review also requires the Workflow tool; see the plugin guides for details.
 
 ## Updates and removal
@@ -67,8 +71,10 @@ claude plugin validate .
 claude plugin validate ./plugins/ohos-porting
 claude plugin validate ./plugins/multi-review
 claude plugin validate ./plugins/weread-exporter
+claude plugin validate ./plugins/epub-editor
 claude --plugin-dir ./plugins/ohos-porting
 claude --plugin-dir ./plugins/weread-exporter
+python -m unittest discover -s plugins/epub-editor/tests -v
 ```
 
 CI runs official manifest/structure validation for the marketplace and each plugin. These checks do not exercise device deployment or review workflows.
@@ -83,6 +89,7 @@ Plugin versions live in each plugin's `.claude-plugin/plugin.json`; bump the aff
 plugins/ohos-porting/
 plugins/multi-review/
 plugins/weread-exporter/
+plugins/epub-editor/
 CLAUDE.md
 README.md
 ```
