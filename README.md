@@ -1,6 +1,6 @@
 # Jiusi Agent Plugins
 
-Claude Code marketplace for OpenHarmony/KaihongOS software porting and evidence-gated code review.
+Claude Code marketplace for OpenHarmony/KaihongOS software porting, evidence-gated code review, and personal knowledge export.
 
 ## Available plugins
 
@@ -8,6 +8,7 @@ Claude Code marketplace for OpenHarmony/KaihongOS software porting and evidence-
 | --- | --- | --- |
 | `ohos-porting` | 8-phase porting workflow, 7 agents, 14 skills, 4 commands and diagnostic hooks | [OHOS guide](plugins/ohos-porting/README.md) |
 | `multi-review` | Risk routing, 6 review sensors, independent verification and a unified judge; 9 agents total | [Review guide](plugins/multi-review/README.md) |
+| `weread-exporter` | Exports personally authorized WeRead books to Markdown with inline illustrations | [WeRead guide](plugins/weread-exporter/README.md) |
 
 ## Installation
 
@@ -17,6 +18,7 @@ Run in Claude Code, installing whichever plugins you need:
 /plugin marketplace add Jiusi-pys/agent-plugins
 /plugin install ohos-porting@jiusi-agent-plugins
 /plugin install multi-review@jiusi-agent-plugins
+/plugin install weread-exporter@jiusi-agent-plugins
 ```
 
 The marketplace identifier is `jiusi-agent-plugins`. Add the GitHub repository or a local checkout: relative plugin sources do not work with a raw marketplace JSON URL.
@@ -28,7 +30,19 @@ The marketplace identifier is `jiusi-agent-plugins`. Add the GitHub repository o
 /ohos-porting:ohos-deploy
 /multi-review:multi-review
 /multi-review:multi-review HEAD
+/weread-exporter:weread-export <weread-reader-url-or-book-id>
 ```
+
+## Codex marketplace
+
+The repository also exposes Codex-ready plugins through [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json). Register a local checkout, then install `weread-exporter`:
+
+```powershell
+codex plugin marketplace add .
+codex plugin add weread-exporter@jiusi-agent-plugins
+```
+
+`weread-exporter` packages the upstream Playwright exporter for personal study or backup of WeRead books that the user is authorized to read. It opens an interactive browser for the user's own login and does not bypass access restrictions.
 
 OHOS builds require the appropriate SDK/toolchain and HDC for deployment; SSH supports remote builds. Bundled shell scripts require Bash (Git Bash or WSL on Windows). Multi-review also requires the Workflow tool; see the plugin guides for details.
 
@@ -52,7 +66,9 @@ cd agent-plugins
 claude plugin validate .
 claude plugin validate ./plugins/ohos-porting
 claude plugin validate ./plugins/multi-review
+claude plugin validate ./plugins/weread-exporter
 claude --plugin-dir ./plugins/ohos-porting
+claude --plugin-dir ./plugins/weread-exporter
 ```
 
 CI runs official manifest/structure validation for the marketplace and each plugin. These checks do not exercise device deployment or review workflows.
@@ -66,6 +82,7 @@ Plugin versions live in each plugin's `.claude-plugin/plugin.json`; bump the aff
 .github/workflows/validate-plugins.yml
 plugins/ohos-porting/
 plugins/multi-review/
+plugins/weread-exporter/
 CLAUDE.md
 README.md
 ```
