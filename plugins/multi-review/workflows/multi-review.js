@@ -283,7 +283,7 @@ const preflight = await agent(
       : `Run it with exactly one argument, quoted verbatim: '${targetArg}'\n`) +
     `Target: ${target}.\n` +
     `The script prints a single JSON object on stdout (gate, deterministic_gate, gates_run, intake, diff, reasons). Run it, capture stdout, and RETURN THAT JSON unchanged (coerced to the PREFLIGHT_SCHEMA). If the script is missing or errors, compute the same fields yourself from \`git diff\` stats and REVIEW.md thresholds, run any obvious lint/type/test command you can detect, and set deterministic_gate accordingly.`,
-  { label: 'preflight', phase: 'Preflight', schema: PREFLIGHT_SCHEMA },
+  { agentType: NS + 'review-preflight', label: 'preflight', phase: 'Preflight', schema: PREFLIGHT_SCHEMA },
 )
 
 if (!preflight) {

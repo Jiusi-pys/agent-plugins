@@ -2,8 +2,11 @@
 name: review-risk-router
 description: Cheap risk-tiering router for the multi-review pipeline. Reads REVIEW.md, scores the diff, assigns R0–R3, and selects the minimal sufficient sensor set. Use at the start of a code review to decide how much review fleet a change warrants.
 tools: Read, Grep, Glob, Bash
+disallowedTools:
+  - Edit
+  - Write
+  - NotebookEdit
 model: haiku
-permissionMode: plan
 skills:
   - review-contract
 ---

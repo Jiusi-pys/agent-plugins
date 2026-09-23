@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Claude Code plugin marketplace containing two plugins:
 
 1. **ohos-porting** — OpenHarmony/KaihongOS software porting workflow with 8 phases, 7 agents, and 14 skills
-2. **multi-review** — Evidence-gated code review with 9 agents, 1 command, 1 skill, deterministic preflight and a dynamic workflow
+2. **multi-review** — Evidence-gated code review with 10 agents, 1 command, 1 skill, deterministic preflight and a dynamic workflow
 
 ## Repository Structure
 

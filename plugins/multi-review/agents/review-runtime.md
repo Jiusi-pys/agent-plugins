@@ -2,8 +2,11 @@
 name: review-runtime
 description: Conditionally-triggered read-only runtime reviewer. Runs the narrowest safe targeted/repro commands to observe async timing, resource leaks, timeouts/retries, query counts and performance. Use for R2/behavioral changes where static reading is insufficient.
 tools: Read, Grep, Glob, Bash
+disallowedTools:
+  - Edit
+  - Write
+  - NotebookEdit
 model: sonnet
-permissionMode: default
 effort: high
 skills:
   - review-contract

@@ -7,7 +7,7 @@ Claude Code marketplace for OpenHarmony/KaihongOS software porting, evidence-gat
 | Plugin | Contents | Documentation |
 | --- | --- | --- |
 | `ohos-porting` | 8-phase porting workflow, 7 agents, 14 skills, 4 commands and diagnostic hooks | [OHOS guide](plugins/ohos-porting/README.md) |
-| `multi-review` | Risk routing, 6 review sensors, independent verification and a unified judge; 9 agents total | [Review guide](plugins/multi-review/README.md) |
+| `multi-review` | Restricted preflight, risk routing, 6 review sensors, independent verification and a unified judge; 10 agents total | [Review guide](plugins/multi-review/README.md) |
 | `weread-exporter` | Exports personally authorized WeRead books to Markdown with inline illustrations | [WeRead guide](plugins/weread-exporter/README.md) |
 | `epub-editor` | Edit EPUB metadata, recount words, repair navigation and notes, and replace a user-provided cover | [EPUB guide](plugins/epub-editor/README.md) |
 

@@ -51,6 +51,7 @@ working tree. The pipeline runs in the background; watch it with `/workflows`.
 | --------- | ---------- |
 | `skills/review-contract/SKILL.md` | single source of truth for the Finding / verdict / risk-route / judge schemas + evidence bar |
 | `agents/review-risk-router.md` | cheap (haiku) risk tiering R0–R3 + sensor selection |
+| `agents/review-preflight.md` | restricted deterministic preflight runner (haiku) |
 | `agents/review-correctness.md` · `review-test-integrity.md` · `review-security.md` · `review-architecture.md` · `review-runtime.md` · `review-intent.md` | six read-only sensors (sonnet), each with a distinct failure model |
 | `agents/review-verifier.md` | independent falsifier (opus) — confirms a candidate before it can block |
 | `agents/review-judge.md` | synthesizes verified verdicts into the final gate (opus) |
@@ -114,9 +115,10 @@ responsibility.
   Run `node --test tests/workflow-line-endings.test.cjs` from the repository root
   to check both the bundled files and a fresh Windows-style Git checkout.
 
-- Sensors are **read-only**: their `tools` exclude Edit/Write, and the static ones
-  run in `permissionMode: plan`. `review-runtime` and `review-verifier` may execute
-  the narrowest safe commands (`permissionMode: default`) to observe behavior.
+- Review agents explicitly deny `Edit`, `Write`, and `NotebookEdit`, because Claude
+  Code ignores plugin-agent `permissionMode` declarations. They retain Bash only to
+  inspect Git targets; write-capable Bash commands remain subject to host permission
+  checks. `review-preflight` is likewise a dedicated restricted agent.
 - The workflow references its sensors by their namespaced ids (`multi-review:review-*`)
   and its bundled preflight via `${CLAUDE_PLUGIN_ROOT}`, so it is fully self-contained.
 - Requires `python3` for `preflight.sh`'s JSON assembly (falls back to a minimal

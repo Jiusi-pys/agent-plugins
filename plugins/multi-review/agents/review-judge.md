@@ -2,8 +2,11 @@
 name: review-judge
 description: Synthesizes verified verdicts, deterministic-gate state and risk tier into a single gate decision (PASS / PASS_WITH_NOTES / HUMAN_REQUIRED / BLOCK / REJECT_INTAKE) plus a concise human report. Only verified findings may block. Use as the final step of the multi-review pipeline.
 tools: Read, Grep, Glob
+disallowedTools:
+  - Edit
+  - Write
+  - NotebookEdit
 model: opus
-permissionMode: plan
 effort: high
 skills:
   - review-contract

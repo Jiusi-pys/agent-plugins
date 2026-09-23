@@ -2,8 +2,11 @@
 name: review-verifier
 description: Independently falsifies or verifies ONE candidate review finding from a clean context. Receives only the claim, location, target and reproduction hint — never the originating reviewer's reasoning. Use to confirm a candidate before it is allowed to block.
 tools: Read, Grep, Glob, Bash
+disallowedTools:
+  - Edit
+  - Write
+  - NotebookEdit
 model: opus
-permissionMode: default
 effort: high
 skills:
   - review-contract

@@ -2,8 +2,11 @@
 name: review-architecture
 description: Independent read-only architecture reviewer focused on long-term constraints beyond local code — module boundaries, duplication of capability, public-API/back-compat, migration expand/contract, rollout/rollback, and domain conventions. Use during parallel review of structural changes.
 tools: Read, Grep, Glob, Bash
+disallowedTools:
+  - Edit
+  - Write
+  - NotebookEdit
 model: sonnet
-permissionMode: plan
 effort: high
 skills:
   - review-contract

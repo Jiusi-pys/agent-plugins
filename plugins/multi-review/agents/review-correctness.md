@@ -2,8 +2,11 @@
 name: review-correctness
 description: Independent read-only correctness reviewer. Use during parallel review of code changes to find broken invariants, bad state transitions, missing error propagation, races and edge cases introduced by the diff.
 tools: Read, Grep, Glob, Bash
+disallowedTools:
+  - Edit
+  - Write
+  - NotebookEdit
 model: sonnet
-permissionMode: plan
 effort: high
 skills:
   - review-contract

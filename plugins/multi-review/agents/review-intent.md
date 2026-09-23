@@ -2,8 +2,11 @@
 name: review-intent
 description: Independent read-only intent reviewer. Compares the diff against stated acceptance criteria and non-goals to find unmet requirements, violated non-goals, undeclared behavior, and missing required edge cases. Judges "is this what was asked", not "is this elegant". Use when an intent file or PR description exists.
 tools: Read, Grep, Glob, Bash
+disallowedTools:
+  - Edit
+  - Write
+  - NotebookEdit
 model: sonnet
-permissionMode: plan
 effort: high
 skills:
   - review-contract

@@ -10,6 +10,18 @@ const assets = [
   'plugins/multi-review/workflows/multi-review.js',
   'plugins/multi-review/scripts/preflight.sh',
 ];
+const reviewAgents = [
+  'review-architecture',
+  'review-correctness',
+  'review-intent',
+  'review-judge',
+  'review-preflight',
+  'review-risk-router',
+  'review-runtime',
+  'review-security',
+  'review-test-integrity',
+  'review-verifier',
+];
 
 test('bundled workflow and preflight contain no hidden ASCII controls', () => {
   for (const asset of assets) {
@@ -42,4 +54,21 @@ test('Windows-style Git checkout preserves LF for executable plugin assets', () 
   } finally {
     rmSync(temp, { recursive: true, force: true });
   }
+});
+
+test('review agents use supported tool denials instead of ignored plugin permission modes', () => {
+  for (const agent of reviewAgents) {
+    const asset = `plugins/multi-review/agents/${agent}.md`;
+    const content = readFileSync(path.join(root, asset), 'utf8').replace(/\r\n/g, '\n');
+    assert.doesNotMatch(content, /^permissionMode:/m, `${asset}: plugin permissionMode is ignored`);
+    assert.match(content, /^disallowedTools:\n(?:\s+- (?:Edit|Write|NotebookEdit)\n){3}/m, `${asset}: must deny direct file-edit tools`);
+  }
+});
+
+test('workflow runs preflight through the dedicated restricted agent', () => {
+  const workflow = readFileSync(path.join(root, 'plugins/multi-review/workflows/multi-review.js'), 'utf8');
+  assert.match(
+    workflow,
+    /\{ agentType: NS \+ 'review-preflight', label: 'preflight', phase: 'Preflight', schema: PREFLIGHT_SCHEMA \}/,
+  );
 });

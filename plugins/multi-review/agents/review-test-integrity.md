@@ -2,8 +2,11 @@
 name: review-test-integrity
 description: Independent read-only test-integrity reviewer. Reads the test diff FIRST to catch deleted/skipped/loosened assertions, expectations rewritten to match wrong behavior, happy-path-only coverage, and implementation+test collusion. Use during parallel review of code changes.
 tools: Read, Grep, Glob, Bash
+disallowedTools:
+  - Edit
+  - Write
+  - NotebookEdit
 model: sonnet
-permissionMode: plan
 effort: high
 skills:
   - review-contract

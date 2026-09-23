@@ -2,8 +2,11 @@
 name: review-security
 description: Independent read-only security reviewer organized around trust boundaries and data flow. Use during parallel review of changes touching auth, tenancy, injection surfaces, secrets/PII, dependencies, or user-controlled data reaching LLM prompts/tools.
 tools: Read, Grep, Glob, Bash
+disallowedTools:
+  - Edit
+  - Write
+  - NotebookEdit
 model: sonnet
-permissionMode: plan
 effort: high
 skills:
   - review-contract
