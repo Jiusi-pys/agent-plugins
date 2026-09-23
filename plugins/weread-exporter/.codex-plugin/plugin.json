@@ -1,0 +1,18 @@
+{
+  "name": "weread-exporter",
+  "version": "0.1.0",
+  "description": "Export WeRead books that the user is authorized to read to Markdown with inline images.",
+  "author": {
+    "name": "Jiusi-pys"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "WeRead Exporter",
+    "shortDescription": "Export authorized WeRead books to Markdown",
+    "longDescription": "Runs a local Playwright workflow to export a book the user is authorized to read, preserving text and inline illustrations in Markdown.",
+    "developerName": "Jiusi-pys",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": "Export this WeRead reader URL to Markdown in a folder I choose."
+  }
+}
