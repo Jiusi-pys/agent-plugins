@@ -1,0 +1,10 @@
+{
+  "name": "weread-exporter",
+  "description": "Export personally authorized WeRead books to Markdown with inline illustrations.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jiusi-pys"
+  },
+  "homepage": "https://github.com/Jiusi-pys/weread-exporter",
+  "repository": "https://github.com/Jiusi-pys/weread-exporter"
+}
