@@ -1,19 +1,17 @@
 # WeRead Exporter
 
-Codex and Claude Code plugin for exporting WeRead books that you are authorized to read to Markdown, with inline illustrations retained in reading order.
+Codex plugin for exporting WeRead books that you are authorized to read to Markdown, with inline illustrations retained in reading order.
 
 ## Install
 
-```text
-/plugin marketplace add Jiusi-pys/agent-plugins
-/plugin install weread-exporter@jiusi-agent-plugins
+```powershell
+codex plugin marketplace add .
+codex plugin add weread-exporter@jiusi-agent-plugins
 ```
-
-For Codex, register this checkout with `codex plugin marketplace add .`, then install `weread-exporter@jiusi-agent-plugins`.
 
 ## Usage
 
-Ask Claude Code to export a WeRead reader URL or book ID, and include a dedicated output directory. The plugin will guide the local setup and run:
+Ask Codex to export a WeRead reader URL or book ID, and include a dedicated output directory. The plugin will guide the local setup and run:
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -28,9 +26,7 @@ Use this only for books you are authorized to read, for personal study or backup
 ## Development
 
 ```powershell
-claude plugin validate ./plugins/weread-exporter
-claude --plugin-dir ./plugins/weread-exporter
 python -m unittest discover -s ./plugins/weread-exporter/tests -v
 ```
 
-Invoke the skill as `/weread-exporter:weread-export` after loading the plugin locally.
+Use the `weread-export` skill after installing the plugin locally.

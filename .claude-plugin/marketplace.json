@@ -34,16 +34,6 @@
       "tags": ["code-review", "review", "subagents", "workflow", "verification", "security"],
       "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/main/plugins/multi-review",
       "license": "MIT"
-    },
-    {
-      "name": "weread-exporter",
-      "description": "Export personally authorized WeRead books to Markdown with inline illustrations.",
-      "version": "1.0.0",
-      "author": {"name": "Jiusi-pys"},
-      "source": "./plugins/weread-exporter",
-      "category": "productivity",
-      "tags": ["weread", "wechat-reading", "markdown", "playwright", "export"],
-      "homepage": "https://github.com/Jiusi-pys/agent-plugins/tree/openai/plugins/weread-exporter"
     }
   ]
 }

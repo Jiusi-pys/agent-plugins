@@ -1,4 +1,4 @@
-"""Contract tests for the dual-marketplace package and exporter helpers."""
+"""Contract tests for the Codex-only WeRead exporter package."""
 
 from __future__ import annotations
 
@@ -21,11 +21,11 @@ def load_exporter():
 
 
 class PluginContractTests(unittest.TestCase):
-    def test_codex_and_claude_manifests_are_present(self):
-        portable = json.loads((PLUGIN / "plugin.json").read_text(encoding="utf-8"))
+    def test_codex_manifest_is_not_mixed_with_claude_metadata(self):
         codex = json.loads((PLUGIN / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
-        claude = json.loads((PLUGIN / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
-        self.assertEqual({portable["name"], codex["name"], claude["name"]}, {"weread-exporter"})
+        self.assertEqual(codex["name"], "weread-exporter")
+        self.assertFalse((PLUGIN / ".claude-plugin" / "plugin.json").exists())
+        self.assertFalse((PLUGIN / "plugin.json").exists())
         self.assertTrue((PLUGIN / "skills" / "weread-export" / "SKILL.md").is_file())
 
     def test_codex_marketplace_exposes_repo_relative_plugin(self):
@@ -33,6 +33,10 @@ class PluginContractTests(unittest.TestCase):
         entry = next(item for item in marketplace["plugins"] if item["name"] == "weread-exporter")
         self.assertEqual(entry["source"]["path"], "./plugins/weread-exporter")
         self.assertEqual(entry["policy"]["installation"], "AVAILABLE")
+
+    def test_claude_marketplace_does_not_publish_weread_exporter(self):
+        marketplace = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8"))
+        self.assertNotIn("weread-exporter", {entry["name"] for entry in marketplace["plugins"]})
 
     def test_exporter_pure_helpers_keep_page_order_and_image_names(self):
         exporter = load_exporter()
