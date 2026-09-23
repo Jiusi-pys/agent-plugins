@@ -1,4 +1,0 @@
-interface:
-  display_name: "Codebase Frontmatter Summary"
-  short_description: "Build sidecar metadata, section indexes, directory summaries, and host guides for a repository"
-  default_prompt: "Use $codebase-frontmatter-summary to refresh this repository into .scanmeta sidecars, export AGENTS and CLAUDE guides, and preserve incremental state in SQLite."

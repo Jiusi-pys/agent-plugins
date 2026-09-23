@@ -1,5 +1,0 @@
-app_name: example-project
-environment: demo
-features:
-  summaries: true
-  frontmatter: true

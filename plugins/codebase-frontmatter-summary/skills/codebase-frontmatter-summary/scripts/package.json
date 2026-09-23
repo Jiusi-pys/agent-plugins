@@ -1,8 +1,0 @@
-{
-  "name": "codebase-frontmatter-summary-scripts",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@openai/codex-sdk": "^0.118.0"
-  }
-}
