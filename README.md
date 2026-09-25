@@ -16,7 +16,7 @@ The Codex catalog is [`.agents/plugins/marketplace.json`](.agents/plugins/market
 | [epub-editor](plugins/epub-editor/README.md) | EPUB metadata, word counts, navigation, notes, and cover editing |
 | [weread-exporter](plugins/weread-exporter/README.md) | Export personally authorized WeRead books to Markdown with inline illustrations |
 
-Each catalog entry uses a repository-relative `./plugins/<name>` source and is available for installation. Display names and skill paths are defined in each plugin's `.codex-plugin/plugin.json`.
+Each catalog entry uses a repository-relative `./plugins/<name>` source and is available for installation. The two converted personal plugins include a standard root `plugin.json` for Agent Plugins 1.0 clients and a matching `.codex-plugin/plugin.json` compatibility manifest for the Codex marketplace. Display names and skill paths are kept in sync between the manifests.
 
 ## Install from this repository
 
@@ -37,5 +37,6 @@ Select the desired plugin from the `jiusi-agent-plugins` marketplace in Codex. T
 
 - `agentic-review` includes a Python inventory helper and review reference documents.
 - `epub-editor` requires Python with the dependencies in its `requirements.txt`; see its README for setup and tests.
+- Both plugins preserve their local skill instructions and supporting files while exposing the same interface metadata through the standard and Codex manifests.
 - `weread-exporter` requires Python, Playwright, and a locally installed Chromium browser. It only exports books the user is authorized to read.
 - `plugins/multi-review` and `.claude-plugin/marketplace.json` are retained Claude-oriented content from the merged local history. They are not entries in the Codex catalog; the legacy Claude catalog is not the installation source for this branch.

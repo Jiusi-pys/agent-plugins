@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "epub-editor",
+  "version": "0.1.0+codex.20260917084344",
+  "description": "EPUB 元数据编辑、字数统计、目录与注释编排及用户封面替换",
+  "author": {
+    "name": "Local developer"
+  },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "EPUB 编排",
+        "shortDescription": "修改书名作者、出版信息和字数，编排目录与注释。",
+        "longDescription": "编辑 EPUB 书名、作者、ISBN、出版社、日期、简介、分类、丛书、版次、页数等元数据；可手动填写或自动统计字数，并修复目录和注释、替换用户提供的封面。",
+        "developerName": "Local developer",
+        "category": "Productivity",
+        "capabilities": [],
+        "defaultPrompt": "帮我查看并按我的要求修改 EPUB 元数据，保留未指定字段。需要时统计字数、修复目录和注释；封面只使用我提供的图片。"
+      }
+    }
+  }
+}
