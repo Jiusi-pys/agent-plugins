@@ -2,6 +2,7 @@ import sys
 import tempfile
 import unittest
 import zipfile
+import json
 from pathlib import Path
 from PIL import Image
 from lxml import etree as E
@@ -84,6 +85,24 @@ class Editing(unittest.TestCase):
             self.assertEqual(z.infolist()[0].filename, 'mimetype')
             self.assertEqual(z.infolist()[0].compress_type, zipfile.ZIP_STORED)
             self.assertEqual(z.read('OPS/untouched.bin'), b'unchanged')
+
+    def test_note_reference_is_non_navigating_and_note_content_is_popup_ready(self):
+        book(self.src)
+        edit(self.src, self.out)
+        body = self.read('OPS/text/c.xhtml')
+        ref = body.xpath('//*[local-name()="a" and @role="doc-noteref"]')[0]
+        note = self.read('OPS/notes.xhtml').xpath('//*[@id="n1"]')[0]
+        self.assertEqual(ref.get('href'), '../notes.xhtml#n1')
+        self.assertEqual(ref.get('{'+EP+'}type'), 'noteref')
+        self.assertEqual(note.get('{'+EP+'}type'), 'footnote')
+        self.assertEqual(' '.join(''.join(note.itertext()).split()), '注释的内容')
+
+    def test_plugin_prompts_for_click_to_popup_note_behavior(self):
+        plugin_path = Path(__file__).resolve().parents[1] / 'plugin.json'
+        plugin = json.loads(plugin_path.read_text(encoding='utf-8'))
+        prompt = plugin['extensions']['com.openai']['interface']['defaultPrompt']
+        self.assertIn('弹窗', prompt)
+        self.assertIn('翻译', prompt)
 
     def test_repair_unique_heading(self):
         book(self.src, broken=True)

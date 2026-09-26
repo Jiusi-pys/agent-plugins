@@ -30,7 +30,7 @@ description: 编排 EPUB 电子书，编辑书名、作者、ISBN、出版信息
 
 - 目录支持 EPUB 3 nav 和 EPUB 2 NCX。错误链接只在标题与正文标题唯一匹配时自动修复；没有目录时从 NCX 或正文标题生成导航。重复标题、重复锚点等歧义必须保留并报告。
 - 注释识别 `epub:type=noteref`、`role=doc-noteref`、`class=noteref/footnote-ref/endnote-ref`、`rel=footnote`，或指向已标记 footnote/endnote 的链接。跨文件目标会补齐语义。未带这些标记的普通数字和链接不能擅自当作注释；检查具体书籍，必要时先在工作副本中给已核实的注释补语义再处理。`notes=0` 不证明书中没有注释。
-- 弹窗由阅读器实现，不能靠给 EPUB 注入脚本保证。不要声称未适配的阅读器一定弹窗。针对自定义阅读器的约定见 [reader-contract.md](references/reader-contract.md)。
+- 用户希望注释点击后弹窗显示翻译时，保留正文引用到注释目标的锚点，并规范 `epub:type=noteref` / `role=doc-noteref` 和目标 `epub:type=footnote` / `endnote`。阅读器必须读取正文与非 spine 注释文档，将引用映射为正文位置及注释纯文本，并拦截引用默认导航，在原位置弹窗显示翻译内容。不要把 EPUB 链接改成无目标的按钮，也不要注入脚本模拟阅读器行为。仅凭 EPUB 处理无法强制任意阅读器弹窗；确认阅读器支持该约定，未适配时明确说明。Jiusi-pys/ebooks 的字段与导入约定见 [reader-contract.md](references/reader-contract.md)。
 - 封面只接受用户提供的 JPEG/PNG；不得搜索、生成或臆造封面。内部统一写成 JPEG，更新封面元数据和已有图片引用；无封面页时增加封面页。未指定 `--cover` 时保留封面资源。
 - 原文、插图和非目标资源应保留；处理过程中不执行 EPUB 内的脚本，不访问其外链。拒绝加密、签名、多 rendition EPUB，以及超限或路径异常的压缩包。
 - 输出使用 EPUB 3 包版本，补齐导航与修改时间。脚本不是完整的 EPUB 2 到 3 验证器；旧式 XHTML/OPF 的其他兼容问题需按书处理。若有 EPUBCheck，执行完整校验；未运行时明确区分“内部结构检查通过”和“EPUBCheck 通过”。
