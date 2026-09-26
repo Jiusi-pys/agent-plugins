@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "agentic-review",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Risk-tiered, evidence-first review for local code changes and software design documents.",
   "author": {
     "name": "Local Codex user"
@@ -12,6 +12,10 @@
     "com.openai": {
       "interface": {
         "displayName": "Agentic Review",
+        "brandColor": "#5B5BD6",
+        "composerIcon": "./assets/composer-icon.svg",
+        "logo": "./assets/logo.svg",
+        "logoDark": "./assets/logo-dark.svg",
         "shortDescription": "Evidence-first review for code and designs",
         "longDescription": "Triage local code changes and software design documents by blast radius, run appropriate verification, surface high-confidence findings, and reserve consequential decisions for a human owner.",
         "developerName": "Local Codex user",
