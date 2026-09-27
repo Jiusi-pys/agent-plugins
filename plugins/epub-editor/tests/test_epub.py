@@ -30,6 +30,11 @@ def book(path, broken=False, ambiguous=False, version='3.0'):
         for name, value in files.items(): z.writestr(name, value)
 
 class Editing(unittest.TestCase):
+    def test_chinese_body_paragraph_formatting_contract(self):
+        guidance = (Path(__file__).resolve().parents[1] / 'skills/epub-edit/SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('text-indent: 2em', guidance)
+        self.assertIn('不得把空格或制表符插入正文文本', guidance)
+
     def rewrite(self, transform):
         with zipfile.ZipFile(self.src) as z: data = {n:z.read(n) for n in z.namelist()}
         transform(data)

@@ -8,6 +8,11 @@ REPO = PLUGIN.parent.parent
 
 
 class Packaging(unittest.TestCase):
+    def test_chinese_translation_paragraphs_use_two_em_first_line_indent(self):
+        translation = (PLUGIN / 'skills/book-translate/references/translation.md').read_text(encoding='utf-8')
+        self.assertIn('text-indent: 2em', translation)
+        self.assertIn('不得把空格或制表符插入译文文本', translation)
+
     def test_portable_and_compatibility_manifests_agree(self):
         main = json.loads((PLUGIN / 'plugin.json').read_text(encoding='utf-8'))
         overlay = json.loads((PLUGIN / '.codex-plugin' / 'plugin.json').read_text(encoding='utf-8'))
