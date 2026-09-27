@@ -1,0 +1,25 @@
+name: Validate Codex book translation
+
+on:
+  push:
+    branches: [openai]
+  pull_request:
+    branches: [openai]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r plugins/book-translator/requirements.txt
+      - run: python -m unittest discover -s plugins/book-translator/tests -v
+      - run: python -m unittest discover -s plugins/epub-editor/tests -v

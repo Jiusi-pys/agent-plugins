@@ -1,0 +1,9 @@
+{
+  "adapter": "epub-editor-cli-v1",
+  "plugin": "epub-editor",
+  "skill": "epub-edit",
+  "tested_version_family": "0.1.x including semver build metadata",
+  "required_flags": ["--metadata", "--inspect", "--recount"],
+  "success": {"exit_code": 0, "issues": []},
+  "discovery": "Resolve the enabled skill path in the host catalog; pass its actual plugin root explicitly. Do not guess cache adjacency or auto-install dependencies."
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "书籍翻译"
+  short_description: "并行翻译 EPUB，逐章独立复审并编排中文版"
+  default_prompt: "用 $book-translate 把我提供的外文 EPUB 翻译成适合初学者的中文 EPUB，增加明确标注的解释和案例。"
