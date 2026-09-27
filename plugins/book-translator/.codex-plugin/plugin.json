@@ -1,7 +1,7 @@
 {
   "name": "book-translator",
-  "version": "0.1.0",
-  "description": "Translate foreign-language EPUB books into Chinese with parallel chapter translators, independent reviewers, beginner annotations and EPUB editor integration.",
+  "version": "0.2.1",
+  "description": "Translate EPUB books into Chinese and precisely modernize Classical Chinese with primary-source research, detailed annotations and independent review.",
   "author": {
     "name": "Jiusi-pys"
   },
@@ -16,8 +16,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "书籍翻译",
-    "shortDescription": "分章并行翻译外文 EPUB，独立复审并生成带注释的中文版。",
-    "longDescription": "联网核实书名作者译名，分章派出翻译与独立审核 sub-agent，使用插件内部翻译终审 skill 检查全书，再调用已安装的 EPUB 编排生成中文版。默认面向初学者添加解释和案例。需要本地文件、联网检索、sub-agent 工具与 EPUB 编排插件。",
+    "shortDescription": "书籍翻译与古文精译，实查原典、详注并独立复审。",
+    "longDescription": "并行翻译外文 EPUB；古文、TXT、Markdown 或古籍 EPUB 可精译为现代汉语，实查古籍与古注，核验用典、古义与异文，提供原文对照和详注。使用插件内部逐章与全局独立审核，EPUB 输出调用已安装的 EPUB 编排。",
     "developerName": "Jiusi-pys",
     "category": "Productivity",
     "capabilities": [
@@ -27,7 +27,8 @@
     ],
     "defaultPrompt": [
       "将这本外文 EPUB 翻译为简体中文，面向初学者添加解释和案例，逐章独立复审后输出 EPUB。",
-      "继续这个书籍翻译工作目录，检查过期审核并完成中文版 EPUB。"
+      "继续这个书籍翻译工作目录，检查过期审核并完成中文版 EPUB。",
+      "将这份古文精译为现代汉语，真正查阅原典和古注，详细解释用典与古义，保留原文对照并独立校对。"
     ]
   }
 }

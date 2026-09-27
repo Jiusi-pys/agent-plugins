@@ -20,7 +20,7 @@ class Packaging(unittest.TestCase):
 
     def test_internal_reviewer_is_packaged_with_the_translator(self):
         skills = {p.parent.name for p in (PLUGIN / 'skills').glob('*/SKILL.md')}
-        self.assertEqual(skills, {'book-translate', 'translation-review'})
+        self.assertEqual(skills, {'book-translate', 'classical-translate', 'translation-review'})
         policy = (PLUGIN / 'skills/translation-review/agents/openai.yaml').read_text(encoding='utf-8')
         self.assertIn('allow_implicit_invocation: false', policy)
         contract = json.loads((PLUGIN / 'contracts/epub-editor.json').read_text(encoding='utf-8'))

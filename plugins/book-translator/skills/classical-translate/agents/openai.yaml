@@ -1,0 +1,4 @@
+interface:
+  display_name: "古文精译"
+  short_description: "实时派出独立研究者实查古籍，双稿择优、详注与复核，质量优先。"
+  default_prompt: "将这份古文精译为现代汉语，真正查阅原典和古注，详细解释用典、古义与制度，保留原文对照并独立核验。"

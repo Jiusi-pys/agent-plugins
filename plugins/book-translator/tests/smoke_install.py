@@ -42,7 +42,7 @@ def run(repository, test_home):
                             capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=60)
     if result.returncode:
         raise RuntimeError(result.stderr)
-    for skill in ('book-translate', 'translation-review'):
+    for skill in ('book-translate', 'classical-translate', 'translation-review'):
         if not (roots['book-translator'] / 'skills' / skill / 'SKILL.md').is_file():
             raise RuntimeError('Installed skill missing: ' + skill)
     report = {'status': 'passed', 'roots': {k: str(v) for k, v in roots.items()},

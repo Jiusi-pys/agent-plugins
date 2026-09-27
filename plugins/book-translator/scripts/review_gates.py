@@ -4,6 +4,11 @@ from common import require_text, exact_coverage
 
 
 def validate_profile(profile):
+    if profile.get('mode', 'foreign') not in ('foreign', 'classical_chinese'):
+        raise ValueError('Unknown translation mode')
+    if profile.get('mode') == 'classical_chinese':
+        from classical import validate_profile as validate_classical_profile
+        validate_classical_profile(profile)
     if profile.get('language') != 'zh-Hans':
         raise ValueError('This workflow requires language=zh-Hans')
     for field in ('reader', 'style'):
