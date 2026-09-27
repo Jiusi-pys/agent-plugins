@@ -1,0 +1,6 @@
+interface:
+  display_name: "翻译终审（书籍翻译内部）"
+  short_description: "仅复核书籍翻译作业的原文、译文与初学者注释"
+  default_prompt: "用 $translation-review 对指定 book-translator 作业执行全文对照审核，逐段记录覆盖与证据。"
+policy:
+  allow_implicit_invocation: false
