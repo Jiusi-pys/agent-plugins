@@ -60,7 +60,7 @@ python -B -m unittest discover -s plugins/epub-editor/tests -p '*integration.py'
 
 ## 与此前阅读器 53 项的区别
 
-此前的 53 项属于另一个仓库 `Jiusi-pys/ebooks`，不是这里的 287 项。它们已在 US 执行过，结果为 **49 通过、4 失败、0 跳过**：一个原生 Mirror 必填字段校验差异，加三个 MySQL TIMESTAMP 测试夹具失败。见 [阅读器原测试记录](2026-10-11-reader-us-integration-validation.md)。本轮未修改或重跑该仓库，不能把这些失败写成已修复，也不能把插件仓库推送视为阅读器部署。
+此前的 53 项属于另一个仓库 `Jiusi-pys/ebooks`，不是这里的 287 项。本报告所记录的插件测试阶段，阅读器结果仍为 **49 通过、4 失败、0 跳过**，见 [原测试记录](2026-10-11-reader-us-integration-validation.md)。后续用户另行授权修复，阅读器 `b134b73` 已使原 53 项及新增两项在 US **55/55 通过**，见 [后续修复记录](2026-10-11-reader-us-fixes.md)。两次验证分别记录，插件推送不等于阅读器部署。
 
 ## 证据与边界
 

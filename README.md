@@ -93,7 +93,7 @@ The [plugin guide](plugins/fenbi-exporter/README.md) covers setup, natural-langu
 
 The current plugin source was tested on US Ubuntu: **279 passed, 8 skipped, 0 failed/error (287 discovered)** across all five test directories. The 8 opt-in Calibre/Pandoc integration tests were skipped because those engines are unavailable on the disk-constrained server; all 8 passed on Windows with the actual engines, including all 90 conversion directions. WeRead's 19 regressions passed on US. See the [full results, exact skip list, source hashes and validation limits](docs/reviews/2026-10-11-plugin-us-full-suite.md).
 
-The separate Jiusi reader repository previously had 49 passes and 4 failures when its 53 integration tests were run on US. Those failures remain recorded and were not rerun or fixed by this plugin release. Updating this branch does not deploy the reader or reload installed plugin caches.
+The separate Jiusi reader repository's four failures were subsequently reproduced and fixed in `b134b73`; its expanded US suite passed all 55 tests. See the [reader fix and validation record](docs/reviews/2026-10-11-reader-us-fixes.md). That backend commit was pushed to the reader's development branch; the EPUB frontend adaptation remains local. Neither push deploys the reader or reloads installed plugin caches.
 
 ## Repo-local Codex surfaces
 

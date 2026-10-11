@@ -31,6 +31,6 @@
 
 实际验收使用本插件生成的 EPUB，经过真实解析、IndexedDB 和 ReaderView/参考窗/BilingualReader，在隔离 localhost 浏览器中运行。正文 24px、图注 20.4px、引用 15.6px、按钮高度约 15.60px；普通点击与 Enter 打开正确注释，关闭和 Escape 恢复焦点，URL/章节/滚动不变。存储重开、横向分页（翻页关闭弹窗且进度恢复）、双栏及 390px 窄屏阅读布局通过。译文使用合成缓存，不请求 API，未验证真实账号站点、原生端或其他阅读器。
 
-阅读器本地全仓 check/lint/build 通过；当时 703 测试通过、53 跳过。随后这 53 项已在 US 补跑为 49 通过、4 失败、0 跳过：原生 Mirror 必填字段校验差异和三项 MySQL TIMESTAMP 夹具失败。阅读器独立审核发现的 5 项前端 P2 已修复并复测，但这不关闭后续服务集成测试暴露的问题。2026-10-11 插件仓库 US 回归为 279 通过、8 引擎测试跳过（本机 8 项补跑通过），未再次运行或修复阅读器服务测试。EPUBCheck 和真实服务部署不包含在上述通过结论中。
+阅读器最初本地 check/lint/build 通过，703 测试通过、53 跳过；US 补跑曾有 4 项失败。后续提交 `b134b73` 已修复 Mirror 笔记事件校验和快照时间夹具，US 原 53 项加新增两项共 55/55 通过；本地再次 703 通过，其 55 项环境跳过已由 US 补齐。阅读器后端修复已推送开发分支，EPUB 前端适配仍未提交或部署。插件仓库自己的 US 回归为 279 通过、8 引擎测试跳过（本机 8 项补跑通过）。这些结果不包含 EPUBCheck、真实账号 UI 或生产部署；详见阅读器 [修复验收](https://github.com/Jiusi-pys/ebooks/blob/b134b73d3d2acec6f3061be62b75eb7256819798/docs/reviews/2026-10-11-us-integration-fixes.md)。
 
 EPUB 结构语义不规定所有阅读器必须弹窗。只有实际阅读器交互验收才能证明标记小于正文、位于上方、点击显示正确注释且 URL/章节/阅读位置不变，以及关闭和键盘焦点行为正确。静态锚点测试不能证明“不跳转”。依据：[EPUB Reading Systems 3.3](https://www.w3.org/TR/epub-rs-33/#sec-structural-semantics)、[WAI 对话框模式](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/)。

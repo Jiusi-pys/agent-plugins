@@ -106,6 +106,6 @@ python -m unittest discover -s plugins/epub-editor/tests -p '*integration.py' -v
 
 2026-10-11 最终源码在 US Ubuntu 发现 141 项测试，133 通过、8 跳过、0 失败/错误。服务器未安装 Calibre/Pandoc，且根分区仅余约 279 MiB；这 8 项随后在 Windows 使用真实 Calibre 9.16.0 / Pandoc 3.8 全部补跑通过，包括 90 方向矩阵和“转换→标准编排→导出”流程。Linux 实际引擎兼容性仍未验证。全仓结果为 279 通过、8 跳过，详见仓库 `docs/reviews/2026-10-11-plugin-us-full-suite.md`。
 
-配套阅读器此前的 53 项服务集成测试已在 US 补跑为 49 通过、4 失败；原生 Mirror 校验及 MySQL TIMESTAMP 测试夹具问题仍未在本轮修复。插件发布不等于阅读器服务已通过全部测试或已部署。
+配套阅读器此前的 4 项服务集成失败已另行先复现、后修复，阅读器提交 `b134b73` 已推送开发分支；US 扩展后的 55 项全部通过，无失败或跳过。修改只涉及 Mirror 笔记事件校验、合法回执和快照时间夹具及回归。详见仓库 `docs/reviews/2026-10-11-reader-us-fixes.md`；EPUB 前端适配仍未提交，生产未部署。
 
 插件保留 `epub-editor` 身份与原图标颜色。根 `plugin.json` 使用 Agent Plugins 1.0，OpenAI 展示信息位于 `extensions.com.openai`，并与 `.codex-plugin/plugin.json` 兼容 manifest 同步。技能名称匹配目录，详细路由置于 references；包装依据为 [OpenAI 插件文档](https://developers.openai.com/plugins/build/plugins) 与 [技能文档](https://developers.openai.com/plugins/build/skills)（2026-10-11 核实）。
