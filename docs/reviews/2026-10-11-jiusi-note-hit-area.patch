@@ -1,0 +1,11 @@
+--- a/app/src/components/reader/EpubText.tsx
++++ b/app/src/components/reader/EpubText.tsx
+@@ -48,7 +48,7 @@
+               type="button"
+               aria-label={`查看注释 ${label.trim()}`}
+               className="cursor-pointer rounded-sm text-primary focus-visible:outline focus-visible:outline-2"
+-              style={{ font: "inherit" }}
++              style={{ font: "inherit", lineHeight: 1 }}
+               onMouseDown={event => event.stopPropagation()}
+               onClick={event => event.stopPropagation()}
+             >

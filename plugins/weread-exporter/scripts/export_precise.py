@@ -24,7 +24,7 @@ CANVAS_HOOK = """
     const canvases = new Map();
     function stateFor(canvas) {
         if (!canvases.has(canvas))
-            canvases.set(canvas, {canvas, id: canvases.size, chars: []});
+            canvases.set(canvas, {canvas, id: canvases.size, chars: [], paintRevision: 0});
         return canvases.get(canvas);
     }
     window.__wr_snapshot = function() {
@@ -41,7 +41,8 @@ CANVAS_HOOK = """
         for (const {canvas, rect} of visible) {
             const state = stateFor(canvas);
             chars.push(...state.chars);
-            rects.push({canvas_id: state.id, top: rect.top, left: rect.left,
+            rects.push({canvas_id: state.id, paint_revision: state.paintRevision,
+                        top: rect.top, left: rect.left,
                         w: Math.round(rect.width), h: Math.round(rect.height)});
         }
         return {chars, rects};
@@ -72,6 +73,7 @@ CANVAS_HOOK = """
         const result = origFill.apply(this, arguments);
         if (text && text.trim()) {
             const state = stateFor(this.canvas);
+            state.paintRevision += 1;
             state.chars.push({t: text, x: Math.round(x*10)/10,
                               y: Math.round(y*10)/10, canvas_id: state.id});
         }
@@ -86,8 +88,11 @@ CANVAS_HOOK = """
             const x1 = matrix.a * x + matrix.e, x2 = matrix.a * (x + w) + matrix.e;
             const y1 = matrix.d * y + matrix.f, y2 = matrix.d * (y + h) + matrix.f;
             if (Math.min(x1, x2) <= 0 && Math.max(x1, x2) >= this.canvas.width &&
-                Math.min(y1, y2) <= 0 && Math.max(y1, y2) >= this.canvas.height)
-                stateFor(this.canvas).chars = [];
+                Math.min(y1, y2) <= 0 && Math.max(y1, y2) >= this.canvas.height) {
+                const state = stateFor(this.canvas);
+                state.chars = [];
+                state.paintRevision += 1;
+            }
         }
         return result;
     };
@@ -119,7 +124,6 @@ CANVAS_RECTS_JS = """
 () => window.__wr_snapshot().rects
 """
 
-MEASURE_RE = re.compile(r'^[a-zA-Z0-9`~!@#$%^&*()\-_=+\[\]{}|;:\',<.>/?\\"\s]+$')
 SENTENCE_END = set("。！？；：」）】》…—")
 
 
@@ -143,11 +147,11 @@ def split_spread(chars):
 
 def chars_to_lines(chars):
     """把单页字符按 y 分行，返回 [{y, text}]（未合并段落）"""
-    real = [c for c in chars if len(c["t"]) == 1 or not MEASURE_RE.match(c["t"])]
-    if not real:
+    # Reader/helper filtering belongs to the canvas snapshot, not the language.
+    if not chars:
         return []
     rows = {}
-    for c in real:
+    for c in chars:
         y_key = round(c["y"] / 3) * 3
         rows.setdefault(y_key, []).append(c)
     lines = []
@@ -158,11 +162,18 @@ def chars_to_lines(chars):
     return lines
 
 
-def build_page_blocks(chars, images, canvas_rects, seen_imgs):
+def build_page_blocks(chars, images, canvas_rects):
     """把一次渲染(可能双页)拆成有序块列表: [{type:'text'/'img', ...}]
        文字行和图片按屏幕 y 交错；左页整页在前，右页在后。"""
     blocks = []
     pages = split_spread(chars)
+    # Resource URLs are reusable at different positions, pages and chapters.
+    # Collapse only duplicate observations of the same occurrence in this snapshot.
+    occurrences = {}
+    for image in images:
+        key = tuple(image[field] for field in ("src", "left", "top", "w", "h"))
+        occurrences.setdefault(key, image)
+    images = list(occurrences.values())
 
     # 判定左右 canvas
     rects = sorted(canvas_rects, key=lambda r: r["left"])
@@ -180,15 +191,12 @@ def build_page_blocks(chars, images, canvas_rects, seen_imgs):
         for ln in lines:
             items.append(("text", page_rect["top"] + ln["y"], ln["text"]))
         for im in page_imgs:
-            if im["src"] in seen_imgs:
-                continue
             items.append(("img", im["top"], im))
         items.sort(key=lambda t: t[1])
         for typ, _y, payload in items:
             if typ == "text":
                 blocks.append({"type": "text", "text": payload})
             else:
-                seen_imgs.add(payload["src"])
                 blocks.append({"type": "img", "src": payload["src"],
                                 "w": payload["w"], "h": payload["h"]})
 
@@ -368,7 +376,7 @@ def save_chapter(ch_title, blocks, ch_idx, md_dir, raw_dir):
     return text_len, img_records
 
 
-async def run_session(book_id, md_dir, raw_dir, start_idx, seen_imgs,
+async def run_session(book_id, md_dir, raw_dir, start_idx,
                       goto_first=False, catalog_path=None):
     reached_end = False
     last_cat_title = load_last_catalog_title(catalog_path) if catalog_path else ""
@@ -418,22 +426,31 @@ async def run_session(book_id, md_dir, raw_dir, start_idx, seen_imgs,
         chapters_this_session = 0
         stale = 0
         page_num = 0
+        last_capture = None
 
         async def capture_current_page():
             """抓当前页的有序块，累加到 ch_blocks；返回是否有新内容"""
+            nonlocal last_capture
             await asyncio.sleep(0.3)
             snapshot = await page.evaluate("() => window.__wr_snapshot()")
             chars, rects = snapshot["chars"], snapshot["rects"]
             imgs = await page.evaluate(VIEWPORT_IMGS_JS)
-            before = len(ch_blocks)
-            new_blocks = build_page_blocks(chars, imgs, rects, seen_imgs)
-            # 文字去重：同一页可能重复捕获，按文本行内容去重
-            for b in new_blocks:
-                if b["type"] == "text":
-                    if ch_blocks and ch_blocks[-1].get("type") == "text" and ch_blocks[-1]["text"] == b["text"]:
-                        continue
-                ch_blocks.append(b)
-            return len(ch_blocks) > before
+            current_capture = {"chars": chars, "rects": rects, "images": imgs}
+            if last_capture is not None:
+                if current_capture == last_capture:
+                    return False
+                # Resetting our text buffer is not a browser render. The rectangle
+                # snapshot includes paint revisions, so a real clear/repaint (even
+                # a text-free or identical page) must not be treated as a stall.
+                if (not chars and imgs == last_capture["images"]
+                        and rects == last_capture["rects"]):
+                    return False
+            new_blocks = build_page_blocks(chars, imgs, rects)
+            if not new_blocks:
+                return False
+            ch_blocks.extend(new_blocks)
+            last_capture = current_capture
+            return True
 
         # 首页已由导航绘制，保留捕获结果；等待本身不会触发重绘。
         await wait_stable(page, 0)
@@ -457,6 +474,7 @@ async def run_session(book_id, md_dir, raw_dir, start_idx, seen_imgs,
                 ch_idx += 1
                 chapters_this_session += 1
                 ch_blocks = []
+                last_capture = None
                 current_chapter = new_chapter
                 page_num = 0
                 stale = 0
@@ -539,14 +557,6 @@ async def main(book_id):
     for d in (md_dir, raw_dir, img_dir):
         os.makedirs(d, exist_ok=True)
 
-    seen_imgs = set()
-    for jf in os.listdir(raw_dir):
-        if jf.endswith(".json"):
-            with open(os.path.join(raw_dir, jf), encoding="utf-8") as source:
-                images = json.load(source).get("images", [])
-            for img in images:
-                seen_imgs.add(img["url"])
-
     catalog_path = os.path.join(book_dir, "_catalog.json")
     book_title = book_author = ""
     session = 0
@@ -558,7 +568,7 @@ async def main(book_id):
         print(f"  上次: {last_title or '(无)'}, 编号: {last_idx}")
         goto_first = (session == 1 and last_idx == 0)
         title, author, added, chars_added, end_idx, reached_end = await run_session(
-            book_id, md_dir, raw_dir, start_idx, seen_imgs,
+            book_id, md_dir, raw_dir, start_idx,
             goto_first=goto_first, catalog_path=catalog_path)
         if title: book_title = title
         if author: book_author = author
@@ -566,7 +576,10 @@ async def main(book_id):
         if reached_end:
             print("\n  ✅ 已到全书最后一章，导出完成。"); break
         if added == 0:
-            print("\n  无新章节，导出完成。"); break
+            print("\n  ⚠️  导出未完成：未确认到达书末且本次没有完整章节。")
+            print(f"  已保留章节片段和原始记录：{book_dir}")
+            print("  请检查阅读器状态后重试；本次不生成或覆盖全书合并文件。")
+            return 1
         print("  3 秒后自动重开继续..."); await asyncio.sleep(3)
 
     download_all_images(raw_dir, img_dir)
@@ -595,6 +608,7 @@ async def main(book_id):
     print(f"  📄 {len(total_files)} 章, {os.path.getsize(merged):,} bytes,  🖼 {img_count} 张图")
     print(f"  📦 {merged}")
     print(f"{'=' * 60}")
+    return 0
 
 
 if __name__ == "__main__":
@@ -603,4 +617,4 @@ if __name__ == "__main__":
     raw = sys.argv[1].strip().rstrip("/")
     book_id = raw.split("/")[-1] if "weread.qq.com" in raw else raw
     print(f"  Book ID: {book_id}")
-    asyncio.run(main(book_id))
+    sys.exit(asyncio.run(main(book_id)))

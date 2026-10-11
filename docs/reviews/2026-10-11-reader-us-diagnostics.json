@@ -1,0 +1,102 @@
+[
+  {
+    "scenario": "missing updatedAt",
+    "old": {
+      "status": 400,
+      "body": {
+        "error": "invalid_event_data",
+        "issues": [
+          {
+            "path": "updatedAt",
+            "message": "Invalid input: expected number, received undefined"
+          }
+        ]
+      }
+    },
+    "native": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "mirrored": true
+      }
+    }
+  },
+  {
+    "scenario": "valid event/replay Event",
+    "old": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "mirrored": true
+      }
+    },
+    "native": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "mirrored": true
+      }
+    }
+  },
+  {
+    "scenario": "valid event/replay Event",
+    "old": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "mirrored": true,
+        "duplicate": true
+      }
+    },
+    "native": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "mirrored": true,
+        "duplicate": true
+      }
+    }
+  },
+  {
+    "scenario": "valid event/replay Conflict",
+    "old": {
+      "status": 409,
+      "body": {
+        "ok": false,
+        "mirrored": false,
+        "error": "delivery_id_conflict"
+      }
+    },
+    "native": {
+      "status": 409,
+      "body": {
+        "error": "delivery_conflict"
+      }
+    }
+  },
+  {
+    "scenario": "MySQL configuration",
+    "config": [
+      {
+        "version": "8.4.11",
+        "sqlMode": "IGNORE_SPACE,ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
+        "timeZone": "SYSTEM"
+      }
+    ],
+    "column": [
+      {
+        "Field": "created_at",
+        "Type": "timestamp",
+        "Null": "NO",
+        "Key": "",
+        "Default": "CURRENT_TIMESTAMP",
+        "Extra": "DEFAULT_GENERATED"
+      }
+    ]
+  },
+  {
+    "scenario": "snapshot clock",
+    "epochMillisecond1": "rejected",
+    "currentMilliseconds": "begin/stage/finish passed"
+  }
+]

@@ -1,22 +1,22 @@
 {
   "name": "epub-editor",
-  "version": "0.1.1+codex.20260927",
-  "description": "EPUB \u5143\u6570\u636e\u7f16\u8f91\u3001\u5b57\u6570\u7edf\u8ba1\u3001\u76ee\u5f55\u4e0e\u6ce8\u91ca\u7f16\u6392\u53ca\u7528\u6237\u5c01\u9762\u66ff\u6362",
+  "version": "0.2.2",
+  "description": "TXT、EPUB、MOBI、HTML、Markdown、AZW3、DOCX、RTF、FB2、ODT 双向转换，以及 EPUB 元数据、字数、目录、图注、注释和用户封面编排",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
-    "displayName": "EPUB \u7f16\u6392",
+    "displayName": "EPUB 编排",
     "brandColor": "#167C72",
     "composerIcon": "./assets/composer-icon.svg",
     "logo": "./assets/logo.svg",
     "logoDark": "./assets/logo-dark.svg",
-    "shortDescription": "\u4fee\u6539\u4e66\u540d\u4f5c\u8005\u3001\u51fa\u7248\u4fe1\u606f\u548c\u5b57\u6570\uff0c\u7f16\u6392\u76ee\u5f55\u4e0e\u6ce8\u91ca\u3002",
-    "longDescription": "\u7f16\u8f91 EPUB \u4e66\u540d\u3001\u4f5c\u8005\u3001ISBN\u3001\u51fa\u7248\u793e\u3001\u65e5\u671f\u3001\u7b80\u4ecb\u3001\u5206\u7c7b\u3001\u4e1b\u4e66\u3001\u7248\u6b21\u3001\u9875\u6570\u7b49\u5143\u6570\u636e\uff1b\u53ef\u624b\u52a8\u586b\u5199\u6216\u81ea\u52a8\u7edf\u8ba1\u5b57\u6570\uff0c\u5e76\u4fee\u590d\u76ee\u5f55\u548c\u6ce8\u91ca\u3001\u66ff\u6362\u7528\u6237\u63d0\u4f9b\u7684\u5c01\u9762\u3002",
+    "shortDescription": "十种书籍格式互转与 EPUB 编排",
+    "longDescription": "编辑 EPUB 元数据、统计字数、修复目录和注释、替换用户提供的封面。标准编排使用图片下方的 figure/figcaption 图注与来源、0.85em 图注和 0.75em 单次上标注释引用，保留真实链接目标；仅改元数据跳过布局，可选择 preserve 保留布局并补语义。Jiusi-pys/ebooks 的小字号标记由 Popover 显示注释，其他阅读器不保证弹窗；图片与弹窗需配套新版 Jiusi Web 阅读器；2026-10-11 本地适配已验收，尚未部署。支持 TXT、EPUB、MOBI、HTML、Markdown、AZW3、DOCX、RTF、FB2、ODT 任意跨格式转换，保留原文件并报告格式差异。纯转换不会自动应用标准编排；Calibre 负责 EPUB、Markdown 以外的格式导入和 TXT、MOBI、AZW3、DOCX、FB2 导出，Pandoc 负责 Markdown 导入和 HTML、Markdown、ODT、RTF 导出。",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [],
-    "defaultPrompt": "\u5e2e\u6211\u67e5\u770b\u5e76\u6309\u6211\u7684\u8981\u6c42\u4fee\u6539 EPUB \u5143\u6570\u636e\uff0c\u4fdd\u7559\u672a\u6307\u5b9a\u5b57\u6bb5\u3002\u9700\u8981\u65f6\u7edf\u8ba1\u5b57\u6570\u3001\u4fee\u590d\u76ee\u5f55\u548c\u6ce8\u91ca\uff1b\u5c01\u9762\u53ea\u4f7f\u7528\u6211\u63d0\u4f9b\u7684\u56fe\u7247\u3002"
+    "defaultPrompt": "帮我查看并按我的要求修改 EPUB 元数据，保留未指定字段。需要时统计字数、修复目录，并把正文注释整理为点击标记后弹窗显示翻译内容，避免阅读时跳转到注释页。封面只使用我提供的图片。需要时在 TXT、EPUB、MOBI、HTML、Markdown、AZW3、DOCX、RTF、FB2、ODT 之间转换，保留原文件并报告格式差异、图片和注释适配问题，不承诺无损转换。编排时将明确关联的原有图片图注和来源置于图片下方，使用 0.85em 图注及 0.75em 单次上标注释标记，保留原文、图片和真实注释目标。非 EPUB 先转为新暂存 EPUB，再用 standard 编排，必要时另行导出，每步独立读取报告并在非零退出或 issues 时停止。仅改元数据跳过布局，preserve 保留布局并补语义。弹窗以 Jiusi-pys/ebooks 的实际支持为准，不保证所有阅读器；图片需要包含 2026-10-11 适配的 Jiusi Web 阅读器；旧书重新导入，布局缓存仅限本地。区分本地验收与已部署版本。"
   }
 }

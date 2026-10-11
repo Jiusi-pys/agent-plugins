@@ -91,7 +91,7 @@ class Editing(unittest.TestCase):
             self.assertEqual(z.infolist()[0].compress_type, zipfile.ZIP_STORED)
             self.assertEqual(z.read('OPS/untouched.bin'), b'unchanged')
 
-    def test_note_reference_is_non_navigating_and_note_content_is_popup_ready(self):
+    def test_note_reference_and_target_have_resolvable_epub_semantics(self):
         book(self.src)
         edit(self.src, self.out)
         body = self.read('OPS/text/c.xhtml')

@@ -1,11 +1,13 @@
 ---
 name: epub-edit
-description: 编排 EPUB 电子书，编辑书名、作者、ISBN、出版信息等元数据，统计或修改字数，修复可点击目录与正文定位，规范点击弹出式注释，并用用户提供的图片替换封面。适用于输出仍为 EPUB 的电子书处理及 Jiusi-pys/ebooks 阅读器配合场景。
+description: 编排 EPUB 电子书，编辑书名、作者、ISBN、出版信息等元数据，统计或修改字数，修复目录与正文定位，将已关联图片图注和来源规范到图片下方、注释标记规范为小号上标，并用用户提供的图片替换封面。支持 standard/preserve 布局；弹窗依赖 Jiusi-pys/ebooks 等阅读器的实际支持，适用于输出仍为 EPUB 的处理。
 ---
 
 # EPUB 编排
 
 使用插件根目录下 `scripts/epub_editor.py` 处理 EPUB。输入来自用户；输出为一个新的 `.epub`，不覆盖原文件，不额外生成网页阅读版。
+
+用户要求在 TXT、EPUB、MOBI、HTML、Markdown、AZW3、DOCX、RTF、FB2、ODT 之间转换时，改用同插件的 [ebook-convert 技能](../ebook-convert/SKILL.md)。转换和 EPUB 编排是独立步骤；非 EPUB 同时要求图注/上标时，先转换为新暂存 EPUB，再编排成新的 EPUB，必要时再导出目标格式。完整命令、逐步报告检查及布局规则见 [reading-style.md](references/reading-style.md)。纯转换不能称为已应用标准编排。
 
 ## 执行
 
@@ -15,15 +17,16 @@ description: 编排 EPUB 电子书，编辑书名、作者、ISBN、出版信息
 4. 选择尚不存在的输出路径。以插件实际根目录替换下面的路径：
 
    ```text
-   python <plugin-root>/scripts/epub_editor.py <input.epub> <output.epub>
+   python <plugin-root>/scripts/epub_editor.py <input.epub> <output.epub> --reading-style standard
+   python <plugin-root>/scripts/epub_editor.py <input.epub> <output.epub> --reading-style preserve
    python <plugin-root>/scripts/epub_editor.py <input.epub> <output.epub> --cover <user-cover.png>
    python <plugin-root>/scripts/epub_editor.py <input.epub> --inspect
    python <plugin-root>/scripts/epub_editor.py <input.epub> <output.epub> --metadata <changes.json> --metadata-only
    python <plugin-root>/scripts/epub_editor.py <input.epub> <output.epub> --metadata <changes.json> --recount
    ```
 
-5. 仅修改元数据且输入是 EPUB 3 时，优先使用 `--metadata-only`，逐字节保留 OPF 外全部资源。该模式不兼容换封面；EPUB 2 需用普通流程转换导航为 EPUB 3。主标识符变更需要同步 NCX 时也必须使用普通流程。
-6. 阅读标准输出 JSON：`toc_repaired`、`notes`、`cover_replaced`、`metadata.before/after/changed`、可选 `statistics` 和 `issues`。退出码 0 为结构处理完成，2 为已产生输出但仍有待处理问题，1 为失败。遇到 `issues` 时，不把书标记为完成；检查书内结构，用明确的原文证据消除对应歧义，再生成新的输出版本。不凭章节顺序或同名标题猜测对应关系。用 `--inspect` 读回最终 EPUB 确认元数据已写入。
+5. 完整编排默认 `standard`：图注 `0.85em`、已解析引用 `0.75em` 单次上标；只补语义并保留布局时选 `preserve`。仅修改元数据且输入是 EPUB 3 时，优先使用 `--metadata-only`，跳过布局并逐字节保留 OPF 外全部资源。该模式不兼容换封面；EPUB 2 需用普通流程转换导航为 EPUB 3。主标识符变更需要同步 NCX 时也必须使用普通流程。
+6. 阅读标准输出 JSON：`toc_repaired`、`notes`、`cover_replaced`、`metadata.before/after/changed`、可选 `statistics`、`reading_layout` 和外层 `issues`。`reading_layout` 记录模式、是否应用布局、图注/来源/引用数量及说明，`popup_behavior=reader-dependent`；元数据模式不应用布局。退出码 0 为结构处理完成，2 为已产生输出但仍有待处理问题，1 为失败。任何非零退出或非空 `issues` 均阻断后续转换与完成交付；用原文证据消除歧义后生成新的输出版本，不凭章节顺序或同名标题猜测对应关系。缺少或不确定图注可作为 `reading_layout.warnings` 说明，不能补造内容。各步 JSON 分开保存，用 `--inspect` 读回最终 EPUB 确认元数据。
 7. 向用户交付输出 EPUB，简要说明已处理项和剩余问题。若统计字数，说明使用“汉字逐字＋其他连续字母数字串按词”的口径，排除有标记的非正文，并不是出版社排版字数。没有实际 EPUB 时可创建插件，但不能声称已经处理用户的书。
 
 ## 内容约束
@@ -31,6 +34,8 @@ description: 编排 EPUB 电子书，编辑书名、作者、ISBN、出版信息
 - 目录支持 EPUB 3 nav 和 EPUB 2 NCX。错误链接只在标题与正文标题唯一匹配时自动修复；没有目录时从 NCX 或正文标题生成导航。重复标题、重复锚点等歧义必须保留并报告。
 - 注释识别 `epub:type=noteref`、`role=doc-noteref`、`class=noteref/footnote-ref/endnote-ref`、`rel=footnote`，或指向已标记 footnote/endnote 的链接。跨文件目标会补齐语义。未带这些标记的普通数字和链接不能擅自当作注释；检查具体书籍，必要时先在工作副本中给已核实的注释补语义再处理。`notes=0` 不证明书中没有注释。
 - 用户希望注释点击后弹窗显示翻译时，保留正文引用到注释目标的锚点，并规范 `epub:type=noteref` / `role=doc-noteref` 和目标 `epub:type=footnote` / `endnote`。阅读器必须读取正文与非 spine 注释文档，将引用映射为正文位置及注释纯文本，并拦截引用默认导航，在原位置弹窗显示翻译内容。不要把 EPUB 链接改成无目标的按钮，也不要注入脚本模拟阅读器行为。仅凭 EPUB 处理无法强制任意阅读器弹窗；确认阅读器支持该约定，未适配时明确说明。Jiusi-pys/ebooks 的字段与导入约定见 [reader-contract.md](references/reader-contract.md)。
+- 标准布局把已识别引用规范为 `0.75em` 单次上标并保留焦点样式，不改变同一上标内无关文字。已明确关联的独立图片使用 `figure` 与最后一个 `figcaption`，图注/来源原段落放在 `p` 中，字号 `0.85em`、无首行缩进，来源用 `span epub:type=credit`。不补造图号或来源，不猜测普通相邻段落，不移动行内图片或封面；不将注释覆盖到图片内。集合注释角色遵循 [布局参考](references/reading-style.md)，重复编排不增加上标或图注嵌套。
+- Jiusi-pys/ebooks 的 2026-10-11 本地 Web 适配支持包内 PNG/JPEG/GIF/WebP、图注、来源和图片旁弹出注释，主阅读、参考窗及双语原文已验收；配套源码尚未部署。旧书需在新版阅读器中重新导入，布局缓存只在本地保存。仍保留 `figcaption` 内的 `p` 和真实注释目标；先确认用户实际阅读器版本，不把本地源码验收称为所有已安装版本可用。
 - 中文正文段落排版应首行缩进两个汉字宽，即 EPUB/CSS `text-indent: 2em`；不得把空格或制表符插入正文文本。只在用户要求排版或原有样式需要修复时调整样式，保留原文内容和非目标资源。
 - 封面只接受用户提供的 JPEG/PNG；不得搜索、生成或臆造封面。内部统一写成 JPEG，更新封面元数据和已有图片引用；无封面页时增加封面页。未指定 `--cover` 时保留封面资源。
 - 原文、插图和非目标资源应保留；处理过程中不执行 EPUB 内的脚本，不访问其外链。拒绝加密、签名、多 rendition EPUB，以及超限或路径异常的压缩包。

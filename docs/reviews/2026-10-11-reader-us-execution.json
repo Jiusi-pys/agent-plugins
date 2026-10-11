@@ -1,0 +1,60 @@
+{
+  "before": {
+    "/shufang-app": {
+      "id": "efc2a0efad977f6ade673f46e1f008bba90e71395a8a0a1d237eb6e3edf4bfac",
+      "running": true,
+      "startedAt": "2026-10-10T01:16:53.961822031Z",
+      "image": "sha256:c05ca9a6aab308a549c3318a7b900f35c3b7f7e2d31fc1d16b2d75e46f4e2c04"
+    },
+    "/shufang-prod-restored-db": {
+      "id": "e99f032a4092bf48a353243e62873be07870d9c54c76c88a6e88462912399a55",
+      "running": true,
+      "startedAt": "2026-10-04T18:11:55.191809585Z",
+      "image": "sha256:ee241324a55f4651d8601d3dcd4a294c5d6c363c46263f7e8d542bbc9c0deacc"
+    },
+    "/shufang-db": {
+      "id": "c425af702647c3d2e8761bd9bcda43b6f2c34e66c3d97239e51aa6a2bc9df3af",
+      "running": true,
+      "startedAt": "2026-09-23T20:11:13.031620299Z",
+      "image": "sha256:ee241324a55f4651d8601d3dcd4a294c5d6c363c46263f7e8d542bbc9c0deacc"
+    }
+  },
+  "isolatedDatabase": "rust_acceptance_us_057dc7b155f4",
+  "sourceVerified": true,
+  "prebuiltRustTest": true,
+  "sourceFileCount": 616,
+  "binarySha256": {
+    "shufang-service": "0b2f580541edd1dfbeb0ec10aaf7ef909916ed08695265bece4807225bd9d85b",
+    "rust-old-v2": "c7fc8de2e9584aabf8accdcc71c41d833eda7cfbd8fb33b7033c19ae3d4e96fb"
+  },
+  "exitCode": 1,
+  "counts": {
+    "numTotalTests": 53,
+    "numPassedTests": 49,
+    "numFailedTests": 4,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "after": {
+    "/shufang-app": {
+      "id": "efc2a0efad977f6ade673f46e1f008bba90e71395a8a0a1d237eb6e3edf4bfac",
+      "running": true,
+      "startedAt": "2026-10-10T01:16:53.961822031Z",
+      "image": "sha256:c05ca9a6aab308a549c3318a7b900f35c3b7f7e2d31fc1d16b2d75e46f4e2c04"
+    },
+    "/shufang-prod-restored-db": {
+      "id": "e99f032a4092bf48a353243e62873be07870d9c54c76c88a6e88462912399a55",
+      "running": true,
+      "startedAt": "2026-10-04T18:11:55.191809585Z",
+      "image": "sha256:ee241324a55f4651d8601d3dcd4a294c5d6c363c46263f7e8d542bbc9c0deacc"
+    },
+    "/shufang-db": {
+      "id": "c425af702647c3d2e8761bd9bcda43b6f2c34e66c3d97239e51aa6a2bc9df3af",
+      "running": true,
+      "startedAt": "2026-09-23T20:11:13.031620299Z",
+      "image": "sha256:ee241324a55f4651d8601d3dcd4a294c5d6c363c46263f7e8d542bbc9c0deacc"
+    }
+  },
+  "productionContainersUnchanged": true,
+  "extraDatabases": []
+}

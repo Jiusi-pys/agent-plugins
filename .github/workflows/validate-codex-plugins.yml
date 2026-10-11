@@ -1,4 +1,4 @@
-name: Validate Codex book translation
+name: Validate Codex book plugins
 
 on:
   push:
@@ -23,3 +23,30 @@ jobs:
       - run: python -m pip install -r plugins/book-translator/requirements.txt
       - run: python -m unittest discover -s plugins/book-translator/tests -v
       - run: python -m unittest discover -s plugins/epub-editor/tests -v
+
+  conversion-engines:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r plugins/epub-editor/requirements.txt
+      - name: Install conversion engines
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y calibre pandoc
+      - name: Verify all 90 conversion directions with real engines
+        env:
+          TEST_CALIBRE: ebook-convert
+          TEST_PANDOC: pandoc
+          CONVERSION_MATRIX_REPORT: conversion-matrix.json
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python plugins/epub-editor/scripts/ebook_convert.py --doctor --calibre ebook-convert --pandoc pandoc
+          python -m unittest discover -s plugins/epub-editor/tests -p test_conversion_integration.py -v
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: conversion-matrix
+          path: conversion-matrix.json

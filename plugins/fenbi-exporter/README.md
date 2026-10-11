@@ -59,6 +59,8 @@ JSON `schema_version=1`。每个作答具有独立 ID，同一道题的重复作
 
 ## 开发验证
 
+2026-10-11 全仓复测中，本插件在 US Ubuntu / Python 3.12.3 和真实 Chromium 上 34 项全部通过，无跳过（13.097 秒）。本轮使用合成页面，没有重跑真实账号资料下载。完整结果在仓库 `docs/reviews/2026-10-11-plugin-us-full-suite.md`。
+
 ```powershell
 python -m unittest discover -s plugins/fenbi-exporter/tests -v
 ```

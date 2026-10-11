@@ -11,6 +11,7 @@ from urllib.parse import quote, unquote, urlsplit
 from lxml import etree as E
 from PIL import Image
 from epub_metadata import PackageMetadata, validate_patch, count_text, CUSTOM
+from ebook_reading_layout import apply as apply_reading_layout, report as layout_report
 
 X = 'http://www.w3.org/1999/xhtml'
 EP = 'http://www.idpf.org/2007/ops'
@@ -81,7 +82,9 @@ def inspect_metadata(source):
     return {'metadata': PackageMetadata(opf).snapshot(), 'epub_version': opf.get('version')}
 
 
-def edit(source, output, cover=None, metadata_patch=None, recount=False, metadata_only=False):
+def edit(source, output, cover=None, metadata_patch=None, recount=False, metadata_only=False, *, reading_style='standard'):
+    if reading_style not in ('standard', 'preserve'):
+        raise ValueError('reading_style must be standard or preserve')
     source, output = Path(source).resolve(), Path(output).resolve()
     if source == output:
         raise ValueError('Input and output must differ')
@@ -105,7 +108,8 @@ def edit(source, output, cover=None, metadata_patch=None, recount=False, metadat
             raise ValueError('Missing/local manifest resource: '+str(item.get('href')))
         if item.get('media-type') in ('application/xhtml+xml', 'application/x-dtbncx+xml'):
             docs[target[0]] = xml(data[target[0]])
-    report = {'toc_repaired': 0, 'notes': 0, 'cover_replaced': False, 'issues': []}
+    report = {'toc_repaired': 0, 'notes': 0, 'cover_replaced': False, 'issues': [],
+              'reading_layout': layout_report(reading_style)}
     by_id = {i.get('id'): i for i in items}
     body_paths = []
     count_paths = []
@@ -193,8 +197,13 @@ def edit(source, output, cover=None, metadata_patch=None, recount=False, metadat
             if 'toc' in section.get(TYPE, '').split():
                 for a in elements(section, 'a'): repair(nav_path, a, 'href', text(a))
 
+        note_references = []
         for p, root in list(docs.items()):
+            if local(root) != 'html' or p == nav_path:
+                continue
             for a in elements(root, 'a'):
+                if any(local(n) in ('nav', 'head') for n in a.iterancestors()):
+                    continue
                 dest = target_node(p, a.get('href', ''))
                 is_ref = ('noteref' in a.get(TYPE, '').split() or a.get('role') == 'doc-noteref'
                           or bool(set(a.get('class', '').split()) & {'noteref','footnote-ref','endnote-ref'})
@@ -209,6 +218,7 @@ def edit(source, output, cover=None, metadata_patch=None, recount=False, metadat
                 if not set(dest.get(TYPE, '').split()) & {'footnote','endnote'}:
                     dest.set(TYPE, ' '.join(dest.get(TYPE, '').split()+['footnote']))
                 report['notes'] += 1
+                note_references.append((p, a))
 
         if cover is not None:
             try:
@@ -260,6 +270,32 @@ def edit(source, output, cover=None, metadata_patch=None, recount=False, metadat
                 ref = E.Element('{'+O+'}itemref', idref=page_id, linear='no')
                 spine.insert(0, ref)
             report['cover_replaced'] = True
+
+        if reading_style == 'standard':
+            cover_ids = {n.get('content') for n in elements(metadata, 'meta') if n.get('name') == 'cover'}
+            cover_images = {resolve(opath, i.get('href'))[0] for i in elements(manifest, 'item')
+                            if 'cover-image' in i.get('properties', '').split() or i.get('id') in cover_ids}
+            cover_paths, cover_nodes = set(), set()
+            for reference in elements(opf, 'reference'):
+                if reference.get('type') != 'cover':
+                    continue
+                target = resolve(opath, reference.get('href', ''))
+                if not target:
+                    continue
+                if target[1]:
+                    node = target_node(opath, reference.get('href', ''))
+                    if node is not None:
+                        cover_nodes.add(node)
+                else:
+                    cover_paths.add(target[0])
+            for p, root in docs.items():
+                for node in root.iter():
+                    if local(node) not in ('img', 'image'):
+                        continue
+                    if any(resolve(p, node.get(attr, '')) and resolve(p, node.get(attr, ''))[0] in cover_images
+                           for attr in ('src', 'href', '{http://www.w3.org/1999/xlink}href')):
+                        cover_nodes.add(node)
+            report['reading_layout'] = apply_reading_layout(docs, note_references, cover_paths, cover_nodes)
 
     package_metadata = PackageMetadata(opf)
     statistics = count_text(docs, count_paths, resolve) if recount else None
@@ -314,6 +350,8 @@ def main():
     parser.add_argument('--metadata', type=Path, help='UTF-8 JSON metadata patch; omitted fields are preserved')
     parser.add_argument('--metadata-only', action='store_true', help='EPUB 3: preserve every resource except the OPF package')
     parser.add_argument('--recount', action='store_true', help='Recalculate CJK characters + other words in linear body text')
+    parser.add_argument('--reading-style', choices=('standard', 'preserve'), default='standard',
+                        help='Standard note markers and explicit illustration captions, or preserve existing layout')
     parser.add_argument('--inspect', action='store_true', help='Read metadata without writing an EPUB')
     args = parser.parse_args()
     if args.inspect and (args.output or args.cover or args.metadata or args.recount or args.metadata_only):
@@ -335,7 +373,8 @@ def main():
                     result[key] = value
                 return result
             patch = json.loads(args.metadata.read_text(encoding='utf-8-sig'), object_pairs_hook=pairs)
-        report = edit(args.input, args.output, args.cover, patch, args.recount, args.metadata_only)
+        report = edit(args.input, args.output, args.cover, patch, args.recount, args.metadata_only,
+                      reading_style=args.reading_style)
     except (ValueError, OSError, KeyError, E.XMLSyntaxError, zipfile.BadZipFile) as exc:
         parser.exit(1, str(exc)+'\n')
     print(json.dumps(report, ensure_ascii=True, indent=2))

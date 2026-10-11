@@ -1,0 +1,99 @@
+{
+  "python": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]",
+  "platform": "Linux-6.8.0-107-generic-x86_64-with-glibc2.39",
+  "sourceFiles": 169,
+  "sourceVerified": true,
+  "suites": [
+    {
+      "directory": "plugins/book-translator/tests",
+      "tests": 64,
+      "failures": [],
+      "errors": [],
+      "skipped": [],
+      "seconds": 10.214,
+      "success": true,
+      "exitCode": 0
+    },
+    {
+      "directory": "plugins/epub-editor/tests",
+      "tests": 141,
+      "failures": [],
+      "errors": [],
+      "skipped": [
+        [
+          "test_all_90_cross_format_directions_read_back (test_conversion_integration.RealConversion.test_all_90_cross_format_directions_read_back)",
+          "opt-in real engines: TEST_CALIBRE and TEST_PANDOC"
+        ],
+        [
+          "test_container_formats_keep_the_referenced_image_on_readback (test_conversion_integration.RealConversion.test_container_formats_keep_the_referenced_image_on_readback)",
+          "opt-in real engines: TEST_CALIBRE and TEST_PANDOC"
+        ],
+        [
+          "test_document_note_links_point_to_content_after_round_trip (test_conversion_integration.RealConversion.test_document_note_links_point_to_content_after_round_trip)",
+          "opt-in real engines: TEST_CALIBRE and TEST_PANDOC"
+        ],
+        [
+          "test_docx_cannot_read_external_synthetic_file (test_conversion_integration.RealConversion.test_docx_cannot_read_external_synthetic_file)",
+          "opt-in real engines: TEST_CALIBRE and TEST_PANDOC"
+        ],
+        [
+          "test_explicit_gb18030_text_is_decoded_without_replacement (test_conversion_integration.RealConversion.test_explicit_gb18030_text_is_decoded_without_replacement)",
+          "opt-in real engines: TEST_CALIBRE and TEST_PANDOC"
+        ],
+        [
+          "test_images_and_non_spine_notes_survive_pandoc_outputs (test_conversion_integration.RealConversion.test_images_and_non_spine_notes_survive_pandoc_outputs)",
+          "opt-in real engines: TEST_CALIBRE and TEST_PANDOC"
+        ],
+        [
+          "test_remote_images_and_fb2_css_do_not_make_http_requests_or_publish (test_conversion_integration.RealConversion.test_remote_images_and_fb2_css_do_not_make_http_requests_or_publish)",
+          "opt-in real engines: TEST_CALIBRE and TEST_PANDOC"
+        ],
+        [
+          "test_html_to_standard_epub_and_export_preserves_image_notes_and_captions (test_reading_pipeline_integration.ReadingPipeline.test_html_to_standard_epub_and_export_preserves_image_notes_and_captions)",
+          "opt-in real engines: TEST_CALIBRE and TEST_PANDOC"
+        ]
+      ],
+      "seconds": 2.319,
+      "success": true,
+      "exitCode": 0
+    },
+    {
+      "directory": "plugins/fenbi-exporter/tests",
+      "tests": 34,
+      "failures": [],
+      "errors": [],
+      "skipped": [],
+      "seconds": 13.097,
+      "success": true,
+      "exitCode": 0
+    },
+    {
+      "directory": "plugins/video-text-extract/skills/video-text-extract/tests",
+      "tests": 29,
+      "failures": [],
+      "errors": [],
+      "skipped": [],
+      "seconds": 0.957,
+      "success": true,
+      "exitCode": 0
+    },
+    {
+      "directory": "plugins/weread-exporter/tests",
+      "tests": 19,
+      "failures": [],
+      "errors": [],
+      "skipped": [],
+      "seconds": 38.888,
+      "success": true,
+      "exitCode": 0
+    }
+  ],
+  "sourceUnchanged": true,
+  "dependencyVersions": {
+    "lxml": "6.1.3",
+    "Pillow": "12.3.0",
+    "playwright": "1.63.0"
+  },
+  "chromium": "153.0.8010.12",
+  "productionContainersUnchanged": true
+}

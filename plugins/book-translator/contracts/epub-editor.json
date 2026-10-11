@@ -2,8 +2,10 @@
   "adapter": "epub-editor-cli-v1",
   "plugin": "epub-editor",
   "skill": "epub-edit",
-  "tested_version_family": "0.1.x including semver build metadata",
+  "tested_version_family": "0.1.x and 0.2.x including semver build metadata",
   "required_flags": ["--metadata", "--inspect", "--recount"],
+  "optional_capability": {"detected_in": "--help", "flag": "--reading-style", "edit_value": "preserve", "inspect_uses_flag": false},
+  "dependency_lock": "Hash the manifest, skill, editor and metadata scripts, plus scripts/ebook_reading_layout.py when present. Added, removed or changed helpers invalidate the lock.",
   "success": {"exit_code": 0, "issues": []},
   "discovery": "Resolve the enabled skill path in the host catalog; pass its actual plugin root explicitly. Do not guess cache adjacency or auto-install dependencies."
 }

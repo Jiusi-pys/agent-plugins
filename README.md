@@ -15,11 +15,17 @@ The Codex catalog is [`.agents/plugins/marketplace.json`](.agents/plugins/market
 | [video-text-extract](plugins/video-text-extract/README.md) | Windows video-link speech extraction with local Whisper large-v3, Qwen 27B and Luna review; title-named TXT and intermediate cleanup |
 | [fenbi-exporter](plugins/fenbi-exporter/README.md) | Download Fenbi course attachments and export exercise records with local images, uncertainty marks, favorites, and version snapshots |
 | [agentic-review](plugins/agentic-review/README.md) | Risk-tiered, evidence-based code and software design review |
-| [epub-editor](plugins/epub-editor/README.md) | EPUB metadata, word counts, navigation, notes, and cover editing |
+| [epub-editor](plugins/epub-editor/README.md) | Bidirectional TXT, EPUB, MOBI, HTML, Markdown, AZW3, DOCX, RTF, FB2, and ODT conversion; EPUB metadata, word counts, navigation, figure captions, superscript note references, and cover editing |
 | [weread-exporter](plugins/weread-exporter/README.md) | Export personally authorized WeRead books to Markdown with inline illustrations |
 | [book-translator](plugins/book-translator/README.md) | EPUB translation into Chinese and Classical Chinese modernization with live research agents, independent drafts, detailed notes, and full review |
 
 Each catalog entry uses a repository-relative `./plugins/<name>` source. Plugins with portable manifests provide a standard root `plugin.json` for Agent Plugins 1.0 clients and a `.codex-plugin/plugin.json` compatibility manifest for the Codex marketplace. Display names and skill paths are kept in sync between the manifests.
+
+The EPUB editor 0.2.0 conversion implementation and all 90 tested directions are documented in the [2026-10-11 validation record](docs/reviews/2026-10-11-ebook-conversion-validation.md).
+
+EPUB editor 0.2.2 retains standard figure captions and source credit spans at `0.85em`, plus resolved note references at `0.75em` with one superscript effect and real link targets. Conversion and layout remain separate: non-EPUB input → new staged EPUB → `epub_editor.py --reading-style standard` → optional target export, with separate JSON reports and any nonzero exit or `issues` blocking the next step. `preserve` keeps layout while adding semantics; metadata-only skips layout. Jiusi-pys/ebooks uses small note markers and Popover for text notes, and the 2026-10-11 local Web reader adaptation now renders package images, captions and image note markers in main, reference and bilingual source panes. That reader change remains undeployed; old imports require reimport, and image layout stays local. Other readers are not guaranteed to show popups. See the [safe command sequence and reader limits](plugins/epub-editor/skills/epub-edit/references/reading-style.md).
+
+The [0.2.1 annotation validation record](docs/reviews/2026-10-11-ebook-annotations-validation.md) separates plugin output, real-engine conversion, and browser evidence. The subsequent [0.2.2 reader adaptation record](docs/reviews/2026-10-11-reader-adaptation-validation.md) documents the applied reader fix, full checks, and isolated browser acceptance using the real importer, IndexedDB and reader components. It does not claim production deployment.
 
 ## Install from this repository
 
@@ -83,6 +89,12 @@ Install `fenbi-exporter@jiusi-agent-plugins` from the registered repository mark
 
 The [plugin guide](plugins/fenbi-exporter/README.md) covers setup, natural-language use, CLI commands, output layout, and validation limits. Local validation includes 34 automated tests and actual lecture/assistant-note downloads; the separate CI workflow runs account-free tests on Windows and Linux. Browser profiles, signed links, and downloaded user materials are not packaged.
 
+## Repository regression status (2026-10-11)
+
+The current plugin source was tested on US Ubuntu: **279 passed, 8 skipped, 0 failed/error (287 discovered)** across all five test directories. The 8 opt-in Calibre/Pandoc integration tests were skipped because those engines are unavailable on the disk-constrained server; all 8 passed on Windows with the actual engines, including all 90 conversion directions. WeRead's 19 regressions passed on US. See the [full results, exact skip list, source hashes and validation limits](docs/reviews/2026-10-11-plugin-us-full-suite.md).
+
+The separate Jiusi reader repository previously had 49 passes and 4 failures when its 53 integration tests were run on US. Those failures remain recorded and were not rerun or fixed by this plugin release. Updating this branch does not deploy the reader or reload installed plugin caches.
+
 ## Repo-local Codex surfaces
 
 - `/.agents/plugins/marketplace.json`
@@ -90,7 +102,7 @@ The [plugin guide](plugins/fenbi-exporter/README.md) covers setup, natural-langu
 ## Notes
 
 - `agentic-review` includes a Python inventory helper and review reference documents.
-- `epub-editor` requires Python with the dependencies in its `requirements.txt`; see its README for setup and tests.
+- `epub-editor` 0.2.2 requires Python with the dependencies in its `requirements.txt`; conversion uses local Calibre for inputs other than EPUB/Markdown and for TXT/MOBI/AZW3/DOCX/FB2 export, and Pandoc for Markdown input and HTML/Markdown/ODT/RTF export. Markdown to EPUB requires only Pandoc; Markdown to AZW3 requires both engines. Its EPUB editing CLI remains available with standard/preserve layout modes; pure conversion does not automatically apply layout. See its README for setup, format differences, and tests.
 - Both plugins preserve their local skill instructions and supporting files while exposing the same interface metadata through the standard and Codex manifests.
 - `weread-exporter` requires Python, Playwright, and a locally installed Chromium browser. It only exports books the user is authorized to read.
 - `book-translator` requires real sub-agent tools, web search, local file access, and Python 3.11+ with its declared dependencies. EPUB workflows additionally require the enabled `epub-editor` plugin; text-only Classical Chinese jobs do not. Work directories retain source evidence, candidate drafts, selection records, and reviews without overwriting the original input.

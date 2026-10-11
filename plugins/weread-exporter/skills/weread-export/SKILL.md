@@ -42,3 +42,7 @@ python scripts/download_images.py <weread-reader-url-or-book-id>
 ## Verify results
 
 Check that `output/<book-id>/chapters/` contains Markdown files and that the merged Markdown file exists directly under `output/`. Report missing images or page-access restrictions plainly; do not attempt to circumvent the platform's restrictions.
+
+Check the process exit status before reporting success. Exit code 1 with an incomplete-export message means the reader stopped without a confirmed book ending and without chapter progress. Chapter files may be partial; preserve them and the raw records for inspection. This run does not publish a merged book, and a merged file from an earlier run does not establish completion of the current run.
+
+The 2026-10-11 Linux regression run passed all 19 tests using locally supplied pages in actual Chromium, including ASCII preservation and recurring illustrations. It did not validate a live account or every website rendering path; verify the user's export contents and completion state on each actual run.

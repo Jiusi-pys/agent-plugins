@@ -52,6 +52,8 @@ python -X utf8 -m unittest discover -s plugins/video-text-extract/skills/video-t
 
 CI 在 Windows 上执行无需模型的单元测试与包完整性检查。原生媒体验证和真实模型验证需手动运行，不能把单元测试通过称为在线视频测试通过：
 
+2026-10-11 的 US Ubuntu 全仓复测中，本插件 29 项自动化测试全部通过，无跳过（0.957 秒）。这只验证流程与包装契约，不将 Linux 测试解释为 Windows 原生媒体链路或真实模型验收。完整结果在仓库 `docs/reviews/2026-10-11-plugin-us-full-suite.md`。
+
 ```powershell
 python -X utf8 plugins/video-text-extract/skills/video-text-extract/tests/media_validation.py
 python -X utf8 plugins/video-text-extract/skills/video-text-extract/tests/live_validation.py --home <独立验证目录> --kind short

@@ -48,6 +48,14 @@ REPAINT_FIRST
 
 
 class CanvasCaptureTests(unittest.IsolatedAsyncioTestCase):
+    async def test_real_turn_retains_image_only_and_identical_pages(self):
+        for middle in ('', '首屏正文。'):
+            with self.subTest(middle=middle):
+                await self.check_first_screen(repaint=False, images=True, middle=middle)
+
+    async def test_reused_illustration_survives_two_pages_but_not_stalled_recaptures(self):
+        await self.check_first_screen(repaint=False, images=True)
+
     async def test_first_screen_survives_resume_and_catalog_navigation(self):
         await self.check_first_screen(repaint=False)
 
@@ -57,7 +65,7 @@ class CanvasCaptureTests(unittest.IsolatedAsyncioTestCase):
     async def test_auxiliary_canvas_does_not_hide_first_spread(self):
         await self.check_first_screen(repaint=False, auxiliary=True)
 
-    async def check_first_screen(self, *, repaint, auxiliary=False):
+    async def check_first_screen(self, *, repaint, auxiliary=False, images=False, middle=None):
         exporter = load_exporter()
         real_sleep = asyncio.sleep
 
@@ -76,6 +84,17 @@ class CanvasCaptureTests(unittest.IsolatedAsyncioTestCase):
                         catalog.write_text(json.dumps(['样本章节'], ensure_ascii=False), encoding='utf-8')
                         html = (READER_HTML.replace('START_PREVIOUS', str(start_previous).lower())
                                 .replace('REPAINT_FIRST', 'draw();' if repaint else ''))
+                        if images:
+                            html = html.replace('<script>', '<img class="wr_readerImage" '
+                                'src="https://res.weread.qq.com/wrepub/shared.png" '
+                                'style="position:absolute;left:30px;top:200px;width:100px;height:100px"><script>')
+                        if middle is not None:
+                            html = html.replace("(position ? '第二页正文。' : '首屏正文。')",
+                                f"['首屏正文。', {json.dumps(middle)}, '末页正文。'][position]")
+                            html = html.replace("position === 0", "position < 2")
+                            html = html.replace('position = 1; draw();', 'position += 1; draw();')
+                            html = html.replace('  const ctx =',
+                                "  document.querySelector('img').style.display = position === 2 ? 'none' : 'block';\n  const ctx =")
                         if auxiliary:
                             html = html.replace('<canvas width="500" height="700"></canvas>',
                                                 '<canvas width="500" height="700"></canvas>'
@@ -97,6 +116,11 @@ class CanvasCaptureTests(unittest.IsolatedAsyncioTestCase):
                                 str(root / 'profile'), **kwargs)
 
                             async def serve(route):
+                                if '/wrepub/shared.png' in route.request.url:
+                                    await route.fulfill(content_type='image/svg+xml', body=
+                                        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">'
+                                        '<rect width="100" height="100" fill="blue"/></svg>')
+                                    return
                                 await route.fulfill(content_type='text/html; charset=utf-8',
                                                     body=html if '/reader/' in route.request.url else '<html>已登录</html>')
 
@@ -112,16 +136,105 @@ class CanvasCaptureTests(unittest.IsolatedAsyncioTestCase):
                              patch.object(exporter, 'asyncio', SimpleNamespace(sleep=fast_sleep)), \
                              patch.object(exporter, 'print', create=True):
                             result = await exporter.run_session('local-sample', str(md_dir), str(raw_dir),
-                                                                1, set(), goto_first=goto_first,
+                                                                1, goto_first=goto_first,
                                                                 catalog_path=str(catalog))
                         self.assertTrue(result[-1])
                         body = (md_dir / '0001.md').read_text(encoding='utf-8')
+                        if middle is not None:
+                            self.assertEqual(body.count('![图]('), 2)
+                            self.assertEqual(body.count('首屏正文。'), 2 if middle else 1)
+                            self.assertEqual(body.count('末页正文。'), 1)
+                            self.assertLess(body.index('ch0001_img02.png'), body.index('末页正文。'))
+                            continue
                         self.assertEqual(body.count('首屏正文。'), 1)
                         self.assertEqual(body.count('第二页正文。'), 1)
                         self.assertLess(body.index('首屏正文。'), body.index('第二页正文。'))
                         self.assertNotIn('之前章节正文。', body)
                         right_text = '右页正文。\n\n' if auxiliary else ''
-                        self.assertEqual(body, '# 样本章节\n\n\n首屏正文。\n\n' + right_text + '第二页正文。\n')
+                        if images:
+                            self.assertEqual(body, '# 样本章节\n\n\n首屏正文。\n\n'
+                                '![图](../images/ch0001_img01.png)\n\n第二页正文。\n\n'
+                                '![图](../images/ch0001_img02.png)\n')
+                            records = json.loads((raw_dir / '0001.json').read_text(encoding='utf-8'))['images']
+                            self.assertEqual(len(records), 2)
+                            self.assertEqual(records[0]['url'], records[1]['url'])
+                        else:
+                            self.assertEqual(body, '# 样本章节\n\n\n首屏正文。\n\n' + right_text + '第二页正文。\n')
+
+
+class ContentPreservationTests(unittest.IsolatedAsyncioTestCase):
+    async def test_visible_canvas_preserves_whole_ascii_words_numbers_and_formulas(self):
+        exporter = load_exporter()
+        async with async_playwright() as playwright:
+            browser = await playwright.chromium.launch(headless=True)
+            try:
+                page = await browser.new_page()
+                await page.set_content('<canvas width="500" height="700"></canvas>')
+                await page.evaluate(exporter.CANVAS_HOOK)
+                await page.evaluate('''() => {
+                    const ctx = document.querySelector('canvas').getContext('2d');
+                    ['使用', 'OpenAI', '12345', '。'].forEach((text, i) => ctx.fillText(text, i*100, 50));
+                    ctx.fillText('E=mc^2 + 2*(3-1)', 20, 90);
+                    ctx.fillText('An English sentence.', 20, 130);
+                    document.createElement('canvas').getContext('2d').fillText('helper text', 20, 50);
+                }''')
+                snapshot = await page.evaluate('() => window.__wr_snapshot()')
+                self.assertIn('OpenAI', [char['t'] for char in snapshot['chars']])
+                blocks = exporter.build_page_blocks(snapshot['chars'], [], snapshot['rects'])
+                self.assertEqual([block['text'] for block in blocks],
+                    ['使用OpenAI12345。', 'E=mc^2 + 2*(3-1)', 'An English sentence.'])
+            finally:
+                await browser.close()
+
+    async def test_shared_image_is_preserved_in_each_chapter(self):
+        exporter = load_exporter()
+        image = {'src': 'https://example.test/shared.png', 'left': 20, 'top': 100, 'w': 100, 'h': 100}
+        for index in (1, 2):
+            blocks = exporter.build_page_blocks([], [image], [])
+            body, records = exporter.render_chapter_md(f'Chapter {index}', blocks, index)
+            self.assertEqual(body.count('![图]('), 1)
+            self.assertEqual(records, [{'url': image['src'], 'file': f'ch{index:04d}_img01.png'}])
+
+    async def test_image_occurrences_use_position_not_only_resource_url(self):
+        exporter = load_exporter()
+        image = {'src': 'https://example.test/shared.png', 'left': 20, 'top': 100, 'w': 100, 'h': 100}
+        images = [image, dict(image), {**image, 'top': 300}]
+        blocks = exporter.build_page_blocks([], images, [])
+        self.assertEqual(len(blocks), 2)
+
+
+class IncompleteExportTests(unittest.IsolatedAsyncioTestCase):
+    async def test_no_progress_is_failure_and_does_not_publish_or_replace_full_book(self):
+        exporter = load_exporter()
+        for prior_merge in (False, True):
+            with self.subTest(prior_merge=prior_merge), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                original_cwd = Path.cwd()
+                async def stalled(_book_id, md_dir, raw_dir, start_idx, **kwargs):
+                    exporter.save_chapter('第一章', [{'type': 'text', 'text': '仅第一章片段。'}],
+                                          start_idx, md_dir, raw_dir)
+                    return '本地测试书', '作者', 0, 8, start_idx, False
+                try:
+                    os.chdir(root)
+                    merged = Path('output/本地测试书.md')
+                    if prior_merge:
+                        merged.parent.mkdir()
+                        merged.write_text('previous complete export', encoding='utf-8')
+                    with patch.object(exporter, 'run_session', side_effect=stalled), \
+                         patch.object(exporter, 'download_all_images') as download, \
+                         patch.object(exporter, 'print', create=True) as output:
+                        code = await exporter.main('local-book')
+                    self.assertEqual(code, 1)
+                    self.assertTrue(Path('output/local-book/chapters/0001.md').is_file())
+                    self.assertTrue(Path('output/local-book/raw/0001.json').is_file())
+                    download.assert_not_called()
+                    self.assertNotIn('导出完成', '\n'.join(str(call) for call in output.call_args_list))
+                    if prior_merge:
+                        self.assertEqual(merged.read_text(encoding='utf-8'), 'previous complete export')
+                    else:
+                        self.assertFalse(merged.exists())
+                finally:
+                    os.chdir(original_cwd)
 
 
 class CanvasRepaintTests(unittest.IsolatedAsyncioTestCase):
@@ -146,7 +259,7 @@ class CanvasRepaintTests(unittest.IsolatedAsyncioTestCase):
                 }""")
                 chars = await page.evaluate('() => window.__wr_chars')
                 rects = await page.evaluate(exporter.CANVAS_RECTS_JS)
-                blocks = exporter.build_page_blocks(chars, [], rects, set())
+                blocks = exporter.build_page_blocks(chars, [], rects)
                 self.assertEqual(blocks, [{'type': 'text', 'text': '同同'},
                                           {'type': 'text', 'text': '同'}])
                 self.assertEqual(await page.evaluate('() => window.__wr_count()'), 3)
@@ -161,7 +274,7 @@ class CanvasRepaintTests(unittest.IsolatedAsyncioTestCase):
                     left.fillText('新', 10, 25);
                 }""")
                 chars = await page.evaluate('() => window.__wr_chars')
-                blocks = exporter.build_page_blocks(chars, [], rects, set())
+                blocks = exporter.build_page_blocks(chars, [], rects)
                 self.assertEqual(blocks, [{'type': 'text', 'text': '新'},
                                           {'type': 'text', 'text': '同'}])
             finally:
@@ -207,7 +320,7 @@ class CanvasSelectionTests(unittest.IsolatedAsyncioTestCase):
                 chars = await page.evaluate('() => window.__wr_chars')
                 images = [{'src': 'https://example.test/right.png', 'left': 720,
                            'top': 125, 'w': 100, 'h': 100}]
-                blocks = exporter.build_page_blocks(chars, images, rects, set())
+                blocks = exporter.build_page_blocks(chars, images, rects)
                 self.assertEqual([block['type'] for block in blocks], ['img', 'text'])
                 self.assertEqual(blocks[-1]['text'], '右页。')
                 # A visible third canvas must not make the remaining groups disappear.
@@ -218,7 +331,7 @@ class CanvasSelectionTests(unittest.IsolatedAsyncioTestCase):
                 }""")
                 chars = await page.evaluate('() => window.__wr_chars')
                 rects = await page.evaluate(exporter.CANVAS_RECTS_JS)
-                blocks = exporter.build_page_blocks(chars, [], rects, set())
+                blocks = exporter.build_page_blocks(chars, [], rects)
                 self.assertEqual([block['text'] for block in blocks], ['左页。', '离屏测量', '右页。'])
                 # Previously captured canvases stop contributing once detached.
                 await page.evaluate("() => document.querySelector('#right').remove()")
@@ -237,7 +350,7 @@ class ExportFileTests(unittest.IsolatedAsyncioTestCase):
         blocks = [{'type': 'text', 'text': '正文𠀀。'},
                   {'type': 'img', 'src': 'https://example.test/figure.png'}]
 
-        async def session(_book_id, md_dir, raw_dir, start_idx, seen_imgs, **kwargs):
+        async def session(_book_id, md_dir, raw_dir, start_idx, **kwargs):
             exporter.save_chapter(chapter, blocks, start_idx, md_dir, raw_dir)
             return title, '作者𠀀', 1, 4, start_idx, True
 

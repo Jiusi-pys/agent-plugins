@@ -14,13 +14,13 @@
 - `classical-translate`：古译今、原典考据、详细注释及文本/EPUB 输出。纯文本路线不依赖 EPUB 编排。
 - `translation-review`：插件内部的章节/全书审核技能，默认不隐式触发，供翻译流程明确调用。
 - Python 工具：内容清点、不可变原文快照、逐段覆盖/版本门禁及 EPUB 编排适配器。
-- 唯一外部插件：已启用的 `epub-editor:epub-edit`（支持当前 `0.1.x` CLI）。**不修改、不依赖独立 Agentic Review 插件，也不添加一个独立的 translator-review marketplace 插件。**
+- 唯一外部插件：已启用的 `epub-editor:epub-edit`（支持 `0.1.x` 与 `0.2.x` 的原有 EPUB CLI）。`0.2.x` 的新转换技能不改变本插件翻译输入、输出或编排行为。**不修改、不依赖独立 Agentic Review 插件，也不添加一个独立的 translator-review marketplace 插件。**
 
 运行环境需要 Codex 的本地文件、真实 sub-agent 与联网搜索能力，以及 Python 3.11+、`lxml` 和 `Pillow`。不需要单独的翻译 API key。没有 sub-agent 能力时会报告受阻，而不会假装已完成并行独立复审。
 
 ## 使用
 
-先从本仓库 Codex marketplace 安装 `epub-editor` 和 `book-translator`。新插件尚未推送到远程前应使用本地开发来源；[依赖说明](skills/book-translate/references/dependencies.md) 给出了源检查与安装步骤。
+先从本仓库 `openai` 分支的 Codex marketplace 安装 `epub-editor` 和 `book-translator`；验证未发布改动时使用本地开发来源。[依赖说明](skills/book-translate/references/dependencies.md) 给出了源检查与安装步骤。
 
 在新聊天中提供 EPUB 路径，例如：
 
@@ -47,6 +47,8 @@
 5. 新的 global reviewer 加载本插件内部 skill，全文分批对照并检查跨章一致性。
 6. 所有报告覆盖完整、无未解决问题且摘要匹配后，运行现有 EPUB 编排脚本；读回最终文本、元数据、资源、目录与脚注链接，再写入新的输出路径。
 
+依赖预检通过 `--help` 检测布局能力：支持 `--reading-style` 时，翻译编辑调用显式选择 `preserve`；旧版 CLI 使用原参数，检查调用不传布局选项。严格正文和结构校验保持原样，新增布局辅助脚本在存在时纳入文件摘要锁，新增、移除或改动都会使作业失效。用户另需标准布局时，在翻译审核完成后另行生成新 EPUB 和独立布局报告。
+
 源文、inventory 或依赖发生改变须重新准备；profile 改变使旧译稿失效；改稿使旧章节审核失效；章节稿/报告改变使旧全局审核失效。检查不会接受“曾经通过”的陈旧记录。
 
 身份和 coverage JSON 是可信协调者的工作记录，不能从数学上证明 agent 确实阅读或保证语义无误。因此结构测试、实际 sub-agent 轨迹和语义审核报告分别保留。
@@ -62,6 +64,8 @@
 内部结构检查并非完整 EPUBCheck。`reports/delivery.json` 初始明确记载 `epubcheck: not_run`；如进一步运行 EPUBCheck，应保存单独的实际命令和结果。脚注语义支持点击/返回，弹窗由具体阅读器决定。
 
 ## 开发验证
+
+2026-10-11，当前依赖适配及翻译器全部 64 项测试在 US Ubuntu / Python 3.12.3 通过，无跳过或失败。插件全仓为 279 通过、8 跳过；8 项为 EPUB 的实际引擎测试，已在 Windows 补跑通过。完整证据在仓库 `docs/reviews/2026-10-11-plugin-us-full-suite.md`。这不等于真实翻译语义、线上研究来源或桌面插件安装流程已再次验收。
 
 ```text
 python -m unittest discover -s plugins/book-translator/tests -v
