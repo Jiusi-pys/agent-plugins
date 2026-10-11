@@ -17,6 +17,18 @@
       "category": "Productivity"
     },
     {
+      "name": "fenbi-exporter",
+      "source": {
+        "source": "local",
+        "path": "./plugins/fenbi-exporter"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "agentic-review",
       "source": {
         "source": "local",

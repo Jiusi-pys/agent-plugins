@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "fenbi-exporter",
+  "version": "0.1.0",
+  "description": "Export personally accessible Fenbi course attachments and exercise history with images and independent uncertainty/favorite flags using local Playwright.",
+  "author": {"name": "Jiusi-pys"},
+  "license": "MIT",
+  "extensions": {"com.openai": {"interface": {
+    "displayName": "粉笔资料与记录导出",
+    "shortDescription": "下载课程资料，保留做题图片、标注与收藏",
+    "longDescription": "本地 Playwright 登录后下载粉笔课程原始资料，导出行测与申论历史为 Markdown、JSON 和本地图片，独立记录不确定标注与收藏，支持快照和中断恢复。",
+    "developerName": "Jiusi-pys",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "logo": "./assets/logo.svg",
+    "composerIcon": "./assets/logo.svg",
+    "defaultPrompt": ["下载这个粉笔课程的讲义和助教笔记。", "导出我的粉笔行测和申论做题记录，保留图片、答题卡标注与收藏。", "恢复上次粉笔导出，并检查资料完整性。"]
+  }}}
+}

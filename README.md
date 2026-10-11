@@ -13,6 +13,7 @@ The Codex catalog is [`.agents/plugins/marketplace.json`](.agents/plugins/market
 | Plugin | Purpose |
 | --- | --- |
 | [video-text-extract](plugins/video-text-extract/README.md) | Windows video-link speech extraction with local Whisper large-v3, Qwen 27B and Luna review; title-named TXT and intermediate cleanup |
+| [fenbi-exporter](plugins/fenbi-exporter/README.md) | Download Fenbi course attachments and export exercise records with local images, uncertainty marks, favorites, and version snapshots |
 | [agentic-review](plugins/agentic-review/README.md) | Risk-tiered, evidence-based code and software design review |
 | [epub-editor](plugins/epub-editor/README.md) | EPUB metadata, word counts, navigation, notes, and cover editing |
 | [weread-exporter](plugins/weread-exporter/README.md) | Export personally authorized WeRead books to Markdown with inline illustrations |
@@ -73,6 +74,14 @@ See the [plugin README](plugins/book-translator/README.md), [Classical Chinese s
 `video-text-extract` 0.1.0 runs cat-catch → FFmpeg → Whisper large-v3 → local Qwen 27B → one independent `gpt-6-luna / max` reviewer. It preserves meaning, numbers, negation and uncertainty while fixing recognition errors and removing obvious fillers/repetition. The final UTF-8 TXT uses the video title; intermediate media, drafts and logs are deleted, with brief error records retained for failed jobs.
 
 This workflow requires Windows, the validated RX 7900 XTX / Vulkan0 runtime, existing native tools and model files, and Codex sub-agent support. Tool and private output directories are configurable; no personal paths, weights, account state or test video are packaged. Automatic title retrieval can fail on restricted pages and must be reported; a verified title can be supplied explicitly. See the [setup, cleanup contract and actual validation limits](plugins/video-text-extract/README.md).
+
+## Fenbi course materials and exercise history
+
+`fenbi-exporter` 0.1.0 uses Python and Playwright to save accessible course handouts and teaching-assistant notes in their original formats, and export Xingce/Shenlun exercise history as Markdown, JSON, and local images. Uncertainty marks and favorites are separate three-state fields; unknown values and incomplete records remain visible in the result. Runs support date or record-link filters, progress recovery, content reuse, and version snapshots.
+
+Install `fenbi-exporter@jiusi-agent-plugins` from the registered repository marketplace. On first use, sign in manually in the dedicated Chromium window; later runs reuse the private local profile. Exports default to `Documents/FenbiExports`. Windows download crashes can be retried with `--fresh-session`, which reuses login state in memory. Videos, automatic answering, and changes to online records are outside its scope.
+
+The [plugin guide](plugins/fenbi-exporter/README.md) covers setup, natural-language use, CLI commands, output layout, and validation limits. Local validation includes 34 automated tests and actual lecture/assistant-note downloads; the separate CI workflow runs account-free tests on Windows and Linux. Browser profiles, signed links, and downloaded user materials are not packaged.
 
 ## Repo-local Codex surfaces
 
