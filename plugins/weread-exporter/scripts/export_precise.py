@@ -20,15 +20,77 @@ USER_DATA_DIR = os.path.join("cache", "browser_profile")
 
 CANVAS_HOOK = """
 (function() {
-    window.__wr_chars = [];
-    var origFill = CanvasRenderingContext2D.prototype.fillText;
-    CanvasRenderingContext2D.prototype.fillText = function(text, x, y) {
-        if (text && text.trim())
-            window.__wr_chars.push({t: text, x: Math.round(x*10)/10, y: Math.round(y*10)/10});
-        return origFill.apply(this, arguments);
+    // Track the current drawing of each canvas, not all historical fillText calls.
+    const canvases = new Map();
+    function stateFor(canvas) {
+        if (!canvases.has(canvas))
+            canvases.set(canvas, {canvas, id: canvases.size, chars: []});
+        return canvases.get(canvas);
+    }
+    window.__wr_snapshot = function() {
+        // Select at capture time: reader canvases may be painted before attachment.
+        const visible = Array.from(document.querySelectorAll('canvas')).map(canvas => {
+            const rect = canvas.getBoundingClientRect();
+            return {canvas, rect};
+        }).filter(({canvas, rect}) => canvas.isConnected && rect.height > 300 &&
+            rect.width > 0 && rect.bottom > 0 && rect.top < window.innerHeight &&
+            rect.right > 0 && rect.left < window.innerWidth &&
+            canvas.checkVisibility({checkOpacity: true, checkVisibilityCSS: true}))
+          .sort((a, b) => a.rect.left - b.rect.left || a.rect.top - b.rect.top);
+        const chars = [], rects = [];
+        for (const {canvas, rect} of visible) {
+            const state = stateFor(canvas);
+            chars.push(...state.chars);
+            rects.push({canvas_id: state.id, top: rect.top, left: rect.left,
+                        w: Math.round(rect.width), h: Math.round(rect.height)});
+        }
+        return {chars, rects};
     };
-    window.__wr_reset = function() { window.__wr_chars = []; };
-    window.__wr_count = function() { return window.__wr_chars.length; };
+    window.__wr_reset = function() {
+        for (const state of canvases.values()) state.chars = [];
+    };
+    Object.defineProperty(window, '__wr_chars', {
+        configurable: true,
+        get() {
+            return window.__wr_snapshot().chars;
+        },
+        set(chars) {
+            // Restore catalog snapshots without losing ownership of each drawing.
+            window.__wr_reset();
+            const byId = new Map(Array.from(canvases.values(), state => [state.id, state]));
+            for (const char of chars) {
+                const state = byId.get(char.canvas_id);
+                if (state) state.chars.push(char);
+            }
+        }
+    });
+    window.__wr_count = function() {
+        return window.__wr_snapshot().chars.length;
+    };
+    const origFill = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function(text, x, y) {
+        const result = origFill.apply(this, arguments);
+        if (text && text.trim()) {
+            const state = stateFor(this.canvas);
+            state.chars.push({t: text, x: Math.round(x*10)/10,
+                              y: Math.round(y*10)/10, canvas_id: state.id});
+        }
+        return result;
+    };
+    const origClear = CanvasRenderingContext2D.prototype.clearRect;
+    CanvasRenderingContext2D.prototype.clearRect = function(x, y, w, h) {
+        const result = origClear.apply(this, arguments);
+        const matrix = this.getTransform();
+        // A full bitmap clear invalidates only this canvas. Account for DPR scaling.
+        if (matrix.b === 0 && matrix.c === 0) {
+            const x1 = matrix.a * x + matrix.e, x2 = matrix.a * (x + w) + matrix.e;
+            const y1 = matrix.d * y + matrix.f, y2 = matrix.d * (y + h) + matrix.f;
+            if (Math.min(x1, x2) <= 0 && Math.max(x1, x2) >= this.canvas.width &&
+                Math.min(y1, y2) <= 0 && Math.max(y1, y2) >= this.canvas.height)
+                stateFor(this.canvas).chars = [];
+        }
+        return result;
+    };
 })();
 """
 
@@ -52,12 +114,9 @@ VIEWPORT_IMGS_JS = """
 }
 """
 
-# reader 的两个 canvas 的屏幕位置
+# 与文字捕获使用同一组可见 reader canvas 及其身份和屏幕位置
 CANVAS_RECTS_JS = """
-() => Array.from(document.querySelectorAll('canvas')).map(c => {
-    const r = c.getBoundingClientRect();
-    return {top: r.top, left: r.left, w: Math.round(r.width), h: Math.round(r.height)};
-}).filter(r => r.h > 300)
+() => window.__wr_snapshot().rects
 """
 
 MEASURE_RE = re.compile(r'^[a-zA-Z0-9`~!@#$%^&*()\-_=+\[\]{}|;:\',<.>/?\\"\s]+$')
@@ -66,6 +125,11 @@ SENTENCE_END = set("。！？；：」）】》…—")
 
 def split_spread(chars):
     """双页拆分：返回 [左页chars, 右页chars] 或 [单页chars]"""
+    if chars and all("canvas_id" in char for char in chars):
+        pages = {}
+        for char in chars:
+            pages.setdefault(char["canvas_id"], []).append(char)
+        return list(pages.values())
     if len(chars) < 20:
         return [chars]
     singles = [(i, c) for i, c in enumerate(chars) if len(c["t"]) == 1]
@@ -128,7 +192,24 @@ def build_page_blocks(chars, images, canvas_rects, seen_imgs):
                 blocks.append({"type": "img", "src": payload["src"],
                                 "w": payload["w"], "h": payload["h"]})
 
-    if len(pages) == 2:
+    if rects and all("canvas_id" in rect for rect in rects):
+        # Match by identity, including blank canvases and more than two visible pages.
+        chars_by_canvas = {}
+        for char in chars:
+            chars_by_canvas.setdefault(char["canvas_id"], []).append(char)
+        images_by_canvas = [[] for _ in rects]
+        for image in images:
+            nearest = min(range(len(rects)), key=lambda index: max(
+                rects[index]["left"] - image["left"],
+                image["left"] - rects[index]["left"] - rects[index]["w"],
+                0,
+            ))
+            images_by_canvas[nearest].append(image)
+        for rect, page_images in zip(rects, images_by_canvas):
+            emit_page(chars_by_canvas.get(rect["canvas_id"], []), rect, page_images)
+    elif len(pages) > 2:
+        raise ValueError("More than two canvas groups require canvas identity in rectangles")
+    elif len(pages) == 2:
         emit_page(pages[0], left_rect, left_imgs)
         emit_page(pages[1], right_rect, right_imgs)
     else:
@@ -145,7 +226,7 @@ def img_filename(url, ch_idx, seq):
     return f"ch{ch_idx:04d}_img{seq:02d}.{ext}"
 
 
-def render_chapter_md(ch_title, blocks, ch_idx):
+def render_chapter_md(ch_title, blocks, ch_idx, image_prefix="images"):
     """把有序块渲染成 Markdown：文字行合并成段落，图片就地插入"""
     out = [f"# {ch_title}\n"]
     para = []
@@ -177,7 +258,7 @@ def render_chapter_md(ch_title, blocks, ch_idx):
             flush_para()
             img_seq += 1
             fname = img_filename(b["src"], ch_idx, img_seq)
-            out.append(f"![图](images/{fname})")
+            out.append(f"![图]({image_prefix}/{fname})")
             img_records.append({"url": b["src"], "file": fname})
     flush_para()
 
@@ -204,14 +285,14 @@ def get_last_chapter_title(md_dir):
     if not files:
         return None, 0
     idx = int(files[-1].replace(".md", ""))
-    with open(os.path.join(md_dir, files[-1])) as f:
+    with open(os.path.join(md_dir, files[-1]), encoding="utf-8") as f:
         title = f.readline().strip().replace("# ", "")
     return title, idx
 
 
 def load_last_catalog_title(catalog_path):
     try:
-        with open(catalog_path) as f:
+        with open(catalog_path, encoding="utf-8") as f:
             titles = json.load(f)
         return titles[-1] if titles else ""
     except Exception:
@@ -242,7 +323,7 @@ async def goto_first_chapter(page, catalog_path=None):
         titles = await page.evaluate("""() => Array.from(
             document.querySelectorAll('.readerCatalog_list_item')).map(el => el.textContent.trim())""")
         if titles and catalog_path:
-            with open(catalog_path, "w") as f:
+            with open(catalog_path, "w", encoding="utf-8") as f:
                 json.dump(titles, f, ensure_ascii=False)
         await page.evaluate("""() => {
             const sc = document.querySelector('.readerCatalog_list_scroll_area, [class*="readerCatalog_list_scroll"]');
@@ -251,8 +332,17 @@ async def goto_first_chapter(page, catalog_path=None):
         await asyncio.sleep(1)
         item = page.locator(".readerCatalog_list_item").first
         first_title = (await item.text_content() or "").strip()
-        await item.click(timeout=4000)
-        await asyncio.sleep(3)
+        previous_title = await _title(page)
+        previous_chars = await page.evaluate("() => window.__wr_chars")
+        await page.evaluate("() => window.__wr_reset()")
+        try:
+            await item.click(timeout=4000)
+            await asyncio.sleep(3)
+        finally:
+            # Clicking the current chapter may not repaint its canvas.
+            if (await page.evaluate("() => window.__wr_count()") == 0
+                    and await _title(page) == previous_title):
+                await page.evaluate("chars => { window.__wr_chars = chars; }", previous_chars)
         try:
             await page.click("button.readerControls_item.catalog", timeout=2000)
         except Exception:
@@ -264,13 +354,15 @@ async def goto_first_chapter(page, catalog_path=None):
 
 
 def save_chapter(ch_title, blocks, ch_idx, md_dir, raw_dir):
-    body, img_records = render_chapter_md(ch_title, blocks, ch_idx)
+    image_dir = os.path.join(os.path.dirname(md_dir), "images")
+    image_prefix = os.path.relpath(image_dir, md_dir).replace(os.sep, "/")
+    body, img_records = render_chapter_md(ch_title, blocks, ch_idx, image_prefix)
     text_len = sum(len(b["text"]) for b in blocks if b["type"] == "text")
     if text_len == 0 and not img_records:
         return 0, []
-    with open(os.path.join(md_dir, f"{ch_idx:04d}.md"), "w") as f:
+    with open(os.path.join(md_dir, f"{ch_idx:04d}.md"), "w", encoding="utf-8") as f:
         f.write(body)
-    with open(os.path.join(raw_dir, f"{ch_idx:04d}.json"), "w") as f:
+    with open(os.path.join(raw_dir, f"{ch_idx:04d}.json"), "w", encoding="utf-8") as f:
         json.dump({"title": ch_title, "images": img_records, "text_len": text_len},
                   f, ensure_ascii=False)
     return text_len, img_records
@@ -330,8 +422,8 @@ async def run_session(book_id, md_dir, raw_dir, start_idx, seen_imgs,
         async def capture_current_page():
             """抓当前页的有序块，累加到 ch_blocks；返回是否有新内容"""
             await asyncio.sleep(0.3)
-            chars = await page.evaluate("() => window.__wr_chars")
-            rects = await page.evaluate(CANVAS_RECTS_JS)
+            snapshot = await page.evaluate("() => window.__wr_snapshot()")
+            chars, rects = snapshot["chars"], snapshot["rects"]
             imgs = await page.evaluate(VIEWPORT_IMGS_JS)
             before = len(ch_blocks)
             new_blocks = build_page_blocks(chars, imgs, rects, seen_imgs)
@@ -343,8 +435,7 @@ async def run_session(book_id, md_dir, raw_dir, start_idx, seen_imgs,
                 ch_blocks.append(b)
             return len(ch_blocks) > before
 
-        # 首页
-        await page.evaluate("() => window.__wr_reset()")
+        # 首页已由导航绘制，保留捕获结果；等待本身不会触发重绘。
         await wait_stable(page, 0)
         await capture_current_page()
 
@@ -408,7 +499,9 @@ def download_all_images(raw_dir, img_dir):
     tasks = []
     for jf in sorted(os.listdir(raw_dir)):
         if jf.endswith(".json"):
-            for img in json.load(open(os.path.join(raw_dir, jf))).get("images", []):
+            with open(os.path.join(raw_dir, jf), encoding="utf-8") as source:
+                images = json.load(source).get("images", [])
+            for img in images:
                 tasks.append((img["url"], img["file"]))
     if not tasks:
         print("  (无图片)"); return 0
@@ -423,7 +516,9 @@ def download_all_images(raw_dir, img_dir):
                 "Referer": "https://weread.qq.com/", "User-Agent": "Mozilla/5.0"})
             raw = urllib.request.urlopen(req, timeout=20).read()
             if len(raw) > 500:
-                open(fp, "wb").write(raw); ok += 1
+                with open(fp, "wb") as image_file:
+                    image_file.write(raw)
+                ok += 1
                 if ok % 20 == 0:
                     print(f"    {ok}/{len(tasks)}...")
         except Exception as e:
@@ -447,7 +542,9 @@ async def main(book_id):
     seen_imgs = set()
     for jf in os.listdir(raw_dir):
         if jf.endswith(".json"):
-            for img in json.load(open(os.path.join(raw_dir, jf))).get("images", []):
+            with open(os.path.join(raw_dir, jf), encoding="utf-8") as source:
+                images = json.load(source).get("images", [])
+            for img in images:
                 seen_imgs.add(img["url"])
 
     catalog_path = os.path.join(book_dir, "_catalog.json")
@@ -479,10 +576,19 @@ async def main(book_id):
     if not book_title: book_title = book_id
     safe = re.sub(r'[<>:"/\\|?*]', '_', book_title)
     merged = os.path.join("output", f"{safe}.md")
-    with open(merged, "w") as out:
+    merged_image_prefix = os.path.relpath(img_dir, os.path.dirname(merged)).replace(os.sep, "/")
+    with open(merged, "w", encoding="utf-8") as out:
         out.write(f"# {book_title}\n\n**{book_author}**\n\n---\n\n")
         for fn in total_files:
-            out.write(open(os.path.join(md_dir, fn)).read())
+            with open(os.path.join(md_dir, fn), encoding="utf-8") as chapter_file:
+                body = chapter_file.read()
+            # Rebase generated image links, including chapters from older exports.
+            body = re.sub(
+                r"(!\[图\]\()(?:\.\./)?images/([^\)\r\n]+)(\))",
+                lambda match: f"{match[1]}{merged_image_prefix}/{match[2]}{match[3]}",
+                body,
+            )
+            out.write(body)
             out.write("\n\n---\n\n")
     print(f"\n{'=' * 60}")
     print(f"  ✅ 全书导出完成!  📖 {book_title} — {book_author}")

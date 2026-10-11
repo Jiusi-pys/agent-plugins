@@ -26,7 +26,13 @@ Use this only for books you are authorized to read, for personal study or backup
 ## Development
 
 ```powershell
+python -m pip install -r ./plugins/weread-exporter/requirements.txt
+python -m playwright install chromium
 python -m unittest discover -s ./plugins/weread-exporter/tests -v
 ```
+
+The regression suite uses headless Chromium with locally supplied pages and mocked image downloads; it does not require an account or contact the live reader. It checks first-screen capture (including full-canvas clear/repaint and catalog navigation without a repaint), independent canvas capture in left-to-right page order, helper-canvas filtering at capture time (detached, hidden, outside the viewport, or below the reader height threshold), canvas identity matching with blank pages and more than two visible pages, image links resolved from both output locations, and UTF-8 export/resume under a simulated cp936 default.
+
+Text outputs use UTF-8. Chapter files in `output/<book-id>/chapters/` reference `../images/...`; the merged `output/<title>.md` references `<book-id>/images/...`. Existing exports with missing first-screen text must be exported again into a fresh output directory. Legacy cp936 files are not automatically converted; preserve them separately before starting a fresh export.
 
 Use the `weread-export` skill after installing the plugin locally.
