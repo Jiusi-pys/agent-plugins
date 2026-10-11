@@ -1,0 +1,29 @@
+name: Validate video text extraction plugin
+
+on:
+  push:
+    branches: [openai]
+    paths:
+      - 'plugins/video-text-extract/**'
+      - '.github/workflows/validate-video-text-extract.yml'
+      - '.agents/plugins/marketplace.json'
+  pull_request:
+    branches: [openai]
+    paths:
+      - 'plugins/video-text-extract/**'
+      - '.github/workflows/validate-video-text-extract.yml'
+      - '.agents/plugins/marketplace.json'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Test workflow invariants and plugin package
+        run: python -X utf8 -m unittest discover -s plugins/video-text-extract/skills/video-text-extract/tests -p 'test_*.py' -v

@@ -5,6 +5,18 @@
   },
   "plugins": [
     {
+      "name": "video-text-extract",
+      "source": {
+        "source": "local",
+        "path": "./plugins/video-text-extract"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "agentic-review",
       "source": {
         "source": "local",

@@ -12,6 +12,7 @@ The Codex catalog is [`.agents/plugins/marketplace.json`](.agents/plugins/market
 
 | Plugin | Purpose |
 | --- | --- |
+| [video-text-extract](plugins/video-text-extract/README.md) | Windows video-link speech extraction with local Whisper large-v3, Qwen 27B and Luna review; title-named TXT and intermediate cleanup |
 | [agentic-review](plugins/agentic-review/README.md) | Risk-tiered, evidence-based code and software design review |
 | [epub-editor](plugins/epub-editor/README.md) | EPUB metadata, word counts, navigation, notes, and cover editing |
 | [weread-exporter](plugins/weread-exporter/README.md) | Export personally authorized WeRead books to Markdown with inline illustrations |
@@ -66,6 +67,12 @@ Provide the input text or file path with a request such as:
 Source snapshots and version checks make the work traceable; they do not prove that an agent actually read a source or that an interpretation is infallible. The workflow therefore also requires real research calls and independent source review. Digital-text verification and facsimile collation are reported separately.
 
 See the [plugin README](plugins/book-translator/README.md), [Classical Chinese skill](plugins/book-translator/skills/classical-translate/SKILL.md), and [live research and selection workflow](plugins/book-translator/skills/classical-translate/references/live-research.md) for the full contract.
+
+## Video-link speech extraction
+
+`video-text-extract` 0.1.0 runs cat-catch → FFmpeg → Whisper large-v3 → local Qwen 27B → one independent `gpt-6-luna / max` reviewer. It preserves meaning, numbers, negation and uncertainty while fixing recognition errors and removing obvious fillers/repetition. The final UTF-8 TXT uses the video title; intermediate media, drafts and logs are deleted, with brief error records retained for failed jobs.
+
+This workflow requires Windows, the validated RX 7900 XTX / Vulkan0 runtime, existing native tools and model files, and Codex sub-agent support. Tool and private output directories are configurable; no personal paths, weights, account state or test video are packaged. Automatic title retrieval can fail on restricted pages and must be reported; a verified title can be supplied explicitly. See the [setup, cleanup contract and actual validation limits](plugins/video-text-extract/README.md).
 
 ## Repo-local Codex surfaces
 

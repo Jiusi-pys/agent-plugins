@@ -1,0 +1,26 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "video-text-extract",
+  "version": "0.1.0",
+  "description": "Extract speech from video links with local Whisper large-v3, Qwen 27B and independent Luna review, publishing title-named TXT and deleting intermediates.",
+  "author": {
+    "name": "Jiusi-pys"
+  },
+  "license": "MIT",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "视频文本提取",
+        "shortDescription": "视频转文字，双轮纠错并清理临时文件",
+        "longDescription": "使用本机 cat-catch 下载视频，FFmpeg 提取音频，Whisper large-v3 转写与 llama.cpp 27B 纠错，最后由 gpt-6-luna / max 复核，按视频标题输出 TXT 并清理中间文件。",
+        "developerName": "Jiusi-pys",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "defaultPrompt": "提取这个视频链接的语音文本，按视频标题保存 TXT，并清理中间文件。"
+      }
+    }
+  }
+}

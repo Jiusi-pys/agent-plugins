@@ -1,0 +1,4 @@
+interface:
+  display_name: "视频文本提取"
+  short_description: "通过本地模型与 Luna 两轮纠错，从视频链接提取文字并输出 TXT"
+  default_prompt: "使用 $video-text-extract 提取这个视频链接的文字，经过两轮纠错后输出 TXT。"
